@@ -56,7 +56,7 @@ Every custom field gets a **Description** (for admins) and, where users see it, 
 | `Used_At__c` | Used At | Date/Time | No | — | — | Set once; a used code is rejected. |
 | `Used_By__c` | Used By | Lookup(User) | No | — | — | User who consumed the code on the link page. |
 
-### 1.3 `SalesReport_Log__c` — application log (proposed, D-18)
+### 1.3 `SalesReport_Log__c` — application log (D-18, decided)
 
 Written by `SalesReportLogService` (buffered, one insert per transaction, never throws). Admin-only.
 
@@ -139,7 +139,7 @@ Validation-rule messages from the org are shown as returned (they are already in
 
 ## 5. Access
 
-### 5.1 Permission set `SalesReport_User` (assign to every rep)
+### 5.1 Permission set `SalesReport_User` (assign to every rep) — D-19 decided
 
 | Area | Grant |
 |---|---|
