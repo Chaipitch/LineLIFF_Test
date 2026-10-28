@@ -10,7 +10,7 @@ At the end of each milestone, set the status of everything delivered to **Done**
 Status: **Done** · **Planned** · **[HUMAN]** (created by the user in Setup / console, not deployed from the repo) ·
 **Removed** (keep the row, with the commit that removed it).
 
-Paths are relative to the repo root; `fa/` = `force-app/main/default/`.
+Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own package directory, D-06 / P1).
 
 ---
 
@@ -24,6 +24,7 @@ Paths are relative to the repo root; `fa/` = `force-app/main/default/`.
 | `IMPLEMENTATION-PLAN.md` | Tasks per milestone, owners, exit criteria | L0 | Done (living) |
 | `LINE-SETUP.md` | [HUMAN] guide for the LINE OA, Messaging API and LINE Login channels | L1 | Done |
 | `FILE-INVENTORY.md` | This file | L0 | Done (living) |
+| `COEXISTENCE.md` | No-clash check with LINE Connect, packaging-readiness rules | L0 | Done (living) |
 | `DATA-DICTIONARY.md` | Objects, fields, settings, labels, permissions, Site/ECA configuration | L0 | Done (living) |
 | `SETUP-GUIDE.md` | Admin guide: Site, ECA, certificate, permission sets, LINE console | L8 | Planned |
 | `USER-GUIDE.md` | Rep guide: linking, logging activities, updating opportunities | L8 | Planned |
@@ -34,12 +35,12 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 
 | Class | Layer | Purpose | Milestone | Status |
 |---|---|---|---|---|
-| `SalesReportMeController` | Controller | `GET /sr/v1/me` | L2 | Planned |
-| `SalesReportLinkController` | Controller | `POST /sr/v1/link/start` | L3 | Planned |
+| `SalesReportMeController` | Controller | `GET /salesreport/v1/me` | L2 | Planned |
+| `SalesReportLinkController` | Controller | `POST /salesreport/v1/link/start` | L3 | Planned |
 | `SalesReportLinkPageController` | Controller | Controller of VF page `SalesReport_Link` | L3 | Planned |
-| `SalesReportAccountController` | Controller | `GET /sr/v1/accounts` | L4 | Planned |
-| `SalesReportOpportunityController` | Controller | `GET /sr/v1/opportunities`, `POST /sr/v1/opportunity` | L5 | Planned |
-| `SalesReportActivityController` | Controller | `POST /sr/v1/activity` | L5 | Planned |
+| `SalesReportAccountController` | Controller | `GET /salesreport/v1/accounts` | L4 | Planned |
+| `SalesReportOpportunityController` | Controller | `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 | Planned |
+| `SalesReportActivityController` | Controller | `POST /salesreport/v1/activity` | L5 | Planned |
 | `SalesReportIdentityService` | Service | Token → LINE user → linked User | L2–L3 | Planned |
 | `SalesReportLinkService` | Service | Link codes, link/unlink, deactivated-user cleanup | L3 | Planned |
 | `SalesReportAccountService` | Service | Account search rules | L4 | Planned |
@@ -96,6 +97,11 @@ One folder per object: `<Object>.object-meta.xml`, `fields/<Field>.field-meta.xm
 
 No fields are added to standard objects. Standard fields read/written as the rep: `DATA-DICTIONARY.md` §3.
 
+| Field set | Object | Purpose | Milestone | Status |
+|---|---|---|---|---|
+| `fa/objects/Opportunity/fieldSets/SalesReport_Opportunity_Form.fieldSet-meta.xml` | Opportunity | Editable fields on Update Opportunity (D-21) | L5 | Planned |
+| `fa/objects/Event/fieldSets/SalesReport_Activity_Form.fieldSet-meta.xml` (or Task, D-11) | Event / Task | Fields on Log Activity (D-21) | L5 | Planned |
+
 ## 7. Security and access
 
 | Path | Component | Purpose | Milestone | Status |
@@ -123,6 +129,8 @@ No fields are added to standard objects. Standard fields read/written as the rep
 
 | File | Change | Milestone | Status |
 |---|---|---|---|
+| `sfdx-project.json` | Add package directory `sales-report` (P1) | L2 | Planned |
 | `manifest/package.xml` (or `manifest/salesreport.xml`) | Lists all deployable components above | L2 | Planned |
 | `package.json` | Build script for `liff-app/` and `@line/liff` dependency | L2 | Planned |
 | `.forceignore` | Exclude `liff-app/` source and build output from deploys | L2 | Planned |
+| `liff-app/` location | Front-end source kept outside the package directory | L2 | Planned |

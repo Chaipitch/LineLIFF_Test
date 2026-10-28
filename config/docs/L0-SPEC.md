@@ -59,7 +59,7 @@ LINE app ─ rich menu ─▶ https://liff.line.me/{liffId}?form=activity|opport
    REST API as the rep ──▶ <My Domain>/services/data/vXX.X/...  (sharing, FLS, VRs native)
 ```
 
-## 4. API (Apex REST on the Site, `/services/apexrest/sr/v1/...`)
+## 4. API (Apex REST on the Site, `/services/apexrest/salesreport/v1/...`)
 
 All requests carry the LINE ID token (`Authorization: Bearer …`). Responses are JSON; errors use
 `{ "error": { "code": "...", "message": "<plain-language>", "fields": [...] } }`.
@@ -98,12 +98,12 @@ response. Services hold the logic. Only `…CalloutService` classes make HTTP ca
 
 | Layer | Class | Purpose | Milestone |
 |---|---|---|---|
-| Controller | `SalesReportMeController` | `@RestResource` `GET /sr/v1/me` | L2 |
-| Controller | `SalesReportLinkController` | `@RestResource` `POST /sr/v1/link/start` | L3 |
+| Controller | `SalesReportMeController` | `@RestResource` `GET /salesreport/v1/me` | L2 |
+| Controller | `SalesReportLinkController` | `@RestResource` `POST /salesreport/v1/link/start` | L3 |
 | Controller | `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
-| Controller | `SalesReportAccountController` | `@RestResource` `GET /sr/v1/accounts` | L4 |
-| Controller | `SalesReportOpportunityController` | `@RestResource` `GET /sr/v1/opportunities`, `POST /sr/v1/opportunity` | L5 |
-| Controller | `SalesReportActivityController` | `@RestResource` `POST /sr/v1/activity` | L5 |
+| Controller | `SalesReportAccountController` | `@RestResource` `GET /salesreport/v1/accounts` | L4 |
+| Controller | `SalesReportOpportunityController` | `@RestResource` `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 |
+| Controller | `SalesReportActivityController` | `@RestResource` `POST /salesreport/v1/activity` | L5 |
 | Service | `SalesReportIdentityService` | Verify request token (via callout service), resolve LINE user → linked User | L2–L3 |
 | Service | `SalesReportLinkService` | Create/consume link codes, link/unlink, deactivated-user cleanup | L3 |
 | Service | `SalesReportAccountService` | Account search rules (min chars, limit, fields) | L4 |
@@ -144,12 +144,17 @@ response. Services hold the logic. Only `…CalloutService` classes make HTTP ca
 (required) · Related open Opportunity (optional `WhatId` alternative — BA). If Task: Subject, ActivityDate, Status
 `Completed`, Type, Description.
 
+Field lists below are the **initial members of the field sets** (D-21); admins can change them without code.
+
 **Update Opportunity**: Opportunity (from Account's open list) · `StageName` (open stages only, `01`–`03`) ·
 `Your_Win_Confidence__c` · `CloseDate` · `Amount` ("Target TCV") · Next Step (`NextStep` or `Next_Step_Custom__c`, D-12) ·
 `Next_Step_Due_Date__c`. Read-only header: name, current stage, owner. Moving to Stage 02/03 requires
 `PreSales_Engineer__c` — either show the error from the org or add the field to the form (BA).
 
 ## 8. Security outline
+
+Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
+
 
 - Every class declares sharing; Site-facing REST classes are `without sharing` only for the identity lookup, with a
   written justification; all record reads/writes go through the rep's session (Option B).

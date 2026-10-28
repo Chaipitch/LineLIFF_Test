@@ -114,6 +114,17 @@ feature does not grant standard-object access.
 | Event (if D-11 = Event) | `WhatId`, `Subject`, `Type`, `StartDateTime`, `EndDateTime` / `DurationInMinutes`, `Description` | — | ✓ | `OwnerId` defaults to the rep. |
 | Task (if D-11 = Task) | `WhatId`, `Subject`, `Type`, `ActivityDate`, `Status` (`Completed`), `Description` | — | ✓ | |
 
+## 3a. Field sets (D-21)
+
+The forms and the server-side whitelist read these field sets by describe, so no org-specific field is referenced in code.
+
+| Field set | Object | Initial members (BA to confirm) | Required in set |
+|---|---|---|---|
+| `SalesReport_Opportunity_Form` | Opportunity | `StageName`, `Your_Win_Confidence__c`, `CloseDate`, `Amount`, `NextStep` or `Next_Step_Custom__c` (D-12), `Next_Step_Due_Date__c` | `StageName`, `CloseDate`, `Your_Win_Confidence__c` |
+| `SalesReport_Activity_Form` | Event (or Task, D-11) | Event: `Type`, `Subject`, `StartDateTime`, `DurationInMinutes`, `Description` | `Subject`, `StartDateTime`, `Description` |
+
+Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`.
+
 ## 4. Custom Labels (`SalesReport_*`, L6)
 
 Categories `SalesReport` (label "Sales Report"). Translations JA / EN / TH (BA). Initial set — final list grows with the UI:

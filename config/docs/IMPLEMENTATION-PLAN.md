@@ -19,7 +19,7 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 - [ ] BA · Answer the Open items in `DECISIONS.md` (D-11 Task vs Event, D-12 Next Step field, D-13 licences) and HANDOFF §8.
 - [ ] H · Confirm or change the Proposed decisions (D-06 … D-16).
 
-**Exit:** user sign-off on decisions that block L2 (D-06 packaging, D-09 Site name). D-07 prefix decided.
+**Exit:** user sign-off on decisions that block L2 (D-09 Site name, D-20 REST path). D-06, D-07 decided.
 
 ## L1 — LINE setup (1 d, mostly H)
 
@@ -40,13 +40,14 @@ Follow `LINE-SETUP.md`.
 
 ## L2 — Site, LIFF shell, Apex REST skeleton (2 d)
 
-- [ ] C · Re-check `SalesReport_` / `SalesReport` names are unused in the org (D-07).
+- [ ] C · Re-check `SalesReport_` / `SalesReport` names are unused in the org (D-07) and re-run `COEXISTENCE.md` §4.
+- [ ] C · Add package directory `sales-report/` to `sfdx-project.json`; all feature metadata goes there (D-06, P1).
 - [ ] C · Metadata: protected custom setting `SalesReport_Settings__c` (LINE Login channel ID, ECA consumer key, cert name).
 - [ ] C · Remote Site `SalesReport_LINE_API` → `https://api.line.me` (D-10).
 - [ ] C · Permission sets `SalesReport_User`, `SalesReport_Admin`.
 - [ ] C · LIFF page: bundle `@line/liff` (npm) into static resource `SalesReport_LiffApp`; VF page `SalesReport_Liff` serving it; `liff.init`,
       `getIDToken`, show display name; CSP-safe, text rendered as text only.
-- [ ] C · Apex: `SalesReportMeController` (`GET /sr/v1/me`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
+- [ ] C · Apex: `SalesReportMeController` (`GET /salesreport/v1/me`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
       checks) + `SalesReportLineVerifyData` (DTO) + `SalesReportException` + `SalesReportLogService`; callout mocks + tests.
 - [ ] H · Setup → Sites → create Site `SalesReport_Site` (path `salesreport`), active; guest profile: Apex classes `SalesReport*Controller`
       + VF page `SalesReport_Liff` only, **no object access** → send Site URL.
@@ -60,7 +61,7 @@ Follow `LINE-SETUP.md`.
 ## L3 — Identity linking + Option B session (4–5 d, highest risk)
 
 - [ ] C · Objects `SalesReport_Line_Link__c`, `SalesReport_Link_Code__c` (D-08) with unique/external-ID fields; list views for admins.
-- [ ] C · `POST /sr/v1/link/start`: verify token, create code (32 random bytes, store SHA-256), 5-min expiry, return link URL.
+- [ ] C · `POST /salesreport/v1/link/start`: verify token, create code (32 random bytes, store SHA-256), 5-min expiry, return link URL.
 - [ ] C · VF page `SalesReport_Link` (login required, `with sharing`): consume code once, link `UserInfo.getUserId()` ↔ LINE user ID,
       "Done — return to LINE" page; reject expired/used codes; one active link per LINE user and per User.
 - [ ] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-check `/me` on return.
@@ -79,7 +80,7 @@ Follow `LINE-SETUP.md`.
 
 ## L4 — Account auto-complete (2 d)
 
-- [ ] C · `GET /sr/v1/accounts?q=`: min 2 chars, max 10, SOSL/SOQL on Name (more fields per BA), executed as the rep.
+- [ ] C · `GET /salesreport/v1/accounts?q=`: min 2 chars, max 10, SOSL/SOQL on Name (more fields per BA), executed as the rep.
 - [ ] C · LIFF: 300 ms debounce, AbortController for in-flight requests, keyboard/touch dropdown, stores **Account ID** only.
 - [ ] C · Tests incl. `System.runAs` visibility (rep cannot find Accounts outside sharing).
 
@@ -87,9 +88,10 @@ Follow `LINE-SETUP.md`.
 
 ## L5 — Forms and write endpoints (3–4 d) — needs D-11, D-12 answered
 
-- [ ] C · `POST /sr/v1/activity` → Event or Task (D-11), fields per `L0-SPEC.md` §7, `WhatId` = Account.
-- [ ] C · `GET /sr/v1/opportunities?accountId=` → open Opportunities visible to the rep.
-- [ ] C · `POST /sr/v1/opportunity` → whitelisted fields only (Stage 01–03, Win Confidence, CloseDate, Amount, Next Step, due date);
+- [ ] C · `POST /salesreport/v1/activity` → Event or Task (D-11), fields per `L0-SPEC.md` §7, `WhatId` = Account.
+- [ ] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities visible to the rep.
+- [ ] C · Field sets `SalesReport_Opportunity_Form`, `SalesReport_Activity_Form` (D-21); forms and whitelist read them by describe.
+- [ ] C · `POST /salesreport/v1/opportunity` → whitelisted fields only (Stage 01–03, Win Confidence, CloseDate, Amount, Next Step, due date);
       Opportunity must belong to the chosen Account.
 - [ ] C · Map org errors (validation rules, required fields, FLS) to plain-language messages with field highlights; nothing silently dropped.
 - [ ] C · Tests: validation-rule failure for Opportunity (e.g. Stage 02 without PreSales Engineer) and for the activity object,
@@ -120,6 +122,7 @@ Follow `LINE-SETUP.md`.
 - [ ] BA · UAT against the acceptance scenarios (`L0-SPEC.md` §9).
 - [ ] H · Switch the LINE Login channel from Developing to **Published** (LINE-SETUP.md §6).
 - [ ] C · `docs/SETUP-GUIDE.md` (admin: Site, ECA, cert, permission sets, LINE console) and `docs/USER-GUIDE.md` (rep).
+- [ ] C · Re-run `COEXISTENCE.md` §4 against production (LINE Connect version may differ).
 - [ ] C · Production deploy plan: `sf project deploy start --test-level RunLocalTests` (validate first); re-check production MFA/SSO.
 
 ---
@@ -128,7 +131,7 @@ Follow `LINE-SETUP.md`.
 
 | Blocks | Waiting on |
 |---|---|
-| L2 start | Sign-off D-06, D-09; L1 channel IDs |
+| L2 start | Sign-off D-09, D-20; L1 channel IDs |
 | L2 exit | H: Site created, LIFF app + rich menu |
 | L3 Option B | H: certificate + ECA consumer key |
 | L5 | BA: D-11, D-12, field lists; D-13 licences |
