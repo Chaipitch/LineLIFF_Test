@@ -80,12 +80,15 @@ logged-in rep, `with sharing`, consumes the code, writes `SalesReport_Line_Link_
 
 Naming (D-07): components prefixed `SalesReport_`; fields on our own objects unprefixed.
 
-**`SalesReport_Line_Link__c`** — `Line_User_Id__c` (Text 64, unique, external ID), `User__c` (Lookup User), `Linked_At__c`,
-`Status__c` (Active / Unlinked), `Unlinked_At__c`. One active link per LINE user and per User.
-**`SalesReport_Link_Code__c`** — `Code_Hash__c` (Text 64, unique), `Line_User_Id__c`, `Expires_At__c`, `Used_At__c`.
-Cleanup of expired codes by a scheduled job (L7).
-**Protected custom setting `SalesReport_Settings__c`** — LINE Login channel ID, ECA consumer key, cert unique name. No secrets are
-needed for ID-token verification (channel ID only); the JWT private key stays in the Salesforce certificate store.
+**`SalesReport_Line_Link__c`** — one record per LINE user: `Line_User_Id__c` (unique, external ID), `User__c`, `Status__c`
+(Active / Unlinked), `Active_User_Key__c` (unique; enforces one active link per User), linked/unlinked audit fields.
+**`SalesReport_Link_Code__c`** — `Code_Hash__c` (SHA-256, unique), `Line_User_Id__c`, `Expires_At__c`, `Used_At__c`, `Used_By__c`.
+**`SalesReport_Log__c`** — application log (D-18).
+**Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, tunables, kill switch.
+No secrets are stored in it (unpackaged "Protected" visibility has no effect); the JWT private key stays in the certificate store.
+Reps get **no** access to these objects; only the services write them (justifications in `DATA-DICTIONARY.md` §5.3).
+
+Full field lists, types, defaults, permissions and Site/ECA settings: **`DATA-DICTIONARY.md`**.
 
 ## 5a. Apex classes (D-07 naming)
 
