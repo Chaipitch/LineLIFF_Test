@@ -37,9 +37,9 @@ OA push messages/reminders, packaging/AppExchange.
 | Event picklists | Type: Web Meeting, **On-site / Visit**, Dinner / Event, Discovery Meeting, Proposal Review, Demo Session, Management Meeting, Renewal Discussion. Subject: Call, Email, Meeting, Send Letter/Quote, Other. | Event fits "訪問報告" (D-11). |
 | Automation | Apex triggers: `AccountTrigger`, `EventTrigger`, `OpportunityTrigger` (+ Pardot `LogAccountChange`). Record-triggered flows: Task `Auto_Generate_Call_Subject`; Event Slack note on create, Opp meeting counter, `Event_Log_a_Meeting` (before save), admin-only delete; Opportunity: next-step date stamps, Slack alerts on create/update, close-lost notification. | Records created from LINE fire the same automation as UI edits (expected with Option B). Include them in UAT. |
 | Licences | Active users: 9 Salesforce, 18 Salesforce Platform, plus integration/guest users. | **Platform users cannot use Opportunities** (D-13). |
-| Remote sites | `LINE_Messaging_API` (unpackaged) and LINE Connect's `LINE_API`, `LINE_API_DATA` → api.line.me / api-data.line.me. | Ship our own `SR_LINE_API` (D-10). |
+| Remote sites | `LINE_Messaging_API` (unpackaged) and LINE Connect's `LINE_API`, `LINE_API_DATA` → api.line.me / api-data.line.me. | Ship our own `SalesReport_LINE_API` (D-10). |
 | Connected / External Client Apps | 33 connected apps (standard + mitoco/Pardot/etc.), 1 ECA `Wix_Pardot_ECA`. No existing app usable for us. | New ECA for Option B (L3, [HUMAN] cert + consumer key). |
-| Certificates | Only TSTH homepage/self-signed certs (some expired). | New self-signed cert `SR_JWT_Signing` for JWT (L3). |
+| Certificates | Only TSTH homepage/self-signed certs (some expired). | New self-signed cert `SalesReport_JWT_Signing` for JWT (L3). |
 | Platform Cache | Only packaged partitions (mitoco, pkgviz). | D-14. |
 | API limits | DailyApiRequests 5,000,000 (sandbox). | Apex REST calls count against it (see §6). |
 
@@ -49,11 +49,11 @@ As HANDOFF §3. Summary:
 
 ```
 LINE app ─ rich menu ─▶ https://liff.line.me/{liffId}?form=activity|opportunity
-   LIFF page (VF page + static resource, LIFF SDK bundled)  ── served by Site "SR_Sales_Report"
+   LIFF page (VF page + static resource, LIFF SDK bundled)  ── served by Site "SalesReport_Site"
      │  Authorization: Bearer <LINE ID token>
      ▼
    Apex REST (global, Site guest) ──▶ api.line.me/oauth2/v2.1/verify   (who is it?)
-     │  map LINE sub → User (SR_Line_Link__c)
+     │  map LINE sub → User (SalesReport_Line_Link__c)
      │  JWT bearer exchange for that User ──▶ <My Domain>/services/oauth2/token
      ▼
    REST API as the rep ──▶ <My Domain>/services/data/vXX.X/...  (sharing, FLS, VRs native)
@@ -73,20 +73,49 @@ All requests carry the LINE ID token (`Authorization: Bearer …`). Responses ar
 | `POST /activity` | Create the activity (Event or Task, D-11) | yes | `WhatId` = Account ID, `OwnerId` = rep (implicit). |
 | `POST /opportunity` | Update one Opportunity | yes | Only whitelisted fields; `Id` must belong to the chosen Account. |
 
-Internal (login required, not on the Site): VF page `SR_Link` at `<My Domain>/apex/SR_Link?code=…` — runs as the
-logged-in rep, `with sharing`, consumes the code, writes `SR_Line_Link__c`.
+Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` — runs as the
+logged-in rep, `with sharing`, consumes the code, writes `SalesReport_Line_Link__c`.
 
 ## 5. Data model (proposed, D-08)
 
-Naming (D-07): Apex and LWC use the `SalesReport` prefix; all other components use `SR_`.
+Naming (D-07): components prefixed `SalesReport_`; fields on our own objects unprefixed.
 
-
-**`SR_Line_Link__c`** — `SR_Line_User_Id__c` (Text 64, unique, external ID), `SR_User__c` (Lookup User), `SR_Linked_At__c`,
-`SR_Status__c` (Active / Unlinked), `SR_Unlinked_At__c`. One active link per LINE user and per User.
-**`SR_Link_Code__c`** — `SR_Code_Hash__c` (Text 64, unique), `SR_Line_User_Id__c`, `SR_Expires_At__c`, `SR_Used_At__c`.
+**`SalesReport_Line_Link__c`** — `Line_User_Id__c` (Text 64, unique, external ID), `User__c` (Lookup User), `Linked_At__c`,
+`Status__c` (Active / Unlinked), `Unlinked_At__c`. One active link per LINE user and per User.
+**`SalesReport_Link_Code__c`** — `Code_Hash__c` (Text 64, unique), `Line_User_Id__c`, `Expires_At__c`, `Used_At__c`.
 Cleanup of expired codes by a scheduled job (L7).
-**Protected custom setting `SR_Settings__c`** — LINE Login channel ID, ECA consumer key, cert unique name. No secrets are
+**Protected custom setting `SalesReport_Settings__c`** — LINE Login channel ID, ECA consumer key, cert unique name. No secrets are
 needed for ID-token verification (channel ID only); the JWT private key stays in the Salesforce certificate store.
+
+## 5a. Apex classes (D-07 naming)
+
+`SalesReport` + name + layer suffix. Controllers stay thin: parse the request, call a service, map the result/errors to the
+response. Services hold the logic. Only `…CalloutService` classes make HTTP callouts. `…Data` classes are plain DTOs
+(no logic, no SOQL/DML). Each class has a `<Class>Test`.
+
+| Layer | Class | Purpose | Milestone |
+|---|---|---|---|
+| Controller | `SalesReportMeController` | `@RestResource` `GET /sr/v1/me` | L2 |
+| Controller | `SalesReportLinkController` | `@RestResource` `POST /sr/v1/link/start` | L3 |
+| Controller | `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
+| Controller | `SalesReportAccountController` | `@RestResource` `GET /sr/v1/accounts` | L4 |
+| Controller | `SalesReportOpportunityController` | `@RestResource` `GET /sr/v1/opportunities`, `POST /sr/v1/opportunity` | L5 |
+| Controller | `SalesReportActivityController` | `@RestResource` `POST /sr/v1/activity` | L5 |
+| Service | `SalesReportIdentityService` | Verify request token (via callout service), resolve LINE user → linked User | L2–L3 |
+| Service | `SalesReportLinkService` | Create/consume link codes, link/unlink, deactivated-user cleanup | L3 |
+| Service | `SalesReportAccountService` | Account search rules (min chars, limit, fields) | L4 |
+| Service | `SalesReportOpportunityService` | Field whitelist, Account ownership check, error mapping | L5 |
+| Service | `SalesReportActivityService` | Build the Event/Task (D-11), error mapping | L5 |
+| Service | `SalesReportSettingsService` | Single reader of `SalesReport_Settings__c` | L2 |
+| Service | `SalesReportLogService` | Buffered logging, `flush()`, never throws | L2 |
+| Service | `SalesReportRateLimitService` | Per-LINE-user counter (D-14) | L7 |
+| CalloutService | `SalesReportLineCalloutService` | `POST api.line.me/oauth2/v2.1/verify` | L2 |
+| CalloutService | `SalesReportSessionCalloutService` | JWT bearer exchange for the rep (Option B) | L3 |
+| CalloutService | `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (query, create, update) | L3–L5 |
+| Data | `SalesReportLineVerifyData` | LINE verify response (`sub`, `aud`, `exp`, `name`, …) | L2 |
+| Data | `SalesReportMeData`, `SalesReportAccountData`, `SalesReportOpportunityData`, `SalesReportActivityData`, `SalesReportErrorData` | Request/response DTOs | L2–L5 |
+| Other | `SalesReportException` | Typed exception with a plain-language message | L2 |
+| Test only | `SalesReportHttpMock`, `SalesReportTestFactory` | Callout mocks, test data | L2 |
 
 ## 6. [VERIFY] results
 
@@ -99,9 +128,9 @@ needed for ID-token verification (channel ID only); the JWT private key stays in
 | `liff.openWindow` | `external: false` → LINE in-app browser; `true` → external browser; "use in an external browser isn't guaranteed"; Universal-link URLs may jump to apps on newer LINE versions. | LIFF API reference — confirmed; device test in L3 (D-15) |
 | LIFF SDK bundling | `@line/liff` npm package bundled into a static resource (no CDN). Exact build (esbuild/rollup) chosen in L2. | Not re-fetched; low risk |
 | Packaged remote site applies to non-package code? | **Not confirmed** by docs found. Irrelevant in practice: we ship our own remote site (D-10). | Salesforce docs — unverified, avoided by design |
-| JWT bearer with External Client App | ECA with OAuth + JWT bearer enabled, certificate uploaded, **Permitted Users = "Admin approved users are pre-authorized"**, access granted via our permission set `SR_Sales_Report_User`. User must be pre-authorised or the exchange fails. Apex: `Auth.JWT` (iss = consumer key, sub = rep username, aud = login host) → `Auth.JWS(jwt, '<cert unique name>')` → `Auth.JWTBearerTokenExchange(tokenEndpoint, jws).getAccessToken()`. | Salesforce CLI ECA docs + Apex reference (search summaries; full pages blocked from this environment) — **verify hands-on in L3** |
+| JWT bearer with External Client App | ECA with OAuth + JWT bearer enabled, certificate uploaded, **Permitted Users = "Admin approved users are pre-authorized"**, access granted via our permission set `SalesReport_User`. User must be pre-authorised or the exchange fails. Apex: `Auth.JWT` (iss = consumer key, sub = rep username, aud = login host) → `Auth.JWS(jwt, '<cert unique name>')` → `Auth.JWTBearerTokenExchange(tokenEndpoint, jws).getAccessToken()`. | Salesforce CLI ECA docs + Apex reference (search summaries; full pages blocked from this environment) — **verify hands-on in L3** |
 | Token endpoint / audience in sandbox | Token endpoint `<My Domain>/services/oauth2/token`; `aud` = `https://test.salesforce.com` for sandboxes, `https://login.salesforce.com` for production — derive from `Organization.IsSandbox`, never hardcode. | From prior knowledge — **verify in L3** |
-| Callout to own My Domain | Needs a Remote Site Setting (or Named Credential) for the org's My Domain host unless proven otherwise. Plan: add a remote site `SR_Org_Domain` for the org's My Domain at setup (a Named Credential is an alternative to evaluate in L3). | Docs found don't exempt same-org hosts — **verify in L3** |
+| Callout to own My Domain | Needs a Remote Site Setting (or Named Credential) for the org's My Domain host unless proven otherwise. Plan: add a remote site `SalesReport_Org_Domain` for the org's My Domain at setup (a Named Credential is an alternative to evaluate in L3). | Docs found don't exempt same-org hosts — **verify in L3** |
 | Access-token caching | No doc found that blesses caching; keep per-request exchange (D-16). | Design choice |
 | Apex REST via public Site vs API limit | Salesforce Apex REST docs say Apex REST calls count against the org's API limits; third-party Site-based integrations report the same. Site traffic additionally counts against Site bandwidth / request time / page views. Each rep request = 1 Apex REST call + 1 LINE verify callout + (Option B) token exchange + 1 REST call as the rep. | Partly confirmed — **measure in L2** with `sf org list limits` before/after |
 

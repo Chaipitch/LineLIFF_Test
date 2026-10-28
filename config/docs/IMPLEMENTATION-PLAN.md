@@ -40,17 +40,17 @@ Follow `LINE-SETUP.md`.
 
 ## L2 — Site, LIFF shell, Apex REST skeleton (2 d)
 
-- [ ] C · Re-check `SR_` prefix is unused in the org (D-07).
-- [ ] C · Metadata: protected custom setting `SR_Settings__c` (LINE Login channel ID, ECA consumer key, cert name).
-- [ ] C · Remote Site `SR_LINE_API` → `https://api.line.me` (D-10).
-- [ ] C · Permission sets `SR_Sales_Report_User`, `SR_Sales_Report_Admin`.
-- [ ] C · LIFF page: bundle `@line/liff` (npm) into static resource `SR_LiffApp`; VF page `SR_Liff` serving it; `liff.init`,
+- [ ] C · Re-check `SalesReport_` / `SalesReport` names are unused in the org (D-07).
+- [ ] C · Metadata: protected custom setting `SalesReport_Settings__c` (LINE Login channel ID, ECA consumer key, cert name).
+- [ ] C · Remote Site `SalesReport_LINE_API` → `https://api.line.me` (D-10).
+- [ ] C · Permission sets `SalesReport_User`, `SalesReport_Admin`.
+- [ ] C · LIFF page: bundle `@line/liff` (npm) into static resource `SalesReport_LiffApp`; VF page `SalesReport_Liff` serving it; `liff.init`,
       `getIDToken`, show display name; CSP-safe, text rendered as text only.
-- [ ] C · Apex: `SalesReportRestMe` (`GET /sr/v1/me`) + `SalesReportLineVerifier` (ID-token verify callout, `aud`/`iss`/`exp`
-      checks, typed DTOs, exception class) + `SalesReportLogger`; callout mocks + tests.
-- [ ] H · Setup → Sites → create Site `SR_Sales_Report` (path `salesreport`), active; guest profile: Apex classes `SalesReportRest*`
-      + VF page `SR_Liff` only, **no object access** → send Site URL.
-- [ ] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SR_Liff`, scopes `openid profile`,
+- [ ] C · Apex: `SalesReportMeController` (`GET /sr/v1/me`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
+      checks) + `SalesReportLineVerifyData` (DTO) + `SalesReportException` + `SalesReportLogService`; callout mocks + tests.
+- [ ] H · Setup → Sites → create Site `SalesReport_Site` (path `salesreport`), active; guest profile: Apex classes `SalesReport*Controller`
+      + VF page `SalesReport_Liff` only, **no object access** → send Site URL.
+- [ ] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.
 - [ ] H · Rich menu: 2 URI actions → `https://liff.line.me/{liffId}?form=activity` / `?form=opportunity` (OA Manager or API).
 - [ ] C · Measure: `sf org list limits` before/after 10 `/me` calls — API request count per call (§6 [VERIFY]).
@@ -59,17 +59,17 @@ Follow `LINE-SETUP.md`.
 
 ## L3 — Identity linking + Option B session (4–5 d, highest risk)
 
-- [ ] C · Objects `SR_Line_Link__c`, `SR_Link_Code__c` (D-08) with unique/external-ID fields; list views for admins.
+- [ ] C · Objects `SalesReport_Line_Link__c`, `SalesReport_Link_Code__c` (D-08) with unique/external-ID fields; list views for admins.
 - [ ] C · `POST /sr/v1/link/start`: verify token, create code (32 random bytes, store SHA-256), 5-min expiry, return link URL.
-- [ ] C · VF page `SR_Link` (login required, `with sharing`): consume code once, link `UserInfo.getUserId()` ↔ LINE user ID,
+- [ ] C · VF page `SalesReport_Link` (login required, `with sharing`): consume code once, link `UserInfo.getUserId()` ↔ LINE user ID,
       "Done — return to LINE" page; reject expired/used codes; one active link per LINE user and per User.
 - [ ] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-check `/me` on return.
-- [ ] H · Setup → Certificate and Key Management → create self-signed cert `SR_JWT_Signing`.
-- [ ] H · Setup → External Client App Manager → new ECA `SR_Sales_Report`: OAuth on, JWT bearer flow on, cert uploaded,
-      scopes `api`, Permitted Users = "Admin approved users are pre-authorized", policy grants `SR_Sales_Report_User`
+- [ ] H · Setup → Certificate and Key Management → create self-signed cert `SalesReport_JWT_Signing`.
+- [ ] H · Setup → External Client App Manager → new ECA `SalesReport_App`: OAuth on, JWT bearer flow on, cert uploaded,
+      scopes `api`, Permitted Users = "Admin approved users are pre-authorized", policy grants `SalesReport_User`
       → send consumer key (not secret).
-- [ ] H · Remote Site `SR_Org_Domain` for the org's My Domain (if callout to own domain needs it — [VERIFY]).
-- [ ] C · `SalesReportSession`: `Auth.JWT` (iss = consumer key, sub = rep username, aud by `Organization.IsSandbox`) →
+- [ ] H · Remote Site `SalesReport_Org_Domain` for the org's My Domain (if callout to own domain needs it — [VERIFY]).
+- [ ] C · `SalesReportSessionCalloutService`: `Auth.JWT` (iss = consumer key, sub = rep username, aud by `Organization.IsSandbox`) →
       `Auth.JWS` → `Auth.JWTBearerTokenExchange` → access token, per request, never stored (D-16). Measure latency.
 - [ ] C · Unlink: admin action + auto-unlink on User deactivation (trigger or scheduled check — nice to have).
 - [ ] C · Tests: expired/used/foreign code, double link, token `aud` mismatch, deactivated user, JWT exchange failure (mocked).
@@ -100,18 +100,18 @@ Follow `LINE-SETUP.md`.
 
 ## L6 — Mobile UI polish + i18n (2–3 d)
 
-- [ ] C · Labels via Custom Labels `SR_*` in the agreed languages (JA / EN / TH — BA), picked from LINE/browser language.
+- [ ] C · Labels via Custom Labels `SalesReport_*` in the agreed languages (JA / EN / TH — BA), picked from LINE/browser language.
 - [ ] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states; success screen with "close" (`liff.closeWindow`).
 - [ ] C · Accessibility basics (tap targets, contrast, font scaling).
 
 ## L7 — Hardening (3 d)
 
-- [ ] H · Setup → Platform Cache → new partition `SR_Cache` with an allocation (D-14), or approve custom-object fallback.
+- [ ] H · Setup → Platform Cache → new partition `SalesReportCache` with an allocation (D-14), or approve custom-object fallback.
 - [ ] C · Per-LINE-user rate limit; optional token-hash → user cache until `exp` (never the token itself).
 - [ ] C · Scheduled cleanup of expired link codes.
 - [ ] C · Code Analyzer: no Critical/High; every class declares sharing; `without sharing` justified in a comment.
 - [ ] C · Coverage ≥ 85% overall, every class ≥ 75%; all callouts mocked; fake secrets only.
-- [ ] C · Guest profile audit: only `SalesReportRest*` classes + `SR_Liff` page, zero object permissions.
+- [ ] C · Guest profile audit: only `SalesReport*Controller` classes + `SalesReport_Liff` page, zero object permissions.
 
 ## L8 — QA, UAT, guides (2–3 d)
 
