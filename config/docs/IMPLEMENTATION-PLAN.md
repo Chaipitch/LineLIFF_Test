@@ -17,9 +17,9 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 - [x] C · Check [VERIFY] items against LINE / Salesforce docs (`L0-SPEC.md` §6).
 - [x] C · Write `L0-SPEC.md`, `DECISIONS.md`, this plan, `FILE-INVENTORY.md`.
 - [ ] BA · Answer the Open items in `DECISIONS.md` (D-11 Task vs Event, D-12 Next Step field, D-13 licences) and HANDOFF §8.
-- [ ] H · Confirm or change the Proposed decisions (D-06 … D-16).
+- [~] H · Confirm or change the Proposed decisions — L2 blockers decided; remaining Proposed ones can be confirmed later.
 
-**Exit:** user sign-off on decisions that block L2 (D-09 Site name, D-20 REST path). D-06, D-07 decided.
+**Exit:** decisions blocking L2 signed off (D-06, D-07, D-09, D-20, D-21 decided).
 
 ## L1 — LINE setup (1 d, mostly H)
 
@@ -131,7 +131,7 @@ Follow `LINE-SETUP.md`.
 
 | Blocks | Waiting on |
 |---|---|
-| L2 start | Sign-off D-09, D-20; L1 channel IDs |
+| L2 start | L1 channel IDs |
 | L2 exit | H: Site created, LIFF app + rich menu |
 | L3 Option B | H: certificate + ECA consumer key |
 | L5 | BA: D-11, D-12, field lists; D-13 licences |
