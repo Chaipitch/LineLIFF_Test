@@ -23,14 +23,20 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 
 ## L1 — LINE setup (1 d, mostly H)
 
-- [ ] H · LINE Developers Console → company provider → create **Messaging API channel** for the "Sales Reporting" OA → send channel ID.
-- [ ] H · Same provider → create **LINE Login channel** → send channel ID.
-- [ ] H · LINE Official Account Manager → Settings → Response settings: auto-response **off**, webhook **off**, greeting message as desired.
-- [ ] H · Confirm the OA is **not** registered in LINE Connect (no `LINE_OA_Configuration__c` record).
-- [ ] C · Write `docs/LINE-SETUP.md` with the exact console steps and values to collect (no secrets).
+Follow `LINE-SETUP.md`.
+
+- [x] C · Write `LINE-SETUP.md` with the exact console steps and values to collect (no secrets).
+- [ ] H · Choose the provider (irreversible; OA and LINE Login channel must share it) — guide §0.
+- [ ] H · Create the "Sales Reporting" OA in LINE Official Account Manager — §1.
+- [ ] H · Response settings: auto-response **off**, webhook **off**, greeting message — §2.
+- [ ] H · Enable Messaging API on the OA (creates the channel) → send channel ID — §3.
+- [ ] H · Create **LINE Login channel** (Web app) in the same provider → send channel ID — §4.
+- [ ] H · Link the OA to the LINE Login channel — §5.
+- [ ] H · Add testers (Tester role) while the channel is "Developing" — §6.
+- [ ] H · Confirm the OA is **not** registered in LINE Connect (no `LINE_OA_Configuration__c` record) — §2.
 - [ ] — LIFF app creation is deferred to L2 (needs the Site URL as endpoint).
 
-**Exit:** channel IDs received; OA exists with no webhook.
+**Exit:** both channel IDs received; OA exists with no webhook, linked to the LINE Login channel; testers added.
 
 ## L2 — Site, LIFF shell, Apex REST skeleton (2 d)
 
@@ -112,6 +118,7 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 - [ ] H · Provide test rep user(s) (full Salesforce licence — D-13) and test LINE accounts.
 - [ ] H+C · Device QA on iOS and Android LINE: link, search, both forms, expiry, unlink.
 - [ ] BA · UAT against the acceptance scenarios (`L0-SPEC.md` §9).
+- [ ] H · Switch the LINE Login channel from Developing to **Published** (LINE-SETUP.md §6).
 - [ ] C · `docs/SETUP-GUIDE.md` (admin: Site, ECA, cert, permission sets, LINE console) and `docs/USER-GUIDE.md` (rep).
 - [ ] C · Production deploy plan: `sf project deploy start --test-level RunLocalTests` (validate first); re-check production MFA/SSO.
 

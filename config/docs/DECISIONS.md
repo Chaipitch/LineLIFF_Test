@@ -22,6 +22,7 @@ See `HANDOFF.md` for background and `L0-SPEC.md` for the spec these decisions fe
 | D-14 | 2026-10-28 | Platform Cache | No unpackaged cache partition exists (only `mitoco` and `pkgviz` ones). Rate limiting / token-hash cache needs a new partition `SR_Cache` with an allocation — **[HUMAN]** in L7, or fall back to a custom-object counter. | Proposed | `PlatformCachePartition` query |
 | D-15 | 2026-10-28 | Link page browser | `liff.openWindow({ url, external: true })` to open the one-time link page in the phone's default browser (where the rep is most likely already logged in to Salesforce); in-app browser as fallback. To be validated on devices in L3. | Proposed | LIFF API reference |
 | D-16 | 2026-10-28 | Access-token caching (Option B) | Do **per-request** JWT exchange first; no access token stored in Platform Cache or anywhere else. Measure latency in L3; only then consider an encrypted, per-user, short-TTL cache. | Proposed | HANDOFF §5 |
+| D-17 | 2026-10-28 | LIFF host channel | Keep the LIFF app on a **LINE Login channel** (HANDOFF §3) rather than a LINE MINI App, although LINE now recommends MINI Apps for new LIFF apps: MINI Apps add a review step and public-service policies that don't fit an internal tool. Revisit for commercialisation. | Proposed | LIFF docs |
 
 ## Still open (from HANDOFF §8 — BA session)
 
