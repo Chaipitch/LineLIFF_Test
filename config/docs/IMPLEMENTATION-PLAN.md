@@ -2,7 +2,7 @@
 
 Task-level breakdown of HANDOFF §7. Read with `L0-SPEC.md` (what) and `DECISIONS.md` (why; D-xx).
 **Owner:** **C** = Claude Code session, **H** = user ([HUMAN] — consoles, logins, approvals), **BA** = business analyst.
-Work one milestone at a time. At the end of each, report what was built, tests/coverage, Code Analyzer summary,
+Work one milestone at a time. Keep `FILE-INVENTORY.md` up to date in the same commit as any file change. At the end of each, report what was built, tests/coverage, Code Analyzer summary,
 [HUMAN] steps with exact paths, [VERIFY] results — then stop and wait for the user.
 
 Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason given).
@@ -15,7 +15,7 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 - [x] C · Read-only org checks: org type, LINE Connect version, Sites/domains, SSO/MFA, validation rules, record types,
       required fields, automation, licences, remote sites, certs, Platform Cache (`L0-SPEC.md` §2).
 - [x] C · Check [VERIFY] items against LINE / Salesforce docs (`L0-SPEC.md` §6).
-- [x] C · Write `L0-SPEC.md`, `DECISIONS.md`, this plan.
+- [x] C · Write `L0-SPEC.md`, `DECISIONS.md`, this plan, `FILE-INVENTORY.md`.
 - [ ] BA · Answer the Open items in `DECISIONS.md` (D-11 Task vs Event, D-12 Next Step field, D-13 licences) and HANDOFF §8.
 - [ ] H · Confirm or change the Proposed decisions (D-06 … D-16).
 
