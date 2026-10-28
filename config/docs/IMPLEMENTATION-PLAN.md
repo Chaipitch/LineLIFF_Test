@@ -19,7 +19,7 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 - [ ] BA · Answer the Open items in `DECISIONS.md` (D-11 Task vs Event, D-12 Next Step field, D-13 licences) and HANDOFF §8.
 - [ ] H · Confirm or change the Proposed decisions (D-06 … D-16).
 
-**Exit:** user sign-off on decisions that block L2 (D-06 packaging, D-07 prefix, D-09 Site name).
+**Exit:** user sign-off on decisions that block L2 (D-06 packaging, D-09 Site name). D-07 prefix decided.
 
 ## L1 — LINE setup (1 d, mostly H)
 
@@ -48,7 +48,7 @@ Follow `LINE-SETUP.md`.
       `getIDToken`, show display name; CSP-safe, text rendered as text only.
 - [ ] C · Apex: `SalesReportRestMe` (`GET /sr/v1/me`) + `SalesReportLineVerifier` (ID-token verify callout, `aud`/`iss`/`exp`
       checks, typed DTOs, exception class) + `SalesReportLogger`; callout mocks + tests.
-- [ ] H · Setup → Sites → create Site `SalesReport` (path `salesreport`), active; guest profile: Apex classes `SalesReportRest*`
+- [ ] H · Setup → Sites → create Site `SR_Sales_Report` (path `salesreport`), active; guest profile: Apex classes `SalesReportRest*`
       + VF page `SR_Liff` only, **no object access** → send Site URL.
 - [ ] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SR_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.
@@ -128,7 +128,7 @@ Follow `LINE-SETUP.md`.
 
 | Blocks | Waiting on |
 |---|---|
-| L2 start | Sign-off D-06, D-07, D-09; L1 channel IDs |
+| L2 start | Sign-off D-06, D-09; L1 channel IDs |
 | L2 exit | H: Site created, LIFF app + rich menu |
 | L3 Option B | H: certificate + ECA consumer key |
 | L5 | BA: D-11, D-12, field lists; D-13 licences |

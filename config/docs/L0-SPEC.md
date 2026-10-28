@@ -49,7 +49,7 @@ As HANDOFF §3. Summary:
 
 ```
 LINE app ─ rich menu ─▶ https://liff.line.me/{liffId}?form=activity|opportunity
-   LIFF page (VF page + static resource, LIFF SDK bundled)  ── served by Site "SalesReport"
+   LIFF page (VF page + static resource, LIFF SDK bundled)  ── served by Site "SR_Sales_Report"
      │  Authorization: Bearer <LINE ID token>
      ▼
    Apex REST (global, Site guest) ──▶ api.line.me/oauth2/v2.1/verify   (who is it?)
@@ -77,6 +77,9 @@ Internal (login required, not on the Site): VF page `SR_Link` at `<My Domain>/ap
 logged-in rep, `with sharing`, consumes the code, writes `SR_Line_Link__c`.
 
 ## 5. Data model (proposed, D-08)
+
+Naming (D-07): Apex and LWC use the `SalesReport` prefix; all other components use `SR_`.
+
 
 **`SR_Line_Link__c`** — `SR_Line_User_Id__c` (Text 64, unique, external ID), `SR_User__c` (Lookup User), `SR_Linked_At__c`,
 `SR_Status__c` (Active / Unlinked), `SR_Unlinked_At__c`. One active link per LINE user and per User.
