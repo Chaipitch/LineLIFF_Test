@@ -86,7 +86,7 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
       `Auth.JWS` → `Auth.JWTBearerTokenExchange`, per request, never stored (D-16). `/me` proves it via `userinfo` as the rep.
 - [x] C · Unlink: admins set Status = Unlinked (or delete); deactivated users are unlinked on their next request (no User trigger, D-27).
 - [x] C · Tests: expired/used/unknown/oversized code, double use, replaced LINE account, relink to another user, deactivated user,
-      no-permission user, linked `/me` through the rep session, JWT config errors — 57 tests, 96.4% coverage.
+      no-permission user, malformed codes, linked `/me` through the rep session, JWT config errors — 58 tests, 96.4% coverage; Code Analyzer: 0 Critical/High (one documented suppression: named-credential suggestion for the per-request rep session).
 - [x] C · `SalesReport_User` assigned to the test admin/rep in the sandbox.
 - [ ] C · Set ECA consumer key in settings once received; measure `/me` latency with the JWT exchange (D-16).
 - [ ] H+C · Device test: link flow on iOS and Android LINE, with the org's login/MFA (L3-6). Watch for the link page opening inside

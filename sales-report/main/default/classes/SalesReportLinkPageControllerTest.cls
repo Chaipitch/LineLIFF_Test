@@ -112,4 +112,25 @@ private class SalesReportLinkPageControllerTest {
       );
     }
   }
+
+  @IsTest
+  static void malformedCodesAreDropped() {
+    Assert.isNull(SalesReportLinkPageController.wellFormedCode(null), 'null');
+    Assert.isNull(
+      SalesReportLinkPageController.wellFormedCode('short'),
+      'Too short'
+    );
+    Assert.isNull(
+      SalesReportLinkPageController.wellFormedCode(
+        '<script>alert(1)</script>xxxxxxxx'
+      ),
+      'Markup'
+    );
+    String ok = 'AbC-_' + 'x'.repeat(30);
+    Assert.areEqual(
+      ok,
+      SalesReportLinkPageController.wellFormedCode(ok),
+      'base64url kept'
+    );
+  }
 }

@@ -1,7 +1,11 @@
 /**
  * Calls to this org's own REST API with a session of the linked rep (Option B), so sharing, FLS, validation rules
  * and "Created By" are the rep's. The access token is held in memory for the request only and never logged.
+ *
+ * Not a Named Credential (PMD ApexSuggestUsingNamedCred): the token is minted per request for whichever rep is
+ * calling (JWT bearer, D-02/D-16), while the running user is the Site guest; a Named Credential can't hold that.
  */
+@SuppressWarnings('PMD.ApexSuggestUsingNamedCred')
 public with sharing class SalesReportOrgApiCalloutService {
   public static final String API_VERSION = 'v68.0';
   public static final String USER_INFO_PATH = '/services/oauth2/userinfo';

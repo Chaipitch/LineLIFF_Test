@@ -19,7 +19,9 @@ public with sharing class SalesReportLinkPageController {
   private final String code;
 
   public SalesReportLinkPageController() {
-    code = ApexPages.currentPage().getParameters().get('code');
+    code = wellFormedCode(
+      ApexPages.currentPage().getParameters().get('code')?.escapeHtml4()
+    );
     userName = UserInfo.getName();
     String liffId = SalesReportSettingsService.liffId();
     returnUrl = liffId == null ? null : 'https://liff.line.me/' + liffId;
@@ -60,6 +62,15 @@ public with sharing class SalesReportLinkPageController {
       SalesReportLogService.flush();
     }
     return null;
+  }
+
+  /** Codes are base64url (letters, digits, '-', '_'), so HTML-escaping never changes a valid one; anything else is dropped. Never rendered. */
+  @TestVisible
+  static String wellFormedCode(String raw) {
+    if (raw == null || !Pattern.matches('[A-Za-z0-9_-]{20,100}', raw)) {
+      return null;
+    }
+    return raw;
   }
 
   private static Boolean isAllowed() {
