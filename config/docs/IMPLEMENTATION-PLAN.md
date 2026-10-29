@@ -53,7 +53,7 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
       `getIDToken`, show display name; CSP-safe, text rendered as text only.
 - [x] C · Apex: `SalesReportMeController` (`GET /salesreport/v1/me`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
       checks) + `SalesReportLineVerifyData` (DTO) + `SalesReportException` + `SalesReportLogService`; callout mocks + tests.
-- [ ] H · Setup → Sites → create Site `SalesReport_Site` (path `salesreport`), active; guest profile: Apex classes `SalesReport*Controller`
+- [x] H · Setup → Sites → create Site `SalesReport_Site` (path `salesreport`), active; guest profile: Apex classes `SalesReport*Controller`
       + VF page `SalesReport_Liff` only, **no object access** → send Site URL.
 - [ ] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.

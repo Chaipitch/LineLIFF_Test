@@ -20,7 +20,7 @@ Settings values are entered into `SalesReport_Settings__c` by an admin ([HUMAN])
 | LINE testers (Tester role) | TerraskyDev (the user) | Device QA | 2026-10-29 |
 | Sales Report Settings (org default) | LINE Login Channel ID = 2012273127, Enabled = true, Log Level = WARN; LIFF ID *pending* | Set by Claude via CLI | 2026-10-29 |
 | Code deployed | L2 shell (Apex REST `/me`, VF `SalesReport_Liff`, LIFF bundle, log object, labels, permission sets, remote site) | `sf project deploy start --source-dir sales-report` | 2026-10-29 |
-| Site | `SalesReport_Site`, `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/` | *pending* — created in L2 | |
+| Site | `SalesReport_Site` (label "Sales Report"), active, `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/`, home page `SalesReport_Liff`, guest default record owner = the admin. Guest profile "Sales Report Profile": Apex `SalesReportMeController` only, VF `SalesReport_Liff` + default Site pages, no object access (checked by query). Open: "Lightning Features for Guest Users" and "Redirect to custom domain" are on — turn off (SETUP-GUIDE L2-4). | Created by user, checked by Claude | 2026-10-29 |
 | LIFF ID | *pending* | `SalesReport_Settings__c.Liff_Id__c`, rich menu URLs; LIFF endpoint `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/SalesReport_Liff` (L2) | |
 | External Client App consumer key | *pending* | `SalesReport_Settings__c.Eca_Consumer_Key__c` (L3) | |
 | JWT certificate | `SalesReport_JWT_Signing` — *pending* | L3 | |

@@ -64,8 +64,9 @@ Setup → **Sites** (User Interface → Sites and Domains → Sites) → **New**
 | Require Secure Connections (HTTPS) | ✓ |
 | Upgrade all requests to HTTPS | ✓ (if shown) |
 | Guest Access to the Payments API / Salesforce APIs | off |
-| Lightning Features for Guest Users | off |
+| Lightning Features for Guest Users | off (metadata `enableAuraRequests`) |
 | Cache Public Visualforce Pages | off |
+| Redirect to custom domain | off (the Site must answer on the `salesforce-sites.com` URL registered as the LIFF endpoint) |
 
 Save. Then on the Site detail page:
 
