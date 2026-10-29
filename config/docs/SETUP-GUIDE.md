@@ -166,7 +166,7 @@ Setup → **External Client App Manager** → **New External Client App**:
 | | Distribution State | **Local** |
 | API (Enable OAuth Settings) | Enable OAuth | ✓ |
 | | Callback URL | `https://login.salesforce.com/services/oauth2/success` (not used by the JWT flow, but required) |
-| | OAuth Scopes | **Manage user data via APIs (api)** and **Access the identity URL service (id, profile, email, address, phone)** |
+| | OAuth Scopes | **Manage user data via APIs (api)**, **Access the identity URL service (id, profile, email, address, phone)** and **Perform requests at any time (refresh_token, offline_access)** — Salesforce refuses the JWT bearer flow without `refresh_token` ("refresh_token scope is required…"), even though the flow never issues a refresh token |
 | Flow Enablement | Enable JWT Bearer Flow | ✓ → upload the `.crt` from L3-2 |
 | Security | other options | leave defaults |
 

@@ -224,7 +224,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 |---|---|
 | Distribution | Local |
 | OAuth | Enabled; callback URL `https://localhost/callback` (unused by JWT flow, but required) |
-| OAuth scopes | `api` and `id` (Access the identity URL service — for `/services/oauth2/userinfo`) |
+| OAuth scopes | `api`, `id` (for `/services/oauth2/userinfo`) and `refresh_token` (required by Salesforce for the JWT bearer flow; no refresh token is issued) |
 | Flow enablement | **JWT Bearer Flow** on; certificate = public cert of `SalesReport_JWT_Signing` |
 | Permitted users | Admin approved users are pre-authorized → permission set `SalesReport_User` |
 | IP relaxation | Relax IP restrictions (callouts come from Salesforce IPs) |

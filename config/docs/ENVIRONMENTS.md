@@ -22,8 +22,8 @@ Settings values are entered into `SalesReport_Settings__c` by an admin ([HUMAN])
 | Code deployed | L2 shell (Apex REST `/me`, VF `SalesReport_Liff`, LIFF bundle, log object, labels, permission sets, remote site) | `sf project deploy start --source-dir sales-report` | 2026-10-29 |
 | Site | `SalesReport_Site` (label "Sales Report"), active, `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/`, home page `SalesReport_Liff`, guest default record owner = the admin. Guest profile "Sales Report Profile": Apex `SalesReportMeController` only, VF `SalesReport_Liff` + default Site pages, no object access (checked by query). Lightning features for guests off, redirect to custom domain off. Public checks (2026-10-29): `/me` → 401 `TOKEN_MISSING` / `TOKEN_INVALID` (real LINE verify), page 200 with `apiBase` `/salesreport/services/apexrest/salesreport/v1`, guest `/services/data` → 401, guest log entries written (owner = default record owner). | Created by user, checked by Claude | 2026-10-29 |
 | LIFF ID | 2012273127-wBh0Giwq (endpoint `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/SalesReport_Liff`, scopes openid profile, size Full) | `SalesReport_Settings__c.Liff_Id__c` (set by Claude); rich menu URLs `https://liff.line.me/2012273127-wBh0Giwq?form=activity` / `?form=opportunity` | 2026-10-29 |
-| External Client App consumer key | *pending* | `SalesReport_Settings__c.Eca_Consumer_Key__c` (L3) | |
-| JWT certificate | `SalesReport_JWT_Signing` — *pending* | L3 | |
+| External Client App consumer key | `SalesReport_App` (Local): 3MVG9xw0daOIgBi48.nHolrfFG1uJ5pVn9Ob3uIJgfz82Agb0czJ.CR9cwsS5EDAGQOrgquTuwh8EdvlYOSip (not a secret) | `SalesReport_Settings__c.Eca_Consumer_Key__c` (set by Claude) | 2026-10-29 |
+| JWT certificate | `SalesReport_JWT_Signing`, 2048-bit, expires 2027-10-29 — renew before then and re-upload to the ECA | Created by user | 2026-10-29 |
 
 ## Production
 
