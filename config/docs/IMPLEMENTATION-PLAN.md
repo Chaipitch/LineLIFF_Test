@@ -39,7 +39,7 @@ Follow `LINE-SETUP.md`.
 
 **Exit (met):** values recorded in `ENVIRONMENTS.md`. Both channel IDs received; OA exists with no webhook, linked to the LINE Login channel; testers added.
 
-## L2 — Site, LIFF shell, Apex REST skeleton (2 d) — **code deployed 2026-10-29; waiting on [HUMAN] Site / LIFF / rich menu**
+## L2 — Site, LIFF shell, Apex REST skeleton (2 d) — **done 2026-10-29**
 
 Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
 
@@ -57,15 +57,15 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
       + VF page `SalesReport_Liff` only, **no object access** → send Site URL.
 - [x] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.
-- [ ] H · Rich menu: 2 URI actions → `https://liff.line.me/{liffId}?form=activity` / `?form=opportunity` (OA Manager or API).
-- [~] C · Measure (after the Site is live): `sf org list limits` before/after 10 `/me` calls — first runs (10 and 30 public calls) moved `DailyApiRequests` by ≤ 1, but the counter lags; re-measure with a larger sample — API request count per call (§6 [VERIFY]).
+- [x] H · Rich menu: 2 URI actions → `https://liff.line.me/{liffId}?form=activity` / `?form=opportunity` (OA Manager or API).
+- [x] C · Measure API usage: 100 public `/me` calls raised `DailyApiRequests` by ~17 over 2.5 min, i.e. background org traffic, not 1 per call → Apex REST through the public Site does **not** count 1:1 against the daily API limit (it counts against Site limits instead). Test log entries (146 WARN) deleted afterwards.
 
 - [x] C · Deploy to sandbox `dev5`: 31/31 tests pass, coverage 97.3%; Code Analyzer (Recommended): 0 Critical/High.
 - [x] C · Settings org default: LINE Login channel ID, Enabled, Log Level WARN; `SalesReport_Admin` assigned to the deploying admin.
 - [x] C · Smoke-test the Site endpoint and page over the public URL (2026-10-29).
 - [x] C · Set LIFF ID in settings; `liff.init` succeeds against the public page (headless browser, outside LINE → "open from LINE" message as designed).
 
-**Exit / proof point:** tapping a rich-menu button opens the LIFF page from the new Site and shows the rep's LINE display name.
+**Exit / proof point (met 2026-10-29):** tapping a rich-menu button opens the LIFF page from the new Site and shows the rep's LINE display name — confirmed by the user on their phone.
 
 ## L3 — Identity linking + Option B session (4–5 d, highest risk)
 
