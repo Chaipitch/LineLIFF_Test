@@ -30,7 +30,7 @@ Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own p
 | `BA-QUESTIONS.md` | Questions for the BA session, with recommendations and answer column | L0 | Done (answers pending) |
 | `images/mockup-1-overview.webp`, `images/mockup-2-login-mapping.webp` | Concept mockups supplied by the user | L0 | Done |
 | `DATA-DICTIONARY.md` | Objects, fields, settings, labels, permissions, Site/ECA configuration | L0 | Done (living) |
-| `SETUP-GUIDE.md` | Admin guide: Site, ECA, certificate, permission sets, LINE console | L8 | Planned |
+| `SETUP-GUIDE.md` | Admin guide: Site, settings, LIFF app, rich menu (L2); ECA, certificate (L3); … | L2–L8 | Done (living) |
 | `USER-GUIDE.md` | Rep guide: linking, logging activities, updating opportunities | L8 | Planned |
 
 ## 2. Apex classes (`fa/classes/`)
@@ -39,33 +39,35 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 
 | Class | Layer | Purpose | Milestone | Status |
 |---|---|---|---|---|
-| `SalesReportMeController` | Controller | `GET /salesreport/v1/me` | L2 | Planned |
+| `SalesReportMeController` | Controller | `GET /salesreport/v1/me` | L2 | Done |
 | `SalesReportLinkController` | Controller | `POST /salesreport/v1/link/start` | L3 | Planned |
 | `SalesReportLinkPageController` | Controller | Controller of VF page `SalesReport_Link` | L3 | Planned |
 | `SalesReportAccountController` | Controller | `GET /salesreport/v1/accounts` | L4 | Planned |
 | `SalesReportOpportunityController` | Controller | `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 | Planned |
 | `SalesReportActivityController` | Controller | `POST /salesreport/v1/activity` | L5 | Planned |
-| `SalesReportIdentityService` | Service | Token → LINE user → linked User | L2–L3 | Planned |
+| `SalesReportIdentityService` | Service | Token → LINE user → linked User | L2–L3 | Done (L2: token verify); L3: linked User |
 | `SalesReportLinkService` | Service | Link codes, link/unlink, deactivated-user cleanup | L3 | Planned |
 | `SalesReportAccountService` | Service | Account search rules | L4 | Planned |
 | `SalesReportOpportunityService` | Service | Field whitelist, ownership check, error mapping | L5 | Planned |
 | `SalesReportActivityService` | Service | Build Event/Task, error mapping | L5 | Planned |
-| `SalesReportSettingsService` | Service | Only reader of `SalesReport_Settings__c` | L2 | Planned |
-| `SalesReportLogService` | Service | Buffered logging, `flush()`, never throws | L2 | Planned |
+| `SalesReportSettingsService` | Service | Only reader of `SalesReport_Settings__c` | L2 | Done |
+| `SalesReportLogService` | Service | Buffered logging, `flush()`, never throws | L2 | Done |
 | `SalesReportRateLimitService` | Service | Per-LINE-user rate limit | L7 | Planned |
 | `SalesReportLinkCleanupService` | Service | Schedulable: delete expired link codes and old logs | L7 | Planned |
-| `SalesReportLineCalloutService` | CalloutService | LINE ID-token verify | L2 | Planned |
+| `SalesReportLineCalloutService` | CalloutService | LINE ID-token verify | L2 | Done |
 | `SalesReportSessionCalloutService` | CalloutService | JWT bearer exchange (Option B) | L3 | Planned |
 | `SalesReportOrgApiCalloutService` | CalloutService | Org REST API calls as the rep | L3–L5 | Planned |
-| `SalesReportLineVerifyData` | Data | LINE verify response | L2 | Planned |
-| `SalesReportMeData` | Data | `/me` response | L2 | Planned |
+| `SalesReportLineVerifyData` | Data | LINE verify response | L2 | Done |
+| `SalesReportMeData` | Data | `/me` response | L2 | Done |
 | `SalesReportAccountData` | Data | Account search result | L4 | Planned |
 | `SalesReportOpportunityData` | Data | Opportunity list item / update request | L5 | Planned |
 | `SalesReportActivityData` | Data | Activity request | L5 | Planned |
-| `SalesReportErrorData` | Data | Error response (`code`, `message`, `fields`) | L2 | Planned |
-| `SalesReportException` | Other | Typed exception, plain-language message | L2 | Planned |
-| `SalesReportHttpMock` | Test only | Callout mocks | L2 | Planned |
-| `SalesReportTestFactory` | Test only | Test data | L2 | Planned |
+| `SalesReportErrorData` | Data | Error response (`code`, `message`; `fields` added in L5) | L2 | Done |
+| `SalesReportException` | Other | Typed exception, plain-language message | L2 | Done |
+| `SalesReportRestService` | Service | Shared JSON responses / error mapping for the REST controllers | L2 | Done |
+| `SalesReportLiffPageController` | Controller | Controller of VF page `SalesReport_Liff`: LIFF ID, API base path (P6), labels | L2 | Done |
+| `SalesReportHttpMock` | Test only | Callout mocks | L2 | Done |
+| `SalesReportTestFactory` | Test only | Test data | L2 | Done |
 
 ## 3. Apex triggers (`fa/triggers/`)
 
@@ -77,15 +79,15 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 
 | Page | Purpose | Access | Milestone | Status |
 |---|---|---|---|---|
-| `SalesReport_Liff` | Serves the LIFF app (static resource) on the Site | Site guest | L2 | Planned |
+| `SalesReport_Liff` | Serves the LIFF app (static resource) on the Site | Site guest | L2 | Done |
 | `SalesReport_Link` | One-time link page | Logged-in reps only (not on the Site) | L3 | Planned |
 
 ## 5. Static resources and LIFF front-end source
 
 | Path | Purpose | Milestone | Status |
 |---|---|---|---|
-| `liff-app/` (source: HTML/JS/CSS, `@line/liff` dependency, build script) | LIFF front-end source, built into the static resource | L2 | Planned |
-| `fa/staticresources/SalesReport_LiffApp` (+ `.resource-meta.xml`) | Built LIFF bundle (JS, CSS, LIFF SDK) | L2 | Planned |
+| `liff-app/build.mjs`, `liff-app/src/main.js`, `liff-app/src/api.js`, `liff-app/src/app.css` | LIFF front-end source (esbuild bundle incl. `@line/liff` 2.31.2), `npm run build:liff` | L2 | Done |
+| `fa/staticresources/SalesReport_LiffApp` (+ `.resource-meta.xml`) | Built LIFF bundle (JS, CSS, LIFF SDK) | L2 | Done |
 
 ## 6. Objects, fields and settings (`fa/objects/`)
 
@@ -96,8 +98,8 @@ One folder per object: `<Object>.object-meta.xml`, `fields/<Field>.field-meta.xm
 |---|---|---|---|---|
 | `SalesReport_Line_Link__c` | `Line_User_Id__c`, `User__c`, `Status__c`, `Active_User_Key__c`, `Linked_At__c`, `Unlinked_At__c`, `Unlink_Reason__c`, `Unlinked_By__c` | Layout + tab + list views "Active links", "All links" | L3 | Planned |
 | `SalesReport_Link_Code__c` | `Code_Hash__c`, `Line_User_Id__c`, `Expires_At__c`, `Used_At__c`, `Used_By__c` | Layout only (no tab) | L3 | Planned |
-| `SalesReport_Log__c` | `Level__c`, `Source__c`, `Message__c`, `Request_Id__c`, `User__c`, `Line_User_Ref__c` | Layout + tab + list view "Errors today" | L2 | Planned |
-| `SalesReport_Settings__c` (hierarchy custom setting) | `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Eca_Consumer_Key__c`, `Jwt_Certificate_Name__c`, `Link_Code_Ttl_Minutes__c`, `Account_Search_Min_Chars__c`, `Account_Search_Max_Results__c`, `Rate_Limit_Per_Minute__c`, `Log_Level__c`, `Log_Retention_Days__c`, `Enabled__c` | — | L2 (fields added per milestone) | Planned |
+| `SalesReport_Log__c` | `Level__c`, `Source__c`, `Message__c`, `Request_Id__c`, `User__c`, `Line_User_Ref__c` | Tab + list views "All", "Errors today" (layout auto-generated) | L2 | Done |
+| `SalesReport_Settings__c` (hierarchy custom setting) | `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Eca_Consumer_Key__c`, `Jwt_Certificate_Name__c`, `Link_Code_Ttl_Minutes__c`, `Account_Search_Min_Chars__c`, `Account_Search_Max_Results__c`, `Rate_Limit_Per_Minute__c`, `Log_Level__c`, `Log_Retention_Days__c`, `Enabled__c` | — | Done in L2: `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Log_Level__c`, `Enabled__c`; others per milestone | Partly done |
 
 No fields are added to standard objects. Standard fields read/written as the rep: `DATA-DICTIONARY.md` §3.
 
@@ -110,11 +112,11 @@ No fields are added to standard objects. Standard fields read/written as the rep
 
 | Path | Component | Purpose | Milestone | Status |
 |---|---|---|---|---|
-| `fa/permissionsets/SalesReport_User.permissionset-meta.xml` | Permission set | Reps: link page, our objects as needed; pre-authorises the ECA | L2–L3 | Planned |
-| `fa/permissionsets/SalesReport_Admin.permissionset-meta.xml` | Permission set | Admins: manage links, settings | L2–L3 | Planned |
-| `fa/remoteSiteSettings/SalesReport_LINE_API.remoteSite-meta.xml` | Remote Site | `https://api.line.me` (D-10) | L2 | Planned |
+| `fa/permissionsets/SalesReport_User.permissionset-meta.xml` | Permission set | Reps: link page (L3); no object access (D-19); pre-authorises the ECA (L3) | L2–L3 | Done (L2: empty shell) |
+| `fa/permissionsets/SalesReport_Admin.permissionset-meta.xml` | Permission set | Admins: logs (L2), settings view (L2), manage links (L3) | L2–L3 | Done (L2 part) |
+| `fa/remoteSiteSettings/SalesReport_LINE_API.remoteSite-meta.xml` | Remote Site | `https://api.line.me` (D-10) | L2 | Done |
 | `fa/remoteSiteSettings/SalesReport_Org_Domain.remoteSite-meta.xml` | Remote Site | Org My Domain, if needed ([VERIFY] L3) — URL is org-specific, may be [HUMAN] | L3 | Planned |
-| `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text JA / EN / TH | L6 | Planned |
+| `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 11 English labels for the L2 shell, translations JA / TH in L6 | L2, L6 | Done (L2 part) |
 | Site guest profile settings | Profile (org-generated) | Apex `SalesReport*Controller` (REST) + VF `SalesReport_Liff` only, no object access | L2 | [HUMAN] |
 
 ## 8. Components created in Setup ([HUMAN], not in the repo)
@@ -133,8 +135,8 @@ No fields are added to standard objects. Standard fields read/written as the rep
 
 | File | Change | Milestone | Status |
 |---|---|---|---|
-| `sfdx-project.json` | Add package directory `sales-report` (P1) | L2 | Planned |
-| `manifest/package.xml` (or `manifest/salesreport.xml`) | Lists all deployable components above | L2 | Planned |
-| `package.json` | Build script for `liff-app/` and `@line/liff` dependency | L2 | Planned |
-| `.forceignore` | Exclude `liff-app/` source and build output from deploys | L2 | Planned |
-| `liff-app/` location | Front-end source kept outside the package directory | L2 | Planned |
+| `sfdx-project.json` | Add package directory `sales-report` (P1) | L2 | Done |
+| `manifest/package.xml` | Not used: deploys use `--source-dir sales-report` | L2 | Removed (not needed) |
+| `package.json` | Build script for `liff-app/` and `@line/liff` dependency | L2 | Done |
+| `.forceignore` | Not needed: `liff-app/` is outside the package directory | L2 | Removed (not needed) |
+| `liff-app/` location | Front-end source kept outside the package directory | L2 | Done |

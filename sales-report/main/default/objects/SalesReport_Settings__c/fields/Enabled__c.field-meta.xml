@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Enabled__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description
+  >Kill switch. When unchecked, every Sales Report endpoint answers "temporarily unavailable". No settings record = enabled.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Uncheck to switch off the LINE Sales Report forms for everyone.</inlineHelpText>
+    <label>Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

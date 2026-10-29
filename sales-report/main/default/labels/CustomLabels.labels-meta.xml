@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>SalesReport_Activity_Title</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Activity_Title</shortDescription>
+        <value>Log activity</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Close</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Close</shortDescription>
+        <value>Close</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Coming_Soon</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Coming_Soon</shortDescription>
+        <value>This form is coming soon.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Error_Generic</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Error_Generic</shortDescription>
+        <value>Something went wrong. Please try again.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Error_Session_Expired</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Error_Session_Expired</shortDescription>
+        <value>Your session expired. Reopening…</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Error_Unavailable</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Error_Unavailable</shortDescription>
+        <value>The service is temporarily unavailable.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Hello</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Hello</shortDescription>
+        <value>Hello, {0}</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Loading</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Loading</shortDescription>
+        <value>Loading…</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Menu_Title</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Menu_Title</shortDescription>
+        <value>Sales Report</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Open_In_Line</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Open_In_Line</shortDescription>
+        <value
+    >Please open this page from the Sales Reporting menu in LINE.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Opportunity_Title</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Opportunity_Title</shortDescription>
+        <value>Update opportunity</value>
+    </labels>
+</CustomLabels>

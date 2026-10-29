@@ -39,23 +39,30 @@ Follow `LINE-SETUP.md`.
 
 **Exit (met):** values recorded in `ENVIRONMENTS.md`. Both channel IDs received; OA exists with no webhook, linked to the LINE Login channel; testers added.
 
-## L2 — Site, LIFF shell, Apex REST skeleton (2 d)
+## L2 — Site, LIFF shell, Apex REST skeleton (2 d) — **code deployed 2026-10-29; waiting on [HUMAN] Site / LIFF / rich menu**
 
-- [ ] C · Re-check `SalesReport_` / `SalesReport` names are unused in the org (D-07) and re-run `COEXISTENCE.md` §4.
-- [ ] C · Add package directory `sales-report/` to `sfdx-project.json`; all feature metadata goes there (D-06, P1).
-- [ ] C · Metadata: protected custom setting `SalesReport_Settings__c` (LINE Login channel ID, ECA consumer key, cert name).
-- [ ] C · Remote Site `SalesReport_LINE_API` → `https://api.line.me` (D-10).
-- [ ] C · Permission sets `SalesReport_User`, `SalesReport_Admin`.
-- [ ] C · LIFF page: bundle `@line/liff` (npm) into static resource `SalesReport_LiffApp`; VF page `SalesReport_Liff` serving it; `liff.init`,
+Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
+
+
+- [x] C · Re-check `SalesReport_` / `SalesReport` names are unused in the org (D-07) and re-run `COEXISTENCE.md` §4.
+- [x] C · Add package directory `sales-report/` to `sfdx-project.json`; all feature metadata goes there (D-06, P1).
+- [x] C · Metadata: protected custom setting `SalesReport_Settings__c` (LINE Login channel ID, ECA consumer key, cert name).
+- [x] C · Remote Site `SalesReport_LINE_API` → `https://api.line.me` (D-10).
+- [x] C · Permission sets `SalesReport_User`, `SalesReport_Admin`.
+- [x] C · LIFF page: bundle `@line/liff` (npm) into static resource `SalesReport_LiffApp`; VF page `SalesReport_Liff` serving it; `liff.init`,
       `getIDToken`, show display name; CSP-safe, text rendered as text only.
-- [ ] C · Apex: `SalesReportMeController` (`GET /salesreport/v1/me`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
+- [x] C · Apex: `SalesReportMeController` (`GET /salesreport/v1/me`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
       checks) + `SalesReportLineVerifyData` (DTO) + `SalesReportException` + `SalesReportLogService`; callout mocks + tests.
 - [ ] H · Setup → Sites → create Site `SalesReport_Site` (path `salesreport`), active; guest profile: Apex classes `SalesReport*Controller`
       + VF page `SalesReport_Liff` only, **no object access** → send Site URL.
 - [ ] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.
 - [ ] H · Rich menu: 2 URI actions → `https://liff.line.me/{liffId}?form=activity` / `?form=opportunity` (OA Manager or API).
-- [ ] C · Measure: `sf org list limits` before/after 10 `/me` calls — API request count per call (§6 [VERIFY]).
+- [ ] C · Measure (after the Site is live): `sf org list limits` before/after 10 `/me` calls — API request count per call (§6 [VERIFY]).
+
+- [x] C · Deploy to sandbox `dev5`: 31/31 tests pass, coverage 97.3%; Code Analyzer (Recommended): 0 Critical/High.
+- [x] C · Settings org default: LINE Login channel ID, Enabled, Log Level WARN; `SalesReport_Admin` assigned to the deploying admin.
+- [ ] C · Set LIFF ID in settings once received; smoke-test the Site endpoint.
 
 **Exit / proof point:** tapping a rich-menu button opens the LIFF page from the new Site and shows the rep's LINE display name.
 

@@ -18,8 +18,10 @@ Settings values are entered into `SalesReport_Settings__c` by an admin ([HUMAN])
 | OA settings | Webhook off, auto-response off, linked to the LINE Login channel — confirmed by user. Not registered in LINE Connect — confirmed by user and by query (0 `tsthlineoa__LINE_OA_Configuration__c` records with these channel IDs / basic ID, 2026-10-29) | `LINE-SETUP.md` §2, §5 | 2026-10-29 |
 | LINE Login channel status | Developing | Switch to Published in L8 | 2026-10-29 |
 | LINE testers (Tester role) | TerraskyDev (the user) | Device QA | 2026-10-29 |
+| Sales Report Settings (org default) | LINE Login Channel ID = 2012273127, Enabled = true, Log Level = WARN; LIFF ID *pending* | Set by Claude via CLI | 2026-10-29 |
+| Code deployed | L2 shell (Apex REST `/me`, VF `SalesReport_Liff`, LIFF bundle, log object, labels, permission sets, remote site) | `sf project deploy start --source-dir sales-report` | 2026-10-29 |
 | Site | `SalesReport_Site`, `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/` | *pending* — created in L2 | |
-| LIFF ID | *pending* | `SalesReport_Settings__c.Liff_Id__c`, rich menu URLs (L2) | |
+| LIFF ID | *pending* | `SalesReport_Settings__c.Liff_Id__c`, rich menu URLs; LIFF endpoint `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/SalesReport_Liff` (L2) | |
 | External Client App consumer key | *pending* | `SalesReport_Settings__c.Eca_Consumer_Key__c` (L3) | |
 | JWT certificate | `SalesReport_JWT_Signing` — *pending* | L3 | |
 

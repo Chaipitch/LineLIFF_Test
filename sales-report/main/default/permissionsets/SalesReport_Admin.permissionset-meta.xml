@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingAccesses>
+        <enabled>true</enabled>
+        <name>SalesReport_Settings__c</name>
+    </customSettingAccesses>
+    <description
+  >Sales Report (LINE LIFF) administrators: read and clean up logs, view settings. Link management is added in L3.</description>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>SalesReport_Log__c.Message__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>SalesReport_Log__c.Request_Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>SalesReport_Log__c.User__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>SalesReport_Log__c.Line_User_Ref__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Sales Report Admin</label>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>SalesReport_Log__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <tabSettings>
+        <tab>SalesReport_Log__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+</PermissionSet>

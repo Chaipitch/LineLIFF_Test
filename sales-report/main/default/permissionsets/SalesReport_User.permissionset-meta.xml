@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Sales Report (LINE LIFF) reps. Grants no object access (D-19). The link page and External Client App pre-authorisation are added in L3.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Sales Report User</label>
+</PermissionSet>

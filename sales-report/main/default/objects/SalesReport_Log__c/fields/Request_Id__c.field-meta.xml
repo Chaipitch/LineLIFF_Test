@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Request_Id__c</fullName>
+    <description
+  >Salesforce request ID (Request.getCurrent().getRequestId()) to correlate entries of one request.</description>
+    <externalId>false</externalId>
+    <label>Request ID</label>
+    <length>64</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

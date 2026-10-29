@@ -13,7 +13,8 @@
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prepare": "husky || true",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "build:liff": "node liff-app/build.mjs"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^3.1.0",
@@ -22,6 +23,7 @@
     "@salesforce/eslint-plugin-aura": "^3.0.0",
     "@salesforce/eslint-plugin-lightning": "^2.0.0",
     "@salesforce/sfdx-lwc-jest": "^7.0.2",
+    "esbuild": "^0.28.2",
     "eslint": "^9.29.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.14.0",
@@ -38,7 +40,10 @@
       "eslint"
     ],
     "**/lwc/**": [
-        "sfdx-lwc-jest -- --bail --findRelatedTests --passWithNoTests"
+      "sfdx-lwc-jest -- --bail --findRelatedTests --passWithNoTests"
     ]
+  },
+  "dependencies": {
+    "@line/liff": "^2.31.2"
   }
 }

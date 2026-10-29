@@ -125,7 +125,11 @@ The forms and the server-side whitelist read these field sets by describe, so no
 
 Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`.
 
-## 4. Custom Labels (`SalesReport_*`, L6)
+## 4. Custom Labels (`SalesReport_*`)
+
+**Deployed in L2 (English):** `SalesReport_Activity_Title`, `SalesReport_Close`, `SalesReport_Coming_Soon`, `SalesReport_Error_Generic`, `SalesReport_Error_Session_Expired`, `SalesReport_Error_Unavailable`, `SalesReport_Hello` ("Hello, {0}"), `SalesReport_Loading`, `SalesReport_Menu_Title`, `SalesReport_Open_In_Line`, `SalesReport_Opportunity_Title`. They reach the LIFF app through `SalesReportLiffPageController` (no text hardcoded in JS, P11). JA / TH translations in L6.
+
+Planned for later milestones:
 
 Categories `SalesReport` (label "Sales Report"). Translations JA / EN / TH (BA). Initial set — final list grows with the UI:
 
@@ -166,11 +170,17 @@ Validation-rule messages from the org are shown as returned (they are already in
 |---|---|
 | `SalesReport_Line_Link__c` | Read, Edit, Delete, View All (Edit limited to unlink via action/flow; fields `Line_User_Id__c`, `User__c` read-only on layout) |
 | `SalesReport_Link_Code__c` | Read, Delete, View All |
-| `SalesReport_Log__c` | Read, Delete, View All |
+| `SalesReport_Log__c` | Read, Edit, Delete, View All (Edit is required by Salesforce for Delete; all log fields are read-only via FLS) |
 | Tabs | `SalesReport_Line_Link__c`, `SalesReport_Log__c` visible |
 | Apex | none beyond the above (unlink via `SalesReportLinkService` invocable, L3) |
 
-### 5.3 `without sharing` justifications (to be repeated in class headers)
+### 5.3 `without sharing` justifications
+
+Observed in this org (API 68.0): Apex SOQL/DML on fields the running user has no field-level access to failed
+("No such column") unless run explicitly in system mode. Services that must work for the Site guest therefore use
+`AccessLevel.SYSTEM_MODE` / `WITH SYSTEM_MODE` explicitly, not only `without sharing` (D-25).
+
+Justifications (repeated in class headers):
 
 | Class | Why |
 |---|---|
@@ -184,7 +194,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 
 | Area | Grant |
 |---|---|
-| Apex classes | `SalesReportMeController`, `SalesReportLinkController`, `SalesReportAccountController`, `SalesReportOpportunityController`, `SalesReportActivityController` |
+| Apex classes | L2: `SalesReportMeController`. Added later: `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportOpportunityController`, `SalesReportActivityController` (L5). Page controllers need no class access. |
 | Visualforce pages | `SalesReport_Liff` |
 | Objects | **none** |
 | Other | Leave all "View …"/API permissions off |

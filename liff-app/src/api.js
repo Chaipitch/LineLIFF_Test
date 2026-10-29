@@ -1,0 +1,74 @@
+// Calls to the Sales Report Apex REST endpoints on the same Site.
+// The LINE ID token goes in X-Line-Id-Token: Salesforce would reject a non-Salesforce token in Authorization.
+
+const TIMEOUT_MS = 15000;
+
+export class ApiError extends Error {
+  constructor(status, code, message) {
+    super(message || code || `HTTP ${status}`);
+    this.status = status;
+    this.code = code;
+  }
+}
+
+async function parseBody(response) {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+export function createApi(apiBase, getIdToken) {
+  async function request(method, path, options) {
+    const body = options ? options.body : undefined;
+    const signal = options ? options.signal : undefined;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    if (signal)
+      signal.addEventListener("abort", () => controller.abort(), {
+        once: true
+      });
+
+    let response;
+    try {
+      response = await fetch(apiBase + path, {
+        method,
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+          "X-Line-Id-Token": getIdToken() || "",
+          ...(body !== undefined ? { "Content-Type": "application/json" } : {})
+        },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: controller.signal
+      });
+    } catch (error) {
+      throw new ApiError(
+        0,
+        error && error.name === "AbortError" ? "ABORTED" : "NETWORK",
+        error && error.message
+      );
+    } finally {
+      clearTimeout(timer);
+    }
+
+    const data = await parseBody(response);
+    if (!response.ok) {
+      const detail = data && data.error ? data.error : {};
+      throw new ApiError(
+        response.status,
+        detail.code || "HTTP_" + response.status,
+        detail.message
+      );
+    }
+    return data;
+  }
+
+  return {
+    get: (path, options) => request("GET", path, options),
+    post: (path, body, options) =>
+      request("POST", path, Object.assign({}, options, { body }))
+  };
+}

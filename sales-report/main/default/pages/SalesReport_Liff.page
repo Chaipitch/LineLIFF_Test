@@ -1,0 +1,30 @@
+<apex:page
+  controller="SalesReportLiffPageController"
+  showHeader="false"
+  sidebar="false"
+  standardStylesheets="false"
+  applyHtmlTag="false"
+  applyBodyTag="false"
+  docType="html-5.0"
+  cache="false"
+>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover"
+      />
+      <meta name="referrer" content="no-referrer" />
+      <title>Sales Report</title>
+      <link
+        rel="stylesheet"
+        href="{!URLFOR($Resource.SalesReport_LiffApp, 'app.css')}"
+      />
+    </head>
+    <body>
+      <main id="app" data-config="{!configJson}"></main>
+      <script src="{!URLFOR($Resource.SalesReport_LiffApp, 'app.js')}"></script>
+    </body>
+  </html>
+</apex:page>

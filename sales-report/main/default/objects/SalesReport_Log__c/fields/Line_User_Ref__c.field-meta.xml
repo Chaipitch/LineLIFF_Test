@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Line_User_Ref__c</fullName>
+    <description
+  >Last 6 characters of the verified LINE user ID: enough to correlate entries, not to identify the person.</description>
+    <externalId>false</externalId>
+    <label>LINE User Ref</label>
+    <length>16</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
