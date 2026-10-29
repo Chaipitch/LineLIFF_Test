@@ -32,7 +32,9 @@ Write down: provider name → __________________
 
 1. Go to LINE Official Account Manager (`https://manager.line.biz`) and log in with the company's LINE Business ID.
 2. **Create** a new LINE Official Account (entry form):
-   - Account name: e.g. `Sales Reporting` / `営業報告` (shown to reps as the friend name).
+   - Account name: e.g. `Sales Reporting` / `営業報告` (shown to reps as the friend name). The final name is still a BA
+     question (`BA-QUESTIONS.md` Q-N1 — the mockup says "Salesforce Reporting"). For an unverified account the name can be
+     changed later in OA Manager settings, so this doesn't block setup; the basic ID (`@xxxxxxx`) can't be changed.
    - Company / industry details as for the company's other OAs.
 3. Open the new account in LINE Official Account Manager and confirm it appears.
 
@@ -45,7 +47,7 @@ In LINE Official Account Manager → the new OA → **Settings → Response sett
 | Setting | Value | Why |
 |---|---|---|
 | Chat | Off (or on only if someone will read messages) | Reps should use the rich menu, not chat. |
-| Greeting message | On, short text e.g. "Use the menu below to log activities and update opportunities." | First-time guidance. |
+| Greeting message | On. Proposed text (mockup, BA Q-N5): "Welcome to Sales Reporting! Please use the menu below to log your activity or update opportunity." | First-time guidance. |
 | Auto-response messages | **Off** | HANDOFF §2a rule 4. |
 | Webhooks | **Off** | No webhook is needed in this phase. |
 
@@ -124,11 +126,12 @@ Do **not** send: channel secrets, channel access tokens, Business ID passwords.
 
 After Claude builds the Salesforce Site page, you will:
 1. LINE Login channel → **LIFF** tab → **Add**: name `Sales Reporting`, size **Full**, endpoint URL = the Site URL Claude
-   gives you (must be `https://`, no `#fragment`), scopes **`openid`** and **`profile`**, Add friend option **On (normal)**,
+   gives you — in the sandbox `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/` (Site
+   `SalesReport_Site`, home page `SalesReport_Liff`; must be `https://`, no `#fragment`), scopes **`openid`** and **`profile`**, Add friend option **On (normal)**,
    Scan QR off, Module mode off → send the **LIFF ID** (format `1234567890-AbcdEfgh`).
 2. Rich menu (OA Manager → **Chat screen → Rich menus**, or created by Claude through the API — your choice):
    two **Link** actions → `https://liff.line.me/{LIFF ID}?form=activity` and `?form=opportunity`,
-   labels e.g. "Log Activity / 訪問報告" and "Update Opportunity / 商談更新", shown by default. Rich menus don't appear on
+   labels "Log Activity / 訪問報告" and "Update Opportunity / 商談更新" (as in the mockup), shown by default; image designer is BA Q-N3. Rich menus don't appear on
    LINE for PC.
 
 ## Sources
