@@ -2,7 +2,7 @@
 
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07. Status of the whole document:
-**proposed design (L0)** — rows change to *Done* in `FILE-INVENTORY.md` as they are built; update this file in the same
+**design approved 2026-10-29** (field-level details for D-11/D-12 still wait on the BA) — rows change to *Done* in `FILE-INVENTORY.md` as they are built; update this file in the same
 commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.

@@ -76,7 +76,7 @@ All requests carry the LINE ID token (`Authorization: Bearer …`). Responses ar
 Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` — runs as the
 logged-in rep, `with sharing`, consumes the code, writes `SalesReport_Line_Link__c`.
 
-## 5. Data model (proposed, D-08)
+## 5. Data model (D-08, decided)
 
 Naming (D-07): components prefixed `SalesReport_`; fields on our own objects unprefixed.
 
