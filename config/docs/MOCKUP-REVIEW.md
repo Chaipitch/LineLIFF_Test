@@ -1,8 +1,8 @@
 # Mockup review — 2026-10-29
 
-Review of the two concept images against the plan (2026-10-29; G4 and G6 since settled by the L3 build). Form-related gaps are still each gap is
-recorded here and turned into a question in `BA-QUESTIONS.md`. Once the BA answers, the spec, decisions log, data
-dictionary and field sets are updated together.
+Review of the two concept images against the plan (2026-10-29). Each gap is recorded here and turned into a question in
+`BA-QUESTIONS.md`. G4 and G6 were settled by the L3 build; the form gaps (G1–G3) still wait on the BA. Once the BA
+answers, the spec, decisions log, data dictionary and field sets are updated together.
 
 | Image | File |
 |---|---|
