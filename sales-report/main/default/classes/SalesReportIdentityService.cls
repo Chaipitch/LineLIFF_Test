@@ -1,6 +1,7 @@
 /**
  * Who is calling? Reads the LINE ID token from the request header, verifies it with LINE and returns the verified
- * claims. Never trusts a LINE user ID sent as data. Resolving the linked Salesforce User is added in L3.
+ * claims. Never trusts a LINE user ID sent as data. repSession() goes on to the linked rep and a Salesforce session of
+ * that rep (Option B) for endpoints that read or write business data.
  */
 public with sharing class SalesReportIdentityService {
   /** Not `Authorization`: Salesforce would treat a bearer token there as a Salesforce session and reject it. */
@@ -57,5 +58,26 @@ public with sharing class SalesReportIdentityService {
       }
     }
     return null;
+  }
+
+  /**
+   * Verified LINE user → active link → org API client acting as the linked rep. Callout order: LINE verify, link
+   * lookup (no DML while the link is active), JWT exchange. Not linked (or the user was deactivated) → NOT_LINKED,
+   * and the LIFF page shows "Connect Salesforce" again.
+   */
+  public SalesReportOrgApiCalloutService repSession(RestRequest req) {
+    SalesReportLineVerifyData identity = identify(req);
+    SalesReport_Line_Link__c link = new SalesReportLinkService()
+      .findActiveLink(identity.sub);
+    if (link == null) {
+      throw SalesReportException.of(
+        SalesReportException.NOT_LINKED,
+        403,
+        'This LINE account is not connected to Salesforce.'
+      );
+    }
+    String accessToken = new SalesReportSessionCalloutService()
+      .accessTokenFor(link.User__r.Username);
+    return new SalesReportOrgApiCalloutService(accessToken);
   }
 }

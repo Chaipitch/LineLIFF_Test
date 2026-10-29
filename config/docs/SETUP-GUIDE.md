@@ -203,3 +203,34 @@ Setup → Sites → `SalesReport_Site` → **Public Access Settings** → Enable
 
 Report anything else you see, especially if step 3/4 shows the full Salesforce app instead of the small Connect page,
 or if step 5 shows "not set up for Sales Report" (then check L3-3 / L3-5; details in the Sales Report Logs tab).
+
+---
+
+## L4-1. Deploy (done by Claude for sandbox `dev5`)
+
+Adds `GET /salesreport/v1/accounts`, the Account picker in the LIFF page, settings fields *Account Search Min Chars* /
+*Account Search Max Results*, and field set `SalesReport_Account_Search` on Account.
+
+## L4-2. Site guest access for the Account search
+
+Setup → Sites → `SalesReport_Site` → **Public Access Settings** → Enabled Apex Class Access → Edit → add
+**`SalesReportAccountController`** (keep the two existing ones).
+
+## L4-3. (Optional) More search fields
+
+By default only **Account Name** is searched. To also search other text fields (e.g. *Account Name (TH)*,
+*Account No.*): Setup → Object Manager → Account → **Field Sets** → *Sales Report Account Search* → drag the fields
+in → Save. The first of those fields that has a value is shown under the name in the result list. No deploy needed.
+Reps must be able to read every field in the set, or the search fails for them. (BA question Q-C1.)
+
+## L4-3b. (Optional) Tuning
+
+Sales Report Settings → *Account Search Min Chars* (default 2) and *Account Search Max Results* (default 10, max 50).
+
+## L4-4. Device test — Account search
+
+1. In LINE, tap **Log Activity**.
+2. Under **Account**, type one letter: nothing happens. Type a second letter: after a short pause the list appears.
+3. Keep typing: the list narrows; names that **start** with what you typed come first.
+4. Tap an Account: it shows as the selected Account with **Change**.
+5. Type something that matches nothing: "No matching accounts".

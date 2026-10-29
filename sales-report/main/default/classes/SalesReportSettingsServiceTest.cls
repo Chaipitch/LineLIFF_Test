@@ -58,4 +58,29 @@ private class SalesReportSettingsServiceTest {
     );
     Assert.isTrue(SalesReportSettingsService.isEnabled(), 'Enabled');
   }
+
+  @IsTest
+  static void accountSearchBoundsFollowSettings() {
+    Assert.areEqual(
+      SalesReportSettingsService.DEFAULT_SEARCH_MIN_CHARS,
+      SalesReportSettingsService.accountSearchMinChars(),
+      'Default min chars'
+    );
+    SalesReportSettingsService.cached = null;
+    insert new SalesReport_Settings__c(
+      SetupOwnerId = UserInfo.getOrganizationId(),
+      Account_Search_Min_Chars__c = 3,
+      Account_Search_Max_Results__c = 999
+    );
+    Assert.areEqual(
+      3,
+      SalesReportSettingsService.accountSearchMinChars(),
+      'Min chars'
+    );
+    Assert.areEqual(
+      SalesReportSettingsService.MAX_SEARCH_RESULTS,
+      SalesReportSettingsService.accountSearchMaxResults(),
+      'Capped'
+    );
+  }
 }

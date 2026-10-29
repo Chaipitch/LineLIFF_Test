@@ -4,6 +4,7 @@
 // All text is rendered with textContent; no data is ever inserted as HTML.
 import liff from "@line/liff";
 import { createApi, ApiError } from "./api.js";
+import { createAccountPicker } from "./accountPicker.js";
 
 const RELOAD_FLAG = "salesReport.reloadedForToken";
 const FORMS = { activity: "activityTitle", opportunity: "opportunityTitle" };
@@ -84,11 +85,21 @@ function showHome(me, formKey) {
   card.append(
     el("p", "sr-sub", format(labels.linkedAs, me.salesforceUserName || ""))
   );
+  const search = config.accountSearch || {};
+  const picker = createAccountPicker({
+    api: apiClient,
+    labels,
+    minChars: search.minChars || 2,
+    onSelect: () => {},
+    onError: handleApiError
+  });
+  card.append(picker.element);
   card.append(el("p", "sr-message", labels.comingSoon));
   render(card);
 }
 
 let waitingForLink = false;
+let apiClient;
 
 function showConnect(api) {
   waitingForLink = false;
@@ -120,6 +131,10 @@ function showWaiting(api) {
 }
 
 function handleApiError(error) {
+  if (error instanceof ApiError && error.code === "NOT_LINKED") {
+    checkMe(apiClient);
+    return;
+  }
   if (
     error instanceof ApiError &&
     error.code === "TOKEN_EXPIRED" &&
@@ -199,6 +214,7 @@ async function start() {
   }
 
   const api = createApi(config.apiBase, () => liff.getIDToken());
+  apiClient = api;
   // Coming back from the browser after the one-time login: check again without a tap.
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && waitingForLink) checkMe(api);

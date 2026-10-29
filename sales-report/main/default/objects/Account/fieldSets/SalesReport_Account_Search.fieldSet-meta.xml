@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SalesReport_Account_Search</fullName>
+    <description
+  >Sales Report (LINE): extra Account text fields searched by the LINE Account auto-complete, in addition to Name (always searched). The first member with a value is shown under the name. Add e.g. a local-language name or account number here; no code change needed (D-21, P3).</description>
+    <displayedFields>
+        <field>Name</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <label>Sales Report Account Search</label>
+</FieldSet>

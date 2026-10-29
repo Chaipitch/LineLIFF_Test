@@ -22,6 +22,18 @@ public with sharing class SalesReportOrgApiCalloutService {
     return (Map<String, Object>) getJson(USER_INFO_PATH);
   }
 
+  /** SOQL as the rep (sharing, FLS and object access are the rep's). Returns the records of the first page. */
+  public List<Object> query(String soql) {
+    Map<String, Object> result = (Map<String, Object>) getJson(
+      '/services/data/' +
+        API_VERSION +
+        '/query?q=' +
+        EncodingUtil.urlEncode(soql, 'UTF-8')
+    );
+    List<Object> records = (List<Object>) result.get('records');
+    return records == null ? new List<Object>() : records;
+  }
+
   /** GET a path on the org's own domain and parse the JSON response. */
   public Object getJson(String path) {
     HttpRequest req = new HttpRequest();

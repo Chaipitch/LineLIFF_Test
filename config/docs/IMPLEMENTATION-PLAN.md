@@ -93,11 +93,20 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
 
 **Exit (met 2026-10-29):** a test rep links once, reopens LIFF without logging in, and `/me` returns their Salesforce name via a call made as them.
 
-## L4 — Account auto-complete (2 d)
+## L4 — Account auto-complete (2 d) — **code deployed 2026-10-29; waiting on [HUMAN] guest access, then device test**
 
-- [ ] C · `GET /salesreport/v1/accounts?q=`: min 2 chars, max 10, SOSL/SOQL on Name (more fields per BA), executed as the rep.
-- [ ] C · LIFF: 300 ms debounce, AbortController for in-flight requests, keyboard/touch dropdown, stores **Account ID** only.
-- [ ] C · Tests incl. `System.runAs` visibility (rep cannot find Accounts outside sharing).
+Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
+
+- [x] C · `GET /salesreport/v1/accounts?q=`: min chars / max results from settings (2 / 10), SOQL `LIKE '%term%'` on Name plus the
+      text fields of field set `SalesReport_Account_Search` (D-29), executed **as the rep** through the org REST API (Option B);
+      name-prefix matches first; quotes, backslashes and LIKE wildcards escaped.
+- [x] C · `SalesReportIdentityService.repSession()`: verified LINE user → active link → JWT session; not linked → `NOT_LINKED` (page shows Connect).
+- [x] C · LIFF Account picker: 300 ms debounce, min chars, AbortController for in-flight requests, tap to select (stores **Account ID**), Change.
+- [x] C · Tests: ranking, cap, too-short term, escaping, field-set fields, empty result, linked / not linked / no token — 69 tests, 96.6% coverage; Code Analyzer 0 Critical/High.
+- [x] C · Live check in the sandbox through the real JWT session: 'com' → 10 results (prefix first), 'mo7' → 4, `o'b%` → 0 (safe); 60–170 ms per query.
+- [ ] H · Guest profile: add Apex class `SalesReportAccountController` (L4-2).
+- [ ] H+C · Device test (L4-4).
+- [ ] C · Visibility test with a non-admin rep (sees only Accounts in their sharing) — needs a test rep without "View All" (BA Q-T1); enforced natively because the query runs in the rep's session.
 
 **Exit:** typing 2–3 characters shows only visible Accounts within ~1 s on a phone.
 

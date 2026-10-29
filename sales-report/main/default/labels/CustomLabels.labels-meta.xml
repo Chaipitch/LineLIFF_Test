@@ -208,4 +208,44 @@
     <value
     >This link has expired or was already used. Open the form in LINE and try again.</value>
   </labels>
+  <labels>
+    <fullName>SalesReport_Account_Label</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Account_Label</shortDescription>
+    <value>Account</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Account_Search_Placeholder</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Account_Search_Placeholder</shortDescription>
+    <value>Type at least {0} characters</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_No_Results</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_No_Results</shortDescription>
+    <value>No matching accounts</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Searching</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Searching</shortDescription>
+    <value>Searching…</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Change</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Change</shortDescription>
+    <value>Change</value>
+  </labels>
 </CustomLabels>

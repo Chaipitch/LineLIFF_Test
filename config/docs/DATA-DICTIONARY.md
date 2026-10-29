@@ -116,7 +116,11 @@ feature does not grant standard-object access.
 | Event (if D-11 = Event) | `WhatId`, `Subject`, `Type`, `StartDateTime`, `EndDateTime` / `DurationInMinutes`, `Description` | — | ✓ | `OwnerId` defaults to the rep. |
 | Task (if D-11 = Task) | `WhatId`, `Subject`, `Type`, `ActivityDate`, `Status` (`Completed`), `Description` | — | ✓ | |
 
-## 3a. Field sets (D-21)
+## 3a. Field sets (D-21, D-29)
+
+| Field set | Object | Purpose | Repo members |
+|---|---|---|---|
+| `SalesReport_Account_Search` | Account | Extra text fields searched by the Account picker; first non-empty one shown under the name | Name only (admins add e.g. `Account_Name_TH__c`, `Account_No__c`) |
 
 The forms and the server-side whitelist read these field sets by describe, so no org-specific field is referenced in code.
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Account_Search_Min_Chars__c</fullName>
+    <description
+  >Characters a rep must type before Account search starts. Blank = 2.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Characters a rep must type before Account search starts. Blank = 2.</inlineHelpText>
+    <label>Account Search Min Chars</label>
+    <precision>2</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

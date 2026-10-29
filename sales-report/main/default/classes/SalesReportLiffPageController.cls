@@ -15,6 +15,10 @@ public with sharing class SalesReportLiffPageController {
         'liffId' => SalesReportSettingsService.liffId(),
         'enabled' => SalesReportSettingsService.isEnabled(),
         'apiBase' => apiBase(),
+        'accountSearch' => new Map<String, Object>{
+          'minChars' => SalesReportSettingsService.accountSearchMinChars(),
+          'maxResults' => SalesReportSettingsService.accountSearchMaxResults()
+        },
         'labels' => labels()
       }
     );
@@ -31,6 +35,11 @@ public with sharing class SalesReportLiffPageController {
 
   private static Map<String, String> labels() {
     return new Map<String, String>{
+      'accountLabel' => System.Label.SalesReport_Account_Label,
+      'accountPlaceholder' => System.Label.SalesReport_Account_Search_Placeholder,
+      'accountNoResults' => System.Label.SalesReport_No_Results,
+      'accountSearching' => System.Label.SalesReport_Searching,
+      'change' => System.Label.SalesReport_Change,
       'activityTitle' => System.Label.SalesReport_Activity_Title,
       'connectBody' => System.Label.SalesReport_Connect_Body,
       'connectButton' => System.Label.SalesReport_Connect_Button,
