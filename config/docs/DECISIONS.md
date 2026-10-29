@@ -29,6 +29,7 @@ See `HANDOFF.md` for background and `L0-SPEC.md` for the spec these decisions fe
 | D-20 | 2026-10-28 | Apex REST base path | `/services/apexrest/salesreport/v1/...` (was `/sr/v1`): matches the `SalesReport` prefix and can't overlap existing unpackaged mappings (`/lic-check/*`, `/WebFormLead/*`) or LINE Connect's `/tsthlineoa/line/webhook`. | Decided | User · COEXISTENCE §1 |
 | D-21 | 2026-10-28 | Form fields via field sets | Fields shown/edited on the forms come from field sets `SalesReport_Opportunity_Form` (Opportunity) and `SalesReport_Activity_Form` (Event/Task), read by describe; the server-side whitelist = field set members. Avoids static references to org-specific fields (packaging rule P3) and lets admins change the form without code. | Decided | User · COEXISTENCE §3 |
 | D-22 | 2026-10-28 | Coexistence with LINE Connect | Verified no clash (objects, fields, classes, REST URLs, triggers, Sites, permission sets, Events from `LineDailyEventSyncBatch`); rules in `COEXISTENCE.md` §2, re-check commands §4. | Decided | Org + LINE Connect source |
+| D-23 | 2026-10-29 | LINE provider | Provider **"Terrasky Sales Report"** holds both the OA (@939eyqft) and the LINE Login channel. Whether or not LINE Connect channels use the same provider does not matter: the two features share no LINE data or channels. Irreversible. | Decided | User (L1) · ENVIRONMENTS.md |
 
 ## Pending review (2026-10-29)
 

@@ -22,22 +22,22 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 
 **Exit:** decisions blocking L2 signed off (D-06, D-07, D-09, D-20, D-21 decided).
 
-## L1 — LINE setup (1 d, mostly H)
+## L1 — LINE setup (1 d, mostly H) — **done 2026-10-29**
 
 Follow `LINE-SETUP.md`.
 
 - [x] C · Write `LINE-SETUP.md` with the exact console steps and values to collect (no secrets).
-- [ ] H · Choose the provider (irreversible; OA and LINE Login channel must share it) — guide §0.
-- [ ] H · Create the "Sales Reporting" OA in LINE Official Account Manager — §1.
-- [ ] H · Response settings: auto-response **off**, webhook **off**, greeting message — §2.
-- [ ] H · Enable Messaging API on the OA (creates the channel) → send channel ID — §3.
-- [ ] H · Create **LINE Login channel** (Web app) in the same provider → send channel ID — §4.
-- [ ] H · Link the OA to the LINE Login channel — §5.
-- [ ] H · Add testers (Tester role) while the channel is "Developing" — §6.
-- [ ] H · Confirm the OA is **not** registered in LINE Connect (no `LINE_OA_Configuration__c` record) — §2.
+- [x] H · Choose the provider (irreversible; OA and LINE Login channel must share it) — guide §0.
+- [x] H · Create the "Sales Reporting" OA in LINE Official Account Manager — §1.
+- [x] H · Response settings: auto-response **off**, webhook **off**, greeting message — §2.
+- [x] H · Enable Messaging API on the OA (creates the channel) → send channel ID — §3.
+- [x] H · Create **LINE Login channel** (Web app) in the same provider → send channel ID — §4.
+- [x] H · Link the OA to the LINE Login channel — §5.
+- [x] H · Add testers (Tester role) while the channel is "Developing" — §6.
+- [x] H · Confirm the OA is **not** registered in LINE Connect (no `LINE_OA_Configuration__c` record) — §2.
 - [ ] — LIFF app creation is deferred to L2 (needs the Site URL as endpoint).
 
-**Exit:** both channel IDs received; OA exists with no webhook, linked to the LINE Login channel; testers added.
+**Exit (met):** values recorded in `ENVIRONMENTS.md`. Both channel IDs received; OA exists with no webhook, linked to the LINE Login channel; testers added.
 
 ## L2 — Site, LIFF shell, Apex REST skeleton (2 d)
 
@@ -132,7 +132,7 @@ Follow `LINE-SETUP.md`.
 
 | Blocks | Waiting on |
 |---|---|
-| L2 start | L1 channel IDs |
+| L2 start | — (L1 values received 2026-10-29) |
 | L2 exit | H: Site created, LIFF app + rich menu |
 | L3 Option B | H: certificate + ECA consumer key |
 | L5 | BA: D-11, D-12, field lists; D-13 licences |
