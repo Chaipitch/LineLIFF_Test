@@ -25,6 +25,9 @@ Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own p
 | `LINE-SETUP.md` | [HUMAN] guide for the LINE OA, Messaging API and LINE Login channels | L1 | Done |
 | `FILE-INVENTORY.md` | This file | L0 | Done (living) |
 | `COEXISTENCE.md` | No-clash check with LINE Connect, packaging-readiness rules | L0 | Done (living) |
+| `MOCKUP-REVIEW.md` | Concept mockups vs plan: aligned items and gaps G1–G8 | L0 | Done |
+| `BA-QUESTIONS.md` | Questions for the BA session, with recommendations and answer column | L0 | Done (answers pending) |
+| `images/mockup-1-overview.webp`, `images/mockup-2-login-mapping.webp` | Concept mockups supplied by the user | L0 | Done |
 | `DATA-DICTIONARY.md` | Objects, fields, settings, labels, permissions, Site/ECA configuration | L0 | Done (living) |
 | `SETUP-GUIDE.md` | Admin guide: Site, ECA, certificate, permission sets, LINE console | L8 | Planned |
 | `USER-GUIDE.md` | Rep guide: linking, logging activities, updating opportunities | L8 | Planned |

@@ -16,7 +16,8 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
       required fields, automation, licences, remote sites, certs, Platform Cache (`L0-SPEC.md` §2).
 - [x] C · Check [VERIFY] items against LINE / Salesforce docs (`L0-SPEC.md` §6).
 - [x] C · Write `L0-SPEC.md`, `DECISIONS.md`, this plan, `FILE-INVENTORY.md`.
-- [ ] BA · Answer the Open items in `DECISIONS.md` (D-11 Task vs Event, D-12 Next Step field, D-13 licences) and HANDOFF §8.
+- [x] C · Review concept mockups (`MOCKUP-REVIEW.md`) and collect all BA questions (`BA-QUESTIONS.md`).
+- [ ] BA · Answer `BA-QUESTIONS.md` (⚑ items block L5: D-11 Task vs Event, Task Type values, D-12 Next Step field, editable fields, D-13 licences).
 - [x] H · Confirm or change the Proposed decisions — all confirmed 2026-10-29.
 
 **Exit:** decisions blocking L2 signed off (D-06, D-07, D-09, D-20, D-21 decided).

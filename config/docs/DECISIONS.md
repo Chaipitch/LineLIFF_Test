@@ -30,7 +30,14 @@ See `HANDOFF.md` for background and `L0-SPEC.md` for the spec these decisions fe
 | D-21 | 2026-10-28 | Form fields via field sets | Fields shown/edited on the forms come from field sets `SalesReport_Opportunity_Form` (Opportunity) and `SalesReport_Activity_Form` (Event/Task), read by describe; the server-side whitelist = field set members. Avoids static references to org-specific fields (packaging rule P3) and lets admins change the form without code. | Decided | User · COEXISTENCE §3 |
 | D-22 | 2026-10-28 | Coexistence with LINE Connect | Verified no clash (objects, fields, classes, REST URLs, triggers, Sites, permission sets, Events from `LineDailyEventSyncBatch`); rules in `COEXISTENCE.md` §2, re-check commands §4. | Decided | Org + LINE Connect source |
 
+## Pending review (2026-10-29)
+
+Mockups reviewed in `MOCKUP-REVIEW.md`. They suggest **D-11 → Task** (G1) and **D-15 → in-app browser first** (G4);
+both are held until the BA session (`BA-QUESTIONS.md` Q-A1, Q-L3). D-15 stays Decided until then.
+
 ## Still open (from HANDOFF §8 — BA session)
+
+All open questions are collected in **`BA-QUESTIONS.md`**.
 
 Scope (number of reps, languages JA/EN/TH, target date, acceptance scenarios) · activity fields · which Opportunities are
 listed and which fields are editable · Account search fields (name only vs phone/code/kana) and own vs all visible ·
