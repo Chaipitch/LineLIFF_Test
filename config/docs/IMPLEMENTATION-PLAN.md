@@ -67,7 +67,7 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
 
 **Exit / proof point (met 2026-10-29):** tapping a rich-menu button opens the LIFF page from the new Site and shows the rep's LINE display name — confirmed by the user on their phone.
 
-## L3 — Identity linking + Option B session (4–5 d, highest risk) — **code deployed and configured 2026-10-29; waiting on device test**
+## L3 — Identity linking + Option B session (4–5 d, highest risk) — **done 2026-10-29**
 
 Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
 
@@ -89,10 +89,9 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
       no-permission user, malformed codes, linked `/me` through the rep session, JWT config errors — 58 tests, 96.4% coverage; Code Analyzer: 0 Critical/High (one documented suppression: named-credential suggestion for the per-request rep session).
 - [x] C · `SalesReport_User` assigned to the test admin/rep in the sandbox.
 - [x] C · ECA consumer key set; real JWT exchange for the test user works (3 runs: exchange 117–185 ms, userinfo 53–152 ms, i.e. ~0.2–0.35 s extra per request) → per-request exchange kept (D-16). Public `/link/start` answers through the Site (401 for a fake token).
-- [ ] H+C · Device test: link flow on iOS and Android LINE, with the org's login/MFA (L3-6). Watch for the link page opening inside
-      the full Salesforce app (Lightning redirect); fallback in D-28.
+- [x] H+C · Device test on the user's phone (2026-10-29): Connect → browser login → confirm page (plain page, no Lightning redirect, so D-28 not needed) → back in LINE shows the Salesforce name. Link `LL-000000` Active, code used once. Second platform (iOS/Android, whichever wasn't used) moves to L8 device QA.
 
-**Exit:** a test rep links once, reopens LIFF without logging in, and `/me` returns their Salesforce name via a call made as them.
+**Exit (met 2026-10-29):** a test rep links once, reopens LIFF without logging in, and `/me` returns their Salesforce name via a call made as them.
 
 ## L4 — Account auto-complete (2 d)
 
