@@ -61,6 +61,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 | Q-L3 | Should the one-time login happen **inside LINE** (as in the mockup) or in the phone's browser? (G4, D-15) | In-app: matches the mockup, rep returns to the form automatically. External browser: may reuse an existing Salesforce login. | Inside LINE, browser as fallback (tested on devices) | |
 | Q-L4 | (Info) After linking, reps never log in again unless unlinked, deactivated or permission removed — there is no session expiry. OK? (G5) | Mockup says "re-authentication when session expires"; our design is stricter and simpler. | Confirm; update slide wording | |
 | Q-L5 | What should the "connected" screen show? (G6) | Mockup shows the raw LINE User ID. | LINE display name ↔ Salesforce name | |
+| Q-L8 | When a second LINE account logs in as the same rep: keep **latest wins** (old link ended automatically) or **first wins** (refuse until an admin unlinks)? Notify on replacement? | Explained in `BA-FAQ.md` §4. | Latest wins, no notification in phase 1 | |
 | Q-L6 | Is MFA required for reps in **production**? Any SSO planned? | Sandbox has no SSO and no MFA permission; production must be checked before go-live. | | |
 | Q-L7 | Any company policy on business data shown inside LINE? | Forms show Account and Opportunity names/amounts. | | |
 

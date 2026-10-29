@@ -27,6 +27,7 @@ Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own p
 | `COEXISTENCE.md` | No-clash check with LINE Connect, packaging-readiness rules | L0 | Done (living) |
 | `ENVIRONMENTS.md` | Non-secret configuration values per environment (channel IDs, OA ID, LIFF ID, URLs) | L1 | Done (living) |
 | `MOCKUP-REVIEW.md` | Concept mockups vs plan: aligned items and gaps G1–G8 | L0 | Done |
+| `BA-FAQ.md` | Plain-language answers to BA questions (mapping storage, objects, linking rules, link code) | L3 | Done (living) |
 | `BA-QUESTIONS.md` | Questions for the BA session, with recommendations and answer column | L0 | Done (answers pending) |
 | `images/mockup-1-overview.webp`, `images/mockup-2-login-mapping.webp` | Concept mockups supplied by the user | L0 | Done |
 | `DATA-DICTIONARY.md` | Objects, fields, settings, labels, permissions, Site/ECA configuration | L0 | Done (living) |
