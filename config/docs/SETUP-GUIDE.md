@@ -37,7 +37,7 @@ appears in Salesforce under the rep's own name.
 | **F. LIFF app & rich menu** | Registering the form with LINE and adding the two menu buttons | Makes the buttons open our form inside LINE | Admin (LINE consoles) | Done |
 | **G. Certificate & External Client App** | A digital stamp and an "app pass" in Salesforce | Lets the system safely act **as the rep** after the one-time login, so data is saved under the rep's name with the rep's permissions | Admin | Done |
 | **H. Optional tuning** | Extra search fields and limits | Lets admins adjust the forms without a developer | Admin | Optional |
-| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2, L3 done; L4 pending |
+| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2, L3, L4 done |
 
 ### Words used in this guide
 
@@ -295,7 +295,7 @@ allow LINE's permission the first time → the page shows **Log activity** and "
    **Connect** → **Open Sales Report in LINE**.
 4. Back in LINE: "Hello, <LINE name>" and "Salesforce: <your name>". Reopening never asks to log in again.
 
-**L4-4 — Account search (pending, after L4-2).**
+**L4-4 — Account search (done 2026-10-29).**
 1. Tap **Log Activity**. Under **Account**, type one letter: nothing happens. Type a second: after a short pause the
    list appears.
 2. Keep typing: the list narrows; names that **start** with what you typed come first.

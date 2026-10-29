@@ -1,6 +1,6 @@
 # Spec — LINE Sales Reporting (LIFF → Salesforce)
 
-**Status (2026-10-29):** L0–L3 done, L4 (Account search) deployed and waiting on one setup step and a device test.
+**Status (2026-10-29):** L0–L4 done (Account search works on the phone). L5 waits on the BA.
 Written in L0, kept up to date since. Open: the two form field lists (§7), waiting on the BA (`BA-QUESTIONS.md`).
 **Background:** `HANDOFF.md` (original brief). **Decisions:** `DECISIONS.md` (D-xx). **Progress:** `IMPLEMENTATION-PLAN.md`.
 **Plain-language overview for non-technical readers:** `SETUP-GUIDE.md` §0 and `BA-FAQ.md`.
@@ -204,6 +204,6 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L1 LINE setup | Done |
 | L2 Site, LIFF shell, `/me` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
-| L4 Account search | Deployed; waiting on guest access (`SETUP-GUIDE.md` L4-2) and a device test |
+| L4 Account search | Done — search works on the phone |
 | L5 Forms | Blocked on BA answers (D-11, D-12, field lists) |
 | L6–L8 | Not started |

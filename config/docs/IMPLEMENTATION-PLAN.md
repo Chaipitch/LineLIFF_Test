@@ -93,7 +93,7 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
 
 **Exit (met 2026-10-29):** a test rep links once, reopens LIFF without logging in, and `/me` returns their Salesforce name via a call made as them.
 
-## L4 — Account auto-complete (2 d) — **deployed and configured 2026-10-29; waiting on device test**
+## L4 — Account auto-complete (2 d) — **done 2026-10-29**
 
 Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
 
@@ -105,10 +105,10 @@ Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
 - [x] C · Tests: ranking, cap, too-short term, escaping, field-set fields, empty result, linked / not linked / no token — 69 tests, 96.6% coverage; Code Analyzer 0 Critical/High.
 - [x] C · Live check in the sandbox through the real JWT session: 'com' → 10 results (prefix first), 'mo7' → 4, `o'b%` → 0 (safe); 60–170 ms per query.
 - [x] H · Guest profile: add Apex class `SalesReportAccountController` (L4-2) — checked 2026-10-29; public `/accounts` answers (401 for a fake token).
-- [ ] H+C · Device test (L4-4).
+- [x] H+C · Device test (L4-4): search on the user's phone shows Accounts (2026-10-29).
 - [ ] C · Visibility test with a non-admin rep (sees only Accounts in their sharing) — needs a test rep without "View All" (BA Q-T1); enforced natively because the query runs in the rep's session.
 
-**Exit:** typing 2–3 characters shows only visible Accounts within ~1 s on a phone.
+**Exit (met 2026-10-29, except the non-admin visibility check below the line, moved to L8 with Q-T1):** typing 2–3 characters shows only visible Accounts within ~1 s on a phone.
 
 ## L5 — Forms and write endpoints (3–4 d) — needs D-11, D-12 answered
 
