@@ -122,7 +122,7 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | `fa/remoteSiteSettings/SalesReport_Org_Domain.remoteSite-meta.xml` | Remote Site | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) | L3 | Removed (not needed) |
 | `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 30 English labels (L2 shell, L3 connect / link page, L4 Account picker), translations JA / TH in L6 | L2, L3, L6 | Done (L2–L3 part) |
 | `fa/customPermissions/SalesReport_Access.customPermission-meta.xml` | Custom permission | Checked by the link page; granted by `SalesReport_User` | L3 | Done |
-| Site guest profile settings | Profile (org-generated) | Apex `SalesReportMeController`, `SalesReportLinkController` (done), `SalesReportAccountController` (L4-2, pending) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — partly done |
+| Site guest profile settings | Profile (org-generated) | Apex `SalesReportMeController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done) + VF `SalesReport_Liff`; no object access; L5 controllers to add | L2–L5 | [HUMAN] — done for L2–L4 |
 
 ## 8. Components created in Setup ([HUMAN], not in the repo)
 

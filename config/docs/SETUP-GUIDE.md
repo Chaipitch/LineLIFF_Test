@@ -33,7 +33,7 @@ appears in Salesforce under the rep's own name.
 | **B. Deploy** | Installing the Sales Report program into Salesforce | The program itself | Claude | Done (L2–L4) |
 | **C. Settings** | A small settings page for Sales Report | Tells the program which LINE app to trust and how to behave, without code changes | Admin / Claude | Done |
 | **D. Permission sets** | Two "access badges": one for admins, one for reps | Controls who may manage links/logs and who may use the forms | Admin | Done for the test user |
-| **E. Site** | A public web address in Salesforce | The form must be reachable from LINE without a Salesforce login screen every time | Admin | Done, except L4-2 |
+| **E. Site** | A public web address in Salesforce | The form must be reachable from LINE without a Salesforce login screen every time | Admin | Done |
 | **F. LIFF app & rich menu** | Registering the form with LINE and adding the two menu buttons | Makes the buttons open our form inside LINE | Admin (LINE consoles) | Done |
 | **G. Certificate & External Client App** | A digital stamp and an "app pass" in Salesforce | Lets the system safely act **as the rep** after the one-time login, so data is saved under the rep's name with the rep's permissions | Admin | Done |
 | **H. Optional tuning** | Extra search fields and limits | Lets admins adjust the forms without a developer | Admin | Optional |
@@ -180,8 +180,7 @@ curl -s https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/ser
 
 Expected: `{"error":{"message":"No LINE ID token was sent.","code":"TOKEN_MISSING"}}` (HTTP 401).
 
-**Status in `dev5`:** Site created and checked; doors 1 and 2 allowed; **door 3 (`SalesReportAccountController`) still
-to add — step L4-2.**
+**Status in `dev5`:** Site created and checked; doors 1–3 allowed (checked 2026-10-29).
 
 ---
 

@@ -217,7 +217,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 
 | Area | Grant |
 |---|---|
-| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4 — [HUMAN] step L4-2); later `SalesReportOpportunityController`, `SalesReportActivityController` (L5). Page controllers need no class access. |
+| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4); later `SalesReportOpportunityController`, `SalesReportActivityController` (L5). Page controllers need no class access. |
 | Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages, harmless) |
 | Objects | **none** (checked by query 2026-10-29) |
 | Other | Leave all "View …"/API permissions off |

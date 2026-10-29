@@ -93,7 +93,7 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
 
 **Exit (met 2026-10-29):** a test rep links once, reopens LIFF without logging in, and `/me` returns their Salesforce name via a call made as them.
 
-## L4 — Account auto-complete (2 d) — **code deployed 2026-10-29; waiting on [HUMAN] guest access, then device test**
+## L4 — Account auto-complete (2 d) — **deployed and configured 2026-10-29; waiting on device test**
 
 Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
 
@@ -104,7 +104,7 @@ Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
 - [x] C · LIFF Account picker: 300 ms debounce, min chars, AbortController for in-flight requests, tap to select (stores **Account ID**), Change.
 - [x] C · Tests: ranking, cap, too-short term, escaping, field-set fields, empty result, linked / not linked / no token — 69 tests, 96.6% coverage; Code Analyzer 0 Critical/High.
 - [x] C · Live check in the sandbox through the real JWT session: 'com' → 10 results (prefix first), 'mo7' → 4, `o'b%` → 0 (safe); 60–170 ms per query.
-- [ ] H · Guest profile: add Apex class `SalesReportAccountController` (L4-2).
+- [x] H · Guest profile: add Apex class `SalesReportAccountController` (L4-2) — checked 2026-10-29; public `/accounts` answers (401 for a fake token).
 - [ ] H+C · Device test (L4-4).
 - [ ] C · Visibility test with a non-admin rep (sees only Accounts in their sharing) — needs a test rep without "View All" (BA Q-T1); enforced natively because the query runs in the rep's session.
 
