@@ -110,3 +110,28 @@ The other tokens in the system, for comparison (neither is stored):
 
 So the Link Code only matters at the very first connection. Day to day, the LINE ID token and the Salesforce access
 token do the work, and the LINE Link record says which rep it is.
+
+## 6. What if a rep links the wrong LINE account by mistake? Does it affect old records?
+
+**Old records are not affected.** Tasks, Events and Opportunities are saved as the Salesforce user (Created By /
+Owner = the rep). They never point to the LINE Link record, so unlinking or relinking never changes or deletes them.
+
+**How a wrong link can happen** — only if the rep logs in to Salesforce with *their own* username/password/MFA while
+holding *someone else's* LINE (e.g. a colleague's phone, or a second LINE account), and taps **Connect** on a page
+that shows the LINE name being connected (with the note "Only continue if you opened this page yourself").
+
+**What happens then**
+
+| | Effect |
+|---|---|
+| The wrong LINE account | Can submit reports **as the rep** until fixed — this is the real risk |
+| The rep's own phone | Is unlinked immediately and shows **Connect Salesforce** next time, so the rep notices quickly |
+| Fix | The rep taps Connect on their own phone (latest wins → the wrong link is ended), or an admin sets the wrong link to **Unlinked** |
+
+**Finding what was entered during the wrong period** — the LINE Link history shows when the wrong account was linked and
+unlinked; anything created in that window shows Created By = the rep and can be reviewed. The Sales Report Log also
+records each link and unlink.
+
+**Possible extra safeguards (extra scope, BA to decide)**: send a LINE message to the old account when it is replaced
+(needs the Messaging API); or "first wins" (a second account is refused until an admin unlinks the first).
+The form already shows "Salesforce: <name>" on every open, so a rep on the wrong account sees whose name it is.
