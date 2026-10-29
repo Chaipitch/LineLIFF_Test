@@ -55,7 +55,7 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
       checks) + `SalesReportLineVerifyData` (DTO) + `SalesReportException` + `SalesReportLogService`; callout mocks + tests.
 - [x] H · Setup → Sites → create Site `SalesReport_Site` (path `salesreport`), active; guest profile: Apex classes `SalesReport*Controller`
       + VF page `SalesReport_Liff` only, **no object access** → send Site URL.
-- [ ] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
+- [x] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.
 - [ ] H · Rich menu: 2 URI actions → `https://liff.line.me/{liffId}?form=activity` / `?form=opportunity` (OA Manager or API).
 - [~] C · Measure (after the Site is live): `sf org list limits` before/after 10 `/me` calls — first runs (10 and 30 public calls) moved `DailyApiRequests` by ≤ 1, but the counter lags; re-measure with a larger sample — API request count per call (§6 [VERIFY]).
@@ -63,7 +63,7 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
 - [x] C · Deploy to sandbox `dev5`: 31/31 tests pass, coverage 97.3%; Code Analyzer (Recommended): 0 Critical/High.
 - [x] C · Settings org default: LINE Login channel ID, Enabled, Log Level WARN; `SalesReport_Admin` assigned to the deploying admin.
 - [x] C · Smoke-test the Site endpoint and page over the public URL (2026-10-29).
-- [ ] C · Set LIFF ID in settings once received.
+- [x] C · Set LIFF ID in settings; `liff.init` succeeds against the public page (headless browser, outside LINE → "open from LINE" message as designed).
 
 **Exit / proof point:** tapping a rich-menu button opens the LIFF page from the new Site and shows the rep's LINE display name.
 
