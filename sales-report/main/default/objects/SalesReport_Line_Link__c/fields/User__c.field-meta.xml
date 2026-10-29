@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>User__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description
+  >The rep who completed the one-time Salesforce login.</description>
+    <externalId>false</externalId>
+    <label>Salesforce User</label>
+    <referenceTo>User</referenceTo>
+    <relationshipName>SalesReport_Line_Links</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

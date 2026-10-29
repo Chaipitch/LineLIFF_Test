@@ -1,0 +1,80 @@
+<apex:page
+  controller="SalesReportLinkPageController"
+  showHeader="false"
+  sidebar="false"
+  standardStylesheets="false"
+  applyHtmlTag="false"
+  applyBodyTag="false"
+  docType="html-5.0"
+  cache="false"
+  title="{!$Label.SalesReport_Link_Title}"
+>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="referrer" content="no-referrer" />
+      <title>{!$Label.SalesReport_Link_Title}</title>
+      <link
+        rel="stylesheet"
+        href="{!URLFOR($Resource.SalesReport_LiffApp, 'app.css')}"
+      />
+    </head>
+    <body>
+      <main id="app">
+        <section class="sr-card">
+          <h1 class="sr-title">
+            <apex:outputText value="{!$Label.SalesReport_Link_Title}" />
+          </h1>
+
+          <apex:outputPanel layout="none" rendered="{!state == 'CONFIRM'}">
+            <p class="sr-greeting">
+              <apex:outputText value="{!$Label.SalesReport_Link_Confirm_Body}">
+                <apex:param value="{!lineDisplayName}" />
+                <apex:param value="{!userName}" />
+              </apex:outputText>
+            </p>
+            <p class="sr-message">
+              <apex:outputText
+                value="{!$Label.SalesReport_Link_Confirm_Note}"
+              />
+            </p>
+            <apex:form>
+              <apex:commandButton
+                styleClass="sr-button"
+                action="{!confirm}"
+                value="{!$Label.SalesReport_Link_Confirm_Button}"
+              />
+            </apex:form>
+          </apex:outputPanel>
+
+          <apex:outputPanel layout="none" rendered="{!state == 'DONE'}">
+            <p class="sr-greeting">
+              <apex:outputText value="{!$Label.SalesReport_Link_Done}" />
+            </p>
+            <apex:outputLink
+              styleClass="sr-button sr-link-button"
+              value="{!returnUrl}"
+              rendered="{!NOT(ISBLANK(returnUrl))}"
+              >{!$Label.SalesReport_Link_Return}</apex:outputLink
+            >
+          </apex:outputPanel>
+
+          <apex:outputPanel layout="none" rendered="{!state == 'INVALID'}">
+            <p class="sr-message">
+              <apex:outputText value="{!$Label.SalesReport_Link_Invalid}" />
+            </p>
+          </apex:outputPanel>
+
+          <apex:outputPanel layout="none" rendered="{!state == 'NOT_ALLOWED'}">
+            <p class="sr-message">
+              <apex:outputText
+                value="{!$Label.SalesReport_Error_Not_Authorized}"
+              />
+            </p>
+          </apex:outputPanel>
+        </section>
+      </main>
+    </body>
+  </html>
+</apex:page>

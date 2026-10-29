@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>SalesReportLinkPageController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>SalesReport_Access</name>
+    </customPermissions>
     <description
-  >Sales Report (LINE LIFF) reps. Grants no object access (D-19). The link page and External Client App pre-authorisation are added in L3.</description>
+  >Sales Report (LINE LIFF) reps: the one-time link page and the Sales Report Access custom permission. Grants no object access (D-19). Pre-authorises the External Client App SalesReport_App (set on the app).</description>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Sales Report User</label>
+    <pageAccesses>
+        <apexPage>SalesReport_Link</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
 </PermissionSet>

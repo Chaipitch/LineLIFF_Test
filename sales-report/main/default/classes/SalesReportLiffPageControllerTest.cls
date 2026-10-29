@@ -28,7 +28,7 @@ private class SalesReportLiffPageControllerTest {
       labels.get('hello'),
       'Labels come from Custom Labels'
     );
-    Assert.areEqual(11, labels.size(), 'All page labels');
+    Assert.areEqual(18, labels.size(), 'All page labels');
   }
 
   @IsTest
@@ -41,15 +41,6 @@ private class SalesReportLiffPageControllerTest {
     Assert.isNull(
       config.get('liffId'),
       'Page shows "unavailable" without a LIFF ID'
-    );
-  }
-
-  @IsTest
-  static void namespacePathIsEmptyWhenUnpackaged() {
-    Assert.areEqual(
-      '',
-      SalesReportLiffPageController.namespacePath(),
-      'Unpackaged'
     );
   }
 }

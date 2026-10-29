@@ -10,6 +10,9 @@ public with sharing class SalesReportException extends Exception {
   public static final String UNAVAILABLE = 'UNAVAILABLE';
   public static final String CONFIG_MISSING = 'CONFIG_MISSING';
   public static final String LINE_ERROR = 'LINE_ERROR';
+  public static final String LINK_CODE_INVALID = 'LINK_CODE_INVALID';
+  public static final String NOT_AUTHORIZED = 'NOT_AUTHORIZED';
+  public static final String SESSION_ERROR = 'SESSION_ERROR';
 
   public String code { get; private set; }
   public Integer statusCode { get; private set; }

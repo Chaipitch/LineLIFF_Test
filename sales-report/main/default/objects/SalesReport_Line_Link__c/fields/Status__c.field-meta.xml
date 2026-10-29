@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status__c</fullName>
+    <description
+  >Only Active links authorise requests. Set to Unlinked (or delete the record) to disconnect a rep.</description>
+    <externalId>false</externalId>
+    <label>Status</label>
+    <required>true</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Active</fullName><default>true</default><label
+        >Active</label></value>
+            <value><fullName>Unlinked</fullName><default>false</default><label
+        >Unlinked</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

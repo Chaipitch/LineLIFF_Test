@@ -27,13 +27,14 @@ Every custom field gets a **Description** (for admins) and, where users see it, 
 | Field | Label | Type | Req | Unique / Ext ID | Default | Description / Help |
 |---|---|---|---|---|---|---|
 | `Name` | Link No. | Auto Number | — | — | `LL-{000000}` | |
-| `Line_User_Id__c` | LINE User ID | Text(64) | Yes | Unique (case-sensitive), External ID | — | LINE user ID (`U` + 32 hex) taken from a **verified** ID token (`sub`). Never from request data. |
+| `Line_User_Id__c` | LINE User ID | Text(64) | Yes (enforced in code) | Unique (case-sensitive), External ID | — | LINE user ID (`U` + 32 hex) taken from a **verified** ID token (`sub`). Never from request data. |
 | `User__c` | Salesforce User | Lookup(User) | Yes | — | — | The rep who completed the one-time login. |
 | `Status__c` | Status | Picklist (restricted): `Active`, `Unlinked` | Yes | — | `Active` | Only `Active` links authorise requests. |
 | `Active_User_Key__c` | Active User Key | Text(18) | No | Unique | — | Set to `User__c` Id while Active, blank when Unlinked. Enforces **one active link per User** at database level. Not on layouts. |
 | `Linked_At__c` | Linked At | Date/Time | Yes | — | — | When the link page completed. |
 | `Unlinked_At__c` | Unlinked At | Date/Time | No | — | — | |
-| `Unlink_Reason__c` | Unlink Reason | Picklist (restricted): `Admin`, `User deactivated`, `Relinked to another User` | No | — | — | |
+| `Unlink_Reason__c` | Unlink Reason | Picklist (restricted): `Admin`, `User deactivated`, `Relinked to another User`, `Replaced by new LINE account` | No | — | — | |
+| `Line_Display_Name__c` | LINE Display Name | Text(255) | No | — | — | LINE display name at linking time (verified token), so admins can recognise the account. |
 | `Unlinked_By__c` | Unlinked By | Lookup(User) | No | — | — | Admin who unlinked; blank for automatic unlinks. |
 
 ### 1.2 `SalesReport_Link_Code__c` — one-time link codes
@@ -51,10 +52,11 @@ Every custom field gets a **Description** (for admins) and, where users see it, 
 |---|---|---|---|---|---|---|
 | `Name` | Code No. | Auto Number | — | — | `LC-{000000}` | |
 | `Code_Hash__c` | Code Hash | Text(64) | Yes | Unique (case-sensitive) | — | SHA-256 hex of the one-time code. The code itself is never stored. |
-| `Line_User_Id__c` | LINE User ID | Text(64) | Yes | — | — | From the verified ID token of the `/link/start` request. |
+| `Line_User_Id__c` | LINE User ID | Text(64) | Yes (enforced in code) | — | — | From the verified ID token of the `/link/start` request. |
 | `Expires_At__c` | Expires At | Date/Time | Yes | — | — | Created + `Link_Code_Ttl_Minutes__c` (default 5). |
 | `Used_At__c` | Used At | Date/Time | No | — | — | Set once; a used code is rejected. |
 | `Used_By__c` | Used By | Lookup(User) | No | — | — | User who consumed the code on the link page. |
+| `Line_Display_Name__c` | LINE Display Name | Text(255) | No | — | — | Shown on the confirm page so the rep can check it is their own LINE account. |
 
 ### 1.3 `SalesReport_Log__c` — application log (D-18, decided)
 
@@ -160,6 +162,7 @@ Validation-rule messages from the org are shown as returned (they are already in
 |---|---|
 | Visualforce pages | `SalesReport_Link` |
 | Apex classes | `SalesReportLinkPageController` |
+| Custom permission | `SalesReport_Access` (checked by the link page) |
 | Custom objects | **none** (links/codes are written by the service, so reps can't tamper with mappings) |
 | External Client App | `SalesReport_App` pre-authorised via this permission set (§7) |
 | Standard objects | none — reps' existing profile access applies (§3) |
@@ -168,8 +171,8 @@ Validation-rule messages from the org are shown as returned (they are already in
 
 | Area | Grant |
 |---|---|
-| `SalesReport_Line_Link__c` | Read, Edit, Delete, View All (Edit limited to unlink via action/flow; fields `Line_User_Id__c`, `User__c` read-only on layout) |
-| `SalesReport_Link_Code__c` | Read, Delete, View All |
+| `SalesReport_Line_Link__c` | Read, Edit, Delete, View All. Unlink = set `Status__c` to Unlinked (or delete); all other fields read-only via FLS |
+| `SalesReport_Link_Code__c` | Read, Edit (required by Salesforce for Delete), Delete, View All; fields read-only |
 | `SalesReport_Log__c` | Read, Edit, Delete, View All (Edit is required by Salesforce for Delete; all log fields are read-only via FLS) |
 | Tabs | `SalesReport_Line_Link__c`, `SalesReport_Log__c` visible |
 | Apex | none beyond the above (unlink via `SalesReportLinkService` invocable, L3) |
@@ -221,7 +224,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 |---|---|
 | Distribution | Local |
 | OAuth | Enabled; callback URL `https://localhost/callback` (unused by JWT flow, but required) |
-| OAuth scopes | `api` (add `refresh_token` only if the exchange requires it — [VERIFY] L3) |
+| OAuth scopes | `api` and `id` (Access the identity URL service — for `/services/oauth2/userinfo`) |
 | Flow enablement | **JWT Bearer Flow** on; certificate = public cert of `SalesReport_JWT_Signing` |
 | Permitted users | Admin approved users are pre-authorized → permission set `SalesReport_User` |
 | IP relaxation | Relax IP restrictions (callouts come from Salesforce IPs) |
@@ -233,7 +236,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 | Component | Name | Value |
 |---|---|---|
 | Remote Site Setting | `SalesReport_LINE_API` | `https://api.line.me`, protocol security on, description "Sales Report: LINE ID token verification" |
-| Remote Site Setting | `SalesReport_Org_Domain` | Org My Domain URL (org-specific; [VERIFY] whether needed, L3) |
+| Remote Site Setting | ~~`SalesReport_Org_Domain`~~ | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) |
 | Certificate | `SalesReport_JWT_Signing` | Self-signed, 2048-bit, **not** exportable; renew before expiry (default 1 year) and re-upload to the ECA |
 | Platform Cache partition | `SalesReportCache` | Org cache only, smallest allocation (~1 MB); session cache 0 (D-14, L7) |
 | Scheduled job | "Sales Report cleanup" | `SalesReportLinkCleanupService`, daily, 02:00 Asia/Bangkok (L7) |

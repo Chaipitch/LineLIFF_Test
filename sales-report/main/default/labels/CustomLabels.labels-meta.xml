@@ -89,4 +89,123 @@
         <shortDescription>SalesReport_Opportunity_Title</shortDescription>
         <value>Update opportunity</value>
     </labels>
+  <labels>
+    <fullName>SalesReport_Connect_Body</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Connect_Body</shortDescription>
+    <value
+    >To use Sales Report, log in to Salesforce once. After that you will not need to log in again.</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Connect_Button</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Connect_Button</shortDescription>
+    <value>Log in to Salesforce</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Connect_Check</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Connect_Check</shortDescription>
+    <value>I&apos;ve finished</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Connect_Title</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Connect_Title</shortDescription>
+    <value>Connect Salesforce</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Connect_Waiting</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Connect_Waiting</shortDescription>
+    <value
+    >Finish logging in to Salesforce in your browser, then come back here.</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Error_Not_Authorized</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Error_Not_Authorized</shortDescription>
+    <value
+    >Your Salesforce user is not set up for Sales Report. Please ask your administrator.</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Linked_As</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Linked_As</shortDescription>
+    <value>Salesforce: {0}</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Link_Title</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Link_Title</shortDescription>
+    <value>Connect LINE to Salesforce</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Link_Confirm_Body</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Link_Confirm_Body</shortDescription>
+    <value
+    >Connect the LINE account &quot;{0}&quot; to your Salesforce user {1}?</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Link_Confirm_Note</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Link_Confirm_Note</shortDescription>
+    <value
+    >Only continue if you opened this page yourself from the Sales Report menu in LINE.</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Link_Confirm_Button</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Link_Confirm_Button</shortDescription>
+    <value>Connect</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Link_Done</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Link_Done</shortDescription>
+    <value
+    >Done. Your LINE account is connected. You can go back to LINE.</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Link_Return</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Link_Return</shortDescription>
+    <value>Open Sales Report in LINE</value>
+  </labels>
+  <labels>
+    <fullName>SalesReport_Link_Invalid</fullName>
+    <categories>SalesReport</categories>
+    <language>en_US</language>
+    <protected>false</protected>
+    <shortDescription>SalesReport_Link_Invalid</shortDescription>
+    <value
+    >This link has expired or was already used. Open the form in LINE and try again.</value>
+  </labels>
 </CustomLabels>

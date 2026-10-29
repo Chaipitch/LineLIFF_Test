@@ -1,5 +1,6 @@
-// Sales Report LIFF app — L2 shell.
-// Initialises LIFF, sends the LINE ID token to /me and greets the rep by LINE display name.
+// Sales Report LIFF app.
+// Initialises LIFF and sends the LINE ID token to /me. Not linked yet: "Connect Salesforce" opens the one-time link
+// page in the browser (D-15) and /me is checked again when the rep comes back. Linked: greets the rep.
 // All text is rendered with textContent; no data is ever inserted as HTML.
 import liff from "@line/liff";
 import { createApi, ApiError } from "./api.js";
@@ -52,12 +53,26 @@ function showMessage(text, withClose) {
   render(card);
 }
 
+function errorText(code) {
+  if (code === "UNAVAILABLE" || code === "CONFIG_MISSING")
+    return labels.errorUnavailable;
+  if (code === "NOT_AUTHORIZED") return labels.errorNotAuthorized;
+  return labels.errorGeneric;
+}
+
 function showError(code) {
-  const text =
-    code === "UNAVAILABLE" || code === "CONFIG_MISSING"
-      ? labels.errorUnavailable
-      : labels.errorGeneric;
-  showMessage(text, true);
+  showMessage(errorText(code), true);
+}
+
+function button(text, onClick, secondary) {
+  const node = el(
+    "button",
+    secondary ? "sr-button sr-secondary" : "sr-button",
+    text
+  );
+  node.type = "button";
+  node.addEventListener("click", onClick);
+  return node;
 }
 
 function showHome(me, formKey) {
@@ -66,8 +81,70 @@ function showHome(me, formKey) {
   card.append(
     el("p", "sr-greeting", format(labels.hello, me.lineDisplayName || ""))
   );
+  card.append(
+    el("p", "sr-sub", format(labels.linkedAs, me.salesforceUserName || ""))
+  );
   card.append(el("p", "sr-message", labels.comingSoon));
   render(card);
+}
+
+let waitingForLink = false;
+
+function showConnect(api) {
+  waitingForLink = false;
+  const card = el("section", "sr-card");
+  card.append(el("h1", "sr-title", labels.connectTitle));
+  card.append(el("p", "sr-message", labels.connectBody));
+  const connect = button(labels.connectButton, async () => {
+    connect.disabled = true;
+    try {
+      const result = await api.post("/link/start", {});
+      waitingForLink = true;
+      liff.openWindow({ url: result.linkUrl, external: true });
+      showWaiting(api);
+    } catch (error) {
+      connect.disabled = false;
+      handleApiError(error);
+    }
+  });
+  card.append(connect);
+  render(card);
+}
+
+function showWaiting(api) {
+  const card = el("section", "sr-card");
+  card.append(el("h1", "sr-title", labels.connectTitle));
+  card.append(el("p", "sr-message", labels.connectWaiting));
+  card.append(button(labels.connectCheck, () => checkMe(api)));
+  render(card);
+}
+
+function handleApiError(error) {
+  if (
+    error instanceof ApiError &&
+    error.code === "TOKEN_EXPIRED" &&
+    reloadOnceForFreshToken()
+  )
+    return;
+  showError(error instanceof ApiError ? error.code : undefined);
+}
+
+async function checkMe(api) {
+  showLoading();
+  try {
+    const me = await api.get("/me");
+    clearReloadFlag();
+    if (me.linked) {
+      waitingForLink = false;
+      showHome(me, requestedForm());
+    } else if (waitingForLink) {
+      showWaiting(api);
+    } else {
+      showConnect(api);
+    }
+  } catch (error) {
+    handleApiError(error);
+  }
 }
 
 function requestedForm() {
@@ -122,19 +199,11 @@ async function start() {
   }
 
   const api = createApi(config.apiBase, () => liff.getIDToken());
-  try {
-    const me = await api.get("/me");
-    clearReloadFlag();
-    showHome(me, requestedForm());
-  } catch (error) {
-    if (
-      error instanceof ApiError &&
-      error.code === "TOKEN_EXPIRED" &&
-      reloadOnceForFreshToken()
-    )
-      return;
-    showError(error instanceof ApiError ? error.code : undefined);
-  }
+  // Coming back from the browser after the one-time login: check again without a tap.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && waitingForLink) checkMe(api);
+  });
+  await checkMe(api);
 }
 
 start();

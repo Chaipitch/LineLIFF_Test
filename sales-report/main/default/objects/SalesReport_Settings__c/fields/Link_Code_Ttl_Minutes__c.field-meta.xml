@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Link_Code_Ttl_Minutes__c</fullName>
+    <description
+  >Minutes a one-time link code stays valid. Blank = 5. Capped at 30 in code.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Minutes a one-time link code stays valid. Blank = 5.</inlineHelpText>
+    <label>Link Code TTL (min)</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

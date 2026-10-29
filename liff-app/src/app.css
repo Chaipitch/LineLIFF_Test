@@ -85,3 +85,26 @@ body {
   font: inherit;
   font-weight: 600;
 }
+
+.sr-link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.sr-button[disabled] {
+  opacity: 0.6;
+}
+
+.sr-secondary {
+  background: transparent;
+  color: var(--sr-accent);
+  border: 1px solid var(--sr-accent);
+}
+
+.sr-sub {
+  margin: 0 0 8px;
+  color: var(--sr-muted);
+  font-size: 14px;
+}

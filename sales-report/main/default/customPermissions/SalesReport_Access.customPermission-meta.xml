@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Allows a user to link their LINE account and use the LINE Sales Report forms. Granted by the Sales Report User permission set.</description>
+    <isLicensed>false</isLicensed>
+    <label>Sales Report Access</label>
+</CustomPermission>

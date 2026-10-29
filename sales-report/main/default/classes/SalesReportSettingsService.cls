@@ -4,6 +4,11 @@
  */
 public with sharing class SalesReportSettingsService {
   public static final String DEFAULT_LOG_LEVEL = 'WARN';
+  public static final String DEFAULT_JWT_CERTIFICATE = 'SalesReport_JWT_Signing';
+  @TestVisible
+  static final Integer DEFAULT_LINK_CODE_TTL_MINUTES = 5;
+  @TestVisible
+  static final Integer MAX_LINK_CODE_TTL_MINUTES = 30;
 
   @TestVisible
   private static SalesReport_Settings__c cached;
@@ -20,6 +25,24 @@ public with sharing class SalesReportSettingsService {
   public static Boolean isEnabled() {
     SalesReport_Settings__c s = settings();
     return s.Id == null || s.Enabled__c == true;
+  }
+
+  public static String ecaConsumerKey() {
+    return trimToNull(settings().Eca_Consumer_Key__c);
+  }
+
+  public static String jwtCertificateName() {
+    String name = trimToNull(settings().Jwt_Certificate_Name__c);
+    return name == null ? DEFAULT_JWT_CERTIFICATE : name;
+  }
+
+  /** Between 1 and MAX_LINK_CODE_TTL_MINUTES; blank = DEFAULT_LINK_CODE_TTL_MINUTES. */
+  public static Integer linkCodeTtlMinutes() {
+    Decimal minutes = settings().Link_Code_Ttl_Minutes__c;
+    if (minutes == null || minutes < 1) {
+      return DEFAULT_LINK_CODE_TTL_MINUTES;
+    }
+    return Math.min(minutes.intValue(), MAX_LINK_CODE_TTL_MINUTES);
   }
 
   public static String logLevel() {

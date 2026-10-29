@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Eca_Consumer_Key__c</fullName>
+    <description
+  >Consumer key of the External Client App SalesReport_App (JWT issuer). Not a secret; the consumer secret is never stored.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Consumer key of the External Client App SalesReport_App. Not a secret.</inlineHelpText>
+    <label>ECA Consumer Key</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

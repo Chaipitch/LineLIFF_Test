@@ -25,20 +25,20 @@ public with sharing class SalesReportLiffPageController {
     String sitePrefix = Site.getPathPrefix();
     return (sitePrefix == null ? '' : sitePrefix) +
       '/services/apexrest/' +
-      namespacePath() +
+      SalesReportNamespaceService.restPathPrefix() +
       API_VERSION_PATH;
-  }
-
-  /** "ns/" when the class runs inside a namespaced package, otherwise "". */
-  @TestVisible
-  static String namespacePath() {
-    String className = SalesReportLiffPageController.class.getName();
-    return className.contains('.') ? className.substringBefore('.') + '/' : '';
   }
 
   private static Map<String, String> labels() {
     return new Map<String, String>{
       'activityTitle' => System.Label.SalesReport_Activity_Title,
+      'connectBody' => System.Label.SalesReport_Connect_Body,
+      'connectButton' => System.Label.SalesReport_Connect_Button,
+      'connectCheck' => System.Label.SalesReport_Connect_Check,
+      'connectTitle' => System.Label.SalesReport_Connect_Title,
+      'connectWaiting' => System.Label.SalesReport_Connect_Waiting,
+      'errorNotAuthorized' => System.Label.SalesReport_Error_Not_Authorized,
+      'linkedAs' => System.Label.SalesReport_Linked_As,
       'close' => System.Label.SalesReport_Close,
       'comingSoon' => System.Label.SalesReport_Coming_Soon,
       'errorGeneric' => System.Label.SalesReport_Error_Generic,

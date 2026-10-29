@@ -72,4 +72,65 @@ public with sharing class SalesReportTestFactory {
     RestContext.response = new RestResponse();
     return req;
   }
+
+  public static SalesReportLineVerifyData identity(String lineUserId) {
+    SalesReportLineVerifyData data = new SalesReportLineVerifyData();
+    data.sub = lineUserId;
+    data.name = DISPLAY_NAME;
+    data.aud = CHANNEL_ID;
+    data.iss = 'https://access.line.me';
+    return data;
+  }
+
+  /** A rep with the running user's profile (no profile names, P2), optionally with the Sales Report User set. */
+  public static User rep(String tag, Boolean withSalesReportAccess) {
+    String unique =
+      tag + String.valueOf(Crypto.getRandomInteger()).replace('-', '');
+    User u = new User(
+      ProfileId = UserInfo.getProfileId(),
+      LastName = 'Rep ' + tag,
+      Alias = ('sr' + tag).left(8),
+      Email = unique + '@example.invalid',
+      Username = unique + '@salesreport.example.invalid',
+      TimeZoneSidKey = 'Asia/Bangkok',
+      LocaleSidKey = 'en_US',
+      LanguageLocaleKey = 'en_US',
+      EmailEncodingKey = 'UTF-8'
+    );
+    // Setup objects in their own context, so tests can insert other records afterwards (no mixed DML).
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      insert u;
+      if (withSalesReportAccess) {
+        insert new PermissionSetAssignment(
+          AssigneeId = u.Id,
+          PermissionSetId = [
+            SELECT Id
+            FROM PermissionSet
+            WHERE Name = 'SalesReport_User'
+            LIMIT 1
+          ]
+          .Id
+        );
+      }
+    }
+    return [SELECT Id, Name, Username, IsActive FROM User WHERE Id = :u.Id];
+  }
+
+  public static SalesReport_Line_Link__c link(
+    String lineUserId,
+    Id userId,
+    String status
+  ) {
+    SalesReport_Line_Link__c link = new SalesReport_Line_Link__c(
+      Line_User_Id__c = lineUserId,
+      User__c = userId,
+      Status__c = status,
+      Active_User_Key__c = status == SalesReportLinkService.STATUS_ACTIVE
+        ? String.valueOf(userId)
+        : null,
+      Linked_At__c = Datetime.now().addDays(-1)
+    );
+    Database.insert(link, AccessLevel.SYSTEM_MODE);
+    return link;
+  }
 }

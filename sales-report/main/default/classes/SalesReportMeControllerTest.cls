@@ -152,4 +152,76 @@ private class SalesReportMeControllerTest {
       'Logged as error'
     );
   }
+
+  @IsTest
+  static void linkedRepGetsSalesforceNameThroughOwnSession() {
+    SalesReport_Settings__c settings = SalesReportTestFactory.settings();
+    settings.Eca_Consumer_Key__c = 'test-consumer-key';
+    update settings;
+    SalesReportTestFactory.link(
+      SalesReportTestFactory.LINE_USER_ID,
+      UserInfo.getUserId(),
+      SalesReportLinkService.STATUS_ACTIVE
+    );
+    SalesReportSessionCalloutService.testAccessToken = 'session-token';
+    SalesReportHttpMock mock = new SalesReportHttpMock(500, '{}')
+      .route('api.line.me', 200, SalesReportTestFactory.verifyBody())
+      .route(
+        SalesReportOrgApiCalloutService.USER_INFO_PATH,
+        200,
+        '{"name":"Rep From Session"}'
+      );
+    Test.setMock(HttpCalloutMock.class, mock);
+    SalesReportTestFactory.meRequest(
+      SalesReportIdentityService.TOKEN_HEADER,
+      SalesReportTestFactory.ID_TOKEN
+    );
+
+    Test.startTest();
+    SalesReportMeController.getMe();
+    Test.stopTest();
+
+    Assert.areEqual(200, RestContext.response.statusCode, 'OK');
+    Map<String, Object> body = responseJson();
+    Assert.areEqual(true, body.get('linked'), 'Linked');
+    Assert.areEqual(
+      'Rep From Session',
+      body.get('salesforceUserName'),
+      'Name read as the rep'
+    );
+    Assert.areEqual(
+      'Bearer session-token',
+      mock.lastRequest.getHeader('Authorization'),
+      'Org API called with the rep session'
+    );
+  }
+
+  @IsTest
+  static void linkedRepWithoutConsumerKeyAnswers503() {
+    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.link(
+      SalesReportTestFactory.LINE_USER_ID,
+      UserInfo.getUserId(),
+      SalesReportLinkService.STATUS_ACTIVE
+    );
+    Test.setMock(
+      HttpCalloutMock.class,
+      new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
+    );
+    SalesReportTestFactory.meRequest(
+      SalesReportIdentityService.TOKEN_HEADER,
+      SalesReportTestFactory.ID_TOKEN
+    );
+
+    Test.startTest();
+    SalesReportMeController.getMe();
+    Test.stopTest();
+
+    Assert.areEqual(503, RestContext.response.statusCode, 'Not configured');
+    Assert.areEqual(
+      SalesReportException.CONFIG_MISSING,
+      errorJson().get('code'),
+      'Error code'
+    );
+  }
 }

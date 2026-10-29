@@ -67,23 +67,30 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
 
 **Exit / proof point (met 2026-10-29):** tapping a rich-menu button opens the LIFF page from the new Site and shows the rep's LINE display name — confirmed by the user on their phone.
 
-## L3 — Identity linking + Option B session (4–5 d, highest risk)
+## L3 — Identity linking + Option B session (4–5 d, highest risk) — **code deployed 2026-10-29; waiting on [HUMAN] cert / ECA / guest access, then device test**
 
-- [ ] C · Objects `SalesReport_Line_Link__c`, `SalesReport_Link_Code__c` (D-08) with unique/external-ID fields; list views for admins.
-- [ ] C · `POST /salesreport/v1/link/start`: verify token, create code (32 random bytes, store SHA-256), 5-min expiry, return link URL.
-- [ ] C · VF page `SalesReport_Link` (login required, `with sharing`): consume code once, link `UserInfo.getUserId()` ↔ LINE user ID,
-      "Done — return to LINE" page; reject expired/used codes; one active link per LINE user and per User.
-- [ ] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-check `/me` on return.
-- [ ] H · Setup → Certificate and Key Management → create self-signed cert `SalesReport_JWT_Signing`.
+Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
+
+- [x] C · Objects `SalesReport_Line_Link__c` (tab, list views, field history), `SalesReport_Link_Code__c` (D-08).
+- [x] C · `POST /salesreport/v1/link/start`: verify token, create code (256 random bits, store SHA-256 only), TTL from settings (5 min), return link URL.
+- [x] C · VF page `SalesReport_Link` (login required): shows the LINE account, links only after **Connect** (POST, CSRF-protected);
+      rejects expired/used codes; one active link per LINE user and per User; requires custom permission `SalesReport_Access` (D-27).
+- [x] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-checks `/me` when the rep returns.
+- [ ] H · Setup → Certificate and Key Management → create self-signed cert `SalesReport_JWT_Signing` (L3-2).
 - [ ] H · Setup → External Client App Manager → new ECA `SalesReport_App`: OAuth on, JWT bearer flow on, cert uploaded,
-      scopes `api`, Permitted Users = "Admin approved users are pre-authorized", policy grants `SalesReport_User`
-      → send consumer key (not secret).
-- [ ] H · Remote Site `SalesReport_Org_Domain` for the org's My Domain (if callout to own domain needs it — [VERIFY]).
-- [ ] C · `SalesReportSessionCalloutService`: `Auth.JWT` (iss = consumer key, sub = rep username, aud by `Organization.IsSandbox`) →
-      `Auth.JWS` → `Auth.JWTBearerTokenExchange` → access token, per request, never stored (D-16). Measure latency.
-- [ ] C · Unlink: admin action + auto-unlink on User deactivation (trigger or scheduled check — nice to have).
-- [ ] C · Tests: expired/used/foreign code, double link, token `aud` mismatch, deactivated user, JWT exchange failure (mocked).
-- [ ] H+C · Device test: link flow on iOS and Android LINE, with the org's login/MFA.
+      scopes `api` + `id`, Permitted Users = "Admin approved users are pre-authorized", permission set `SalesReport_User`
+      → send consumer key (not secret) (L3-3).
+- [ ] H · Guest profile: add Apex class `SalesReportLinkController` (L3-4).
+- [x] C · Remote Site for the org's My Domain: **not needed** — callouts to the own domain work without one (tested).
+- [x] C · `SalesReportSessionCalloutService`: `Auth.JWT` (iss = consumer key, sub = rep username, aud by `Organization.IsSandbox`) →
+      `Auth.JWS` → `Auth.JWTBearerTokenExchange`, per request, never stored (D-16). `/me` proves it via `userinfo` as the rep.
+- [x] C · Unlink: admins set Status = Unlinked (or delete); deactivated users are unlinked on their next request (no User trigger, D-27).
+- [x] C · Tests: expired/used/unknown/oversized code, double use, replaced LINE account, relink to another user, deactivated user,
+      no-permission user, linked `/me` through the rep session, JWT config errors — 57 tests, 96.4% coverage.
+- [x] C · `SalesReport_User` assigned to the test admin/rep in the sandbox.
+- [ ] C · Set ECA consumer key in settings once received; measure `/me` latency with the JWT exchange (D-16).
+- [ ] H+C · Device test: link flow on iOS and Android LINE, with the org's login/MFA (L3-6). Watch for the link page opening inside
+      the full Salesforce app (Lightning redirect); fallback in D-28.
 
 **Exit:** a test rep links once, reopens LIFF without logging in, and `/me` returns their Salesforce name via a call made as them.
 

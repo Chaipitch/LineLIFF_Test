@@ -130,3 +130,76 @@ Save.
 
 If something else appears, check Setup → **Sales Report Logs** (tab) → "Errors today" / "All", and send Claude the
 message shown on the phone.
+
+---
+
+## L3-1. Deploy (done by Claude for sandbox `dev5`)
+
+Adds `SalesReport_Line_Link__c` (+ tab, list views), `SalesReport_Link_Code__c`, settings fields (ECA consumer key,
+certificate name, link-code TTL), custom permission `SalesReport_Access`, VF page `SalesReport_Link`, the
+`/link/start` endpoint and the JWT session classes. Permission sets updated.
+
+## L3-2. Certificate for the JWT
+
+Setup → **Certificate and Key Management** → **Create Self-Signed Certificate**:
+
+| Field | Value |
+|---|---|
+| Label | `SalesReport JWT Signing` |
+| Unique Name | `SalesReport_JWT_Signing` |
+| Key Size | 2048 |
+| Exportable Private Key | **off** |
+| Use Platform Encryption | off |
+
+Save → **Download Certificate** (a `.crt` file with the public key only — needed in L3-3). It expires after one year:
+renew it and re-upload to the External Client App before then.
+
+## L3-3. External Client App `SalesReport_App`
+
+Setup → **External Client App Manager** → **New External Client App**:
+
+| Section | Field | Value |
+|---|---|---|
+| Basic | External Client App Name | `Sales Report App` |
+| | API Name | `SalesReport_App` |
+| | Contact Email | your admin email |
+| | Distribution State | **Local** |
+| API (Enable OAuth Settings) | Enable OAuth | ✓ |
+| | Callback URL | `https://login.salesforce.com/services/oauth2/success` (not used by the JWT flow, but required) |
+| | OAuth Scopes | **Manage user data via APIs (api)** and **Access the identity URL service (id, profile, email, address, phone)** |
+| Flow Enablement | Enable JWT Bearer Flow | ✓ → upload the `.crt` from L3-2 |
+| Security | other options | leave defaults |
+
+Create. Then on the app:
+
+1. **Policies** tab → Edit → **OAuth Policies**:
+   - Permitted Users: **Admin approved users are pre-authorized**
+   - Select Permission Sets: **Sales Report User**
+   - IP Relaxation: **Relax IP restrictions** (the calls come from Salesforce's own servers)
+   - Save.
+2. **Settings** tab → OAuth Settings → **Consumer Key and Secret** (Salesforce emails a verification code) → copy the
+   **Consumer Key** only and send it to Claude. **Never send the Consumer Secret** — it is not used.
+
+## L3-4. Site guest access for the link endpoint
+
+Setup → Sites → `SalesReport_Site` → **Public Access Settings** → Enabled Apex Class Access → Edit → add
+**`SalesReportLinkController`** (keep `SalesReportMeController`). Nothing else changes for the guest.
+
+## L3-5. Settings and reps
+
+- Sales Report Settings → **ECA Consumer Key** = the key from L3-3 (Claude can set it in the sandbox).
+- Assign the permission set **Sales Report User** to every rep who will use the forms (sandbox: assigned to the test
+  admin/rep on 2026-10-29). Without it the rep can't open the link page and the JWT exchange is refused.
+
+## L3-6. Device test — one-time login
+
+1. In LINE, open the OA chat and tap **Log Activity**.
+2. Expected: **Connect Salesforce** → tap **Log in to Salesforce**.
+3. The phone's browser opens the Salesforce login (sandbox). Log in (MFA if asked).
+4. Expected: **Connect LINE to Salesforce** — "Connect the LINE account "<your LINE name>" to your Salesforce user
+   <your name>?" → tap **Connect** → "Done…" → tap **Open Sales Report in LINE**.
+5. Back in LINE the form shows "Hello, <LINE name>" and "Salesforce: <your Salesforce name>".
+6. Close and reopen the form: no login again.
+
+Report anything else you see, especially if step 3/4 shows the full Salesforce app instead of the small Connect page,
+or if step 5 shows "not set up for Sales Report" (then check L3-3 / L3-5; details in the Sales Report Logs tab).

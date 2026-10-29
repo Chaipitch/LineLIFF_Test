@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Used_By__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>User who consumed the code on the link page.</description>
+    <externalId>false</externalId>
+    <label>Used By</label>
+    <referenceTo>User</referenceTo>
+    <relationshipName>SalesReport_Link_Codes</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
