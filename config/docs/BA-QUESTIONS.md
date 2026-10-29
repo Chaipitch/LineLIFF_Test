@@ -47,7 +47,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 | # | Question | Context / options | Recommendation | Answer |
 |---|---|---|---|---|
-| Q-C1 | Search which fields? | Name only, or also English/Thai/Japanese names, customer code, phone. | Name (+ customer code if one exists) | |
+| Q-C1 | Search which fields? | Name only, or also English/Thai/Japanese names, customer code, phone. | Name (+ customer code if one exists). Built so admins can add fields without code (field set, `SETUP-GUIDE.md` part H); the sandbox has *Account Name (TH)* and *Account No.*, and duplicate names (e.g. "mo7 company" ×4) — showing a second field helps tell them apart | |
 | Q-C2 | Show only the rep's own Accounts, or all they can see? | Security is the same either way (runs as the rep). | All visible | |
 | Q-C3 | Roughly how many Accounts? | Affects search approach. | | |
 | Q-C4 | Create an Account when none is found? | Not in plan (adds scope). | Not in phase 1 | |
@@ -58,7 +58,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 |---|---|---|---|---|
 | Q-L1 | How long does a link last? | Forever until unlinked, or re-confirm every N months. | Until unlinked or user deactivated | |
 | Q-L2 | Who unlinks reps when they leave or change phones? | Admin list view + automatic unlink on deactivation are planned. | Salesforce admin | |
-| Q-L3 | Should the one-time login happen **inside LINE** (as in the mockup) or in the phone's browser? (G4, D-15) | In-app: matches the mockup, rep returns to the form automatically. External browser: may reuse an existing Salesforce login. | Inside LINE, browser as fallback (tested on devices) | |
+| Q-L3 | Should the one-time login happen **inside LINE** (as in the mockup) or in the phone's browser? (G4, D-15) | In-app: matches the mockup, rep returns to the form automatically. External browser: may reuse an existing Salesforce login. | **Tested 2026-10-29:** the phone's browser works well (plain page, back to LINE with one tap). Keep the browser unless the BA wants the in-app look | |
 | Q-L4 | (Info) After linking, reps never log in again unless unlinked, deactivated or permission removed — there is no session expiry. OK? (G5) | Mockup says "re-authentication when session expires"; our design is stricter and simpler. | Confirm; update slide wording | |
 | Q-L5 | What should the "connected" screen show? (G6) | Mockup shows the raw LINE User ID. | LINE display name ↔ Salesforce name | |
 | Q-L8 | When a second LINE account logs in as the same rep: keep **latest wins** (old link ended automatically) or **first wins** (refuse until an admin unlinks)? Notify on replacement? | Explained in `BA-FAQ.md` §4. | Latest wins, no notification in phase 1 | |

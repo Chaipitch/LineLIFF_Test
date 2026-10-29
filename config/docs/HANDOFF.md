@@ -1,5 +1,8 @@
 # Handoff — LINE Sales Reporting (LIFF → Salesforce)
 
+> **Historical brief (2026-10-28), kept as written.** Current state: `L0-SPEC.md` (spec), `IMPLEMENTATION-PLAN.md`
+> (progress), `DECISIONS.md` (decisions that replace the [DECIDE]/[VERIFY] items below), `SETUP-GUIDE.md` (setup).
+
 **For:** a Claude Code session that will build this feature in a **different Salesforce org / project** from LINE Connect.
 **Status (2026-10-28):** proposal agreed in principle; nothing built. Requirements still being clarified with the BA.
 Read this whole file before writing code. Items marked **[DECIDE]** need the user's answer first; **[VERIFY]** must be

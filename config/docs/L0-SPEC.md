@@ -1,14 +1,16 @@
-# L0 Spec — LINE Sales Reporting (LIFF → Salesforce)
+# Spec — LINE Sales Reporting (LIFF → Salesforce)
 
-**Status:** draft, 2026-10-28. Field lists and several choices still wait on the BA session (see `DECISIONS.md`, "Open").
-**Background:** `HANDOFF.md`. **Decisions:** `DECISIONS.md` (referenced here as D-xx).
+**Status (2026-10-29):** L0–L3 done, L4 (Account search) deployed and waiting on one setup step and a device test.
+Written in L0, kept up to date since. Open: the two form field lists (§7), waiting on the BA (`BA-QUESTIONS.md`).
+**Background:** `HANDOFF.md` (original brief). **Decisions:** `DECISIONS.md` (D-xx). **Progress:** `IMPLEMENTATION-PLAN.md`.
+**Plain-language overview for non-technical readers:** `SETUP-GUIDE.md` §0 and `BA-FAQ.md`.
 
 ---
 
 ## 1. Goal and scope (this phase)
 
 Sales reps open a LIFF form from the rich menu of a dedicated "Sales Reporting" LINE OA and:
-1. **Log Activity** — record a customer activity on an Account (object: D-11, leaning Event).
+1. **Log Activity** — record a customer activity on an Account (object: D-11 open — the mockup shows **Task**, see `MOCKUP-REVIEW.md` G1).
 2. **Update Opportunity** — update one of the Account's open Opportunities.
 
 Constraints: no middleware (browser → Salesforce Site → `api.line.me` only), one-time Salesforce login per rep,
@@ -41,7 +43,7 @@ OA push messages/reminders, packaging/AppExchange.
 | Connected / External Client Apps | 33 connected apps (standard + mitoco/Pardot/etc.), 1 ECA `Wix_Pardot_ECA`. No existing app usable for us. | New ECA for Option B (L3, [HUMAN] cert + consumer key). |
 | Certificates | Only TSTH homepage/self-signed certs (some expired). | New self-signed cert `SalesReport_JWT_Signing` for JWT (L3). |
 | Platform Cache | Only packaged partitions (mitoco, pkgviz). | D-14. |
-| API limits | DailyApiRequests 5,000,000 (sandbox). | Apex REST calls count against it (see §6). |
+| API limits | DailyApiRequests 5,000,000 (sandbox). | Site Apex REST calls do not count 1:1; the internal calls as the rep do (§6). |
 
 ## 3. Architecture
 
@@ -49,42 +51,54 @@ As HANDOFF §3. Summary:
 
 ```
 LINE app ─ rich menu ─▶ https://liff.line.me/{liffId}?form=activity|opportunity
-   LIFF page (VF page + static resource, LIFF SDK bundled)  ── served by Site "SalesReport_Site"
-     │  Authorization: Bearer <LINE ID token>
+   LIFF page (VF page SalesReport_Liff + static resource, LIFF SDK bundled)  ── served by Site "SalesReport_Site"
+     │  X-Line-Id-Token: <LINE ID token>   (not Authorization — Salesforce would reject it, D-24)
      ▼
    Apex REST (global, Site guest) ──▶ api.line.me/oauth2/v2.1/verify   (who is it?)
      │  map LINE sub → User (SalesReport_Line_Link__c)
      │  JWT bearer exchange for that User ──▶ <My Domain>/services/oauth2/token
      ▼
-   REST API as the rep ──▶ <My Domain>/services/data/vXX.X/...  (sharing, FLS, VRs native)
+   REST API as the rep ──▶ <My Domain>/services/data/v68.0/...  (sharing, FLS, VRs native)
 ```
+
+First-time login (flow B): LIFF "Connect Salesforce" → `POST /link/start` → phone browser opens
+`<My Domain>/apex/SalesReport_Link?code=…` → rep logs in (MFA if required) → page shows the LINE account → **Connect** →
+`SalesReport_Line_Link__c` written → back to LINE. Proven on a phone 2026-10-29.
 
 ## 4. API (Apex REST on the Site, `/services/apexrest/salesreport/v1/...`)
 
-All requests carry the LINE ID token (`Authorization: Bearer …`). Responses are JSON; errors use
-`{ "error": { "code": "...", "message": "<plain-language>", "fields": [...] } }`.
+All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses are JSON, never cached; errors use
+`{ "error": { "code": "...", "message": "<plain-language>" } }` (`fields` added in L5). Error codes: `TOKEN_MISSING`,
+`TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
+(403), `QUERY_TOO_SHORT` (400), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
 
-| Method & path | Purpose | Rep must be linked | Notes |
-|---|---|---|---|
-| `GET /me` | Verify token; return `{ linked, displayName, userName? }` | no | First call on every page load. |
-| `POST /link/start` | Create one-time link code; return link-page URL | no | Code: 32 random bytes, base64url; store SHA-256 only; 5-min expiry; single use. |
-| `GET /accounts?q=` | Account auto-complete (≥ 2 chars, max 10) | yes | Runs as the rep → only visible Accounts. Fields searched: Name for now (more fields: BA, HANDOFF §8). |
-| `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | `IsClosed = false`, ordered by CloseDate. |
-| `POST /activity` | Create the activity (Event or Task, D-11) | yes | `WhatId` = Account ID, `OwnerId` = rep (implicit). |
-| `POST /opportunity` | Update one Opportunity | yes | Only whitelisted fields; `Id` must belong to the chosen Account. |
+| Method & path | Purpose | Rep must be linked | Status | Notes |
+|---|---|---|---|---|
 
-Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` — runs as the
-logged-in rep, `with sharing`, consumes the code, writes `SalesReport_Line_Link__c`.
+| `GET /me` | Verify token; return `{ linked, lineDisplayName, salesforceUserName }` | no | Done (L2–L3) | First call on every page load. When linked, the Salesforce name is read **as the rep** (proves the JWT session). |
+| `POST /link/start` | Create one-time link code; return link-page URL | no | Done (L3) | 256 random bits, base64url; SHA-256 stored only; 5-min expiry; single use. |
+| `GET /accounts?q=` | Account auto-complete | yes | Done (L4) | Min 2 chars, max 10 (settings). Runs as the rep → only visible Accounts. Name + field set `SalesReport_Account_Search` (D-29); prefix matches first. |
+| `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5 | `IsClosed = false`, ordered by CloseDate. |
+| `POST /activity` | Create the activity (Task or Event, D-11) | yes | L5 | `WhatId` = Account ID, `OwnerId` = rep (implicit). |
+| `POST /opportunity` | Update one Opportunity | yes | L5 | Only field-set fields (D-21); `Id` must belong to the chosen Account. |
+
+Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` —
+needs custom permission `SalesReport_Access`; shows the LINE account; links only after **Connect** (POST, CSRF-protected);
+writes `SalesReport_Line_Link__c` through `SalesReportLinkService` (D-27).
 
 ## 5. Data model (D-08, decided)
 
 Naming (D-07): components prefixed `SalesReport_`; fields on our own objects unprefixed.
 
 **`SalesReport_Line_Link__c`** — one record per LINE user: `Line_User_Id__c` (unique, external ID), `User__c`, `Status__c`
-(Active / Unlinked), `Active_User_Key__c` (unique; enforces one active link per User), linked/unlinked audit fields.
-**`SalesReport_Link_Code__c`** — `Code_Hash__c` (SHA-256, unique), `Line_User_Id__c`, `Expires_At__c`, `Used_At__c`, `Used_By__c`.
+(Active / Unlinked), `Active_User_Key__c` (unique; enforces one active link per User), `Line_Display_Name__c`,
+linked/unlinked audit fields; field history on User and Status. Latest confirmed login wins (`BA-FAQ.md` §4).
+**`SalesReport_Link_Code__c`** — `Code_Hash__c` (SHA-256, unique), `Line_User_Id__c`, `Line_Display_Name__c`, `Expires_At__c`,
+`Used_At__c`, `Used_By__c`.
 **`SalesReport_Log__c`** — application log (D-18).
-**Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, tunables, kill switch.
+**Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, link-code TTL, Account
+search limits, log level, kill switch.
+**Field set `SalesReport_Account_Search`** (Account) — extra searched fields (D-29).
 No secrets are stored in it (unpackaged "Protected" visibility has no effect); the JWT private key stays in the certificate store.
 Reps get **no** access to these objects; only the services write them (justifications in `DATA-DICTIONARY.md` §5.3).
 
@@ -96,29 +110,34 @@ Full field lists, types, defaults, permissions and Site/ECA settings: **`DATA-DI
 response. Services hold the logic. Only `…CalloutService` classes make HTTP callouts. `…Data` classes are plain DTOs
 (no logic, no SOQL/DML). Each class has a `<Class>Test`.
 
+Built classes are marked ✓ (deployed to sandbox `dev5`).
+
 | Layer | Class | Purpose | Milestone |
 |---|---|---|---|
-| Controller | `SalesReportMeController` | `@RestResource` `GET /salesreport/v1/me` | L2 |
-| Controller | `SalesReportLinkController` | `@RestResource` `POST /salesreport/v1/link/start` | L3 |
-| Controller | `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
-| Controller | `SalesReportAccountController` | `@RestResource` `GET /salesreport/v1/accounts` | L4 |
+| Controller | ✓ `SalesReportMeController` | `@RestResource` `GET /salesreport/v1/me` | L2 |
+| Controller | ✓ `SalesReportLinkController` | `@RestResource` `POST /salesreport/v1/link/start` | L3 |
+| Controller | ✓ `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
+| Controller | ✓ `SalesReportAccountController` | `@RestResource` `GET /salesreport/v1/accounts` | L4 |
 | Controller | `SalesReportOpportunityController` | `@RestResource` `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 |
 | Controller | `SalesReportActivityController` | `@RestResource` `POST /salesreport/v1/activity` | L5 |
-| Service | `SalesReportIdentityService` | Verify request token (via callout service), resolve LINE user → linked User | L2–L3 |
-| Service | `SalesReportLinkService` | Create/consume link codes, link/unlink, deactivated-user cleanup | L3 |
-| Service | `SalesReportAccountService` | Account search rules (min chars, limit, fields) | L4 |
+| Service | ✓ `SalesReportIdentityService` | Verify request token (via callout service), resolve LINE user → linked User | L2–L3 |
+| Service | ✓ `SalesReportLinkService` | Create/consume link codes, link/unlink, deactivated-user cleanup | L3 |
+| Service | ✓ `SalesReportAccountService` | Account search rules (min chars, limit, fields) | L4 |
 | Service | `SalesReportOpportunityService` | Field whitelist, Account ownership check, error mapping | L5 |
 | Service | `SalesReportActivityService` | Build the Event/Task (D-11), error mapping | L5 |
-| Service | `SalesReportSettingsService` | Single reader of `SalesReport_Settings__c` | L2 |
-| Service | `SalesReportLogService` | Buffered logging, `flush()`, never throws | L2 |
+| Service | ✓ `SalesReportSettingsService` | Single reader of `SalesReport_Settings__c` | L2 |
+| Service | ✓ `SalesReportLogService` | Buffered logging, `flush()`, never throws | L2 |
 | Service | `SalesReportRateLimitService` | Per-LINE-user counter (D-14) | L7 |
-| CalloutService | `SalesReportLineCalloutService` | `POST api.line.me/oauth2/v2.1/verify` | L2 |
-| CalloutService | `SalesReportSessionCalloutService` | JWT bearer exchange for the rep (Option B) | L3 |
-| CalloutService | `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (query, create, update) | L3–L5 |
-| Data | `SalesReportLineVerifyData` | LINE verify response (`sub`, `aud`, `exp`, `name`, …) | L2 |
-| Data | `SalesReportMeData`, `SalesReportAccountData`, `SalesReportOpportunityData`, `SalesReportActivityData`, `SalesReportErrorData` | Request/response DTOs | L2–L5 |
-| Other | `SalesReportException` | Typed exception with a plain-language message | L2 |
-| Test only | `SalesReportHttpMock`, `SalesReportTestFactory` | Callout mocks, test data | L2 |
+| CalloutService | ✓ `SalesReportLineCalloutService` | `POST api.line.me/oauth2/v2.1/verify` | L2 |
+| CalloutService | ✓ `SalesReportSessionCalloutService` | JWT bearer exchange for the rep (Option B) | L3 |
+| CalloutService | ✓ `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (query, create, update) | L3–L5 |
+| Data | ✓ `SalesReportLineVerifyData` | LINE verify response (`sub`, `aud`, `exp`, `name`, …) | L2 |
+| Data | ✓ `SalesReportMeData`, ✓ `SalesReportLinkStartData`, ✓ `SalesReportAccountData`, ✓ `SalesReportErrorData`, `SalesReportOpportunityData`, `SalesReportActivityData` | Request/response DTOs | L2–L5 |
+| Controller | ✓ `SalesReportLiffPageController` | VF `SalesReport_Liff`: LIFF ID, API base path (P6), labels, search limits | L2 |
+| Service | ✓ `SalesReportRestService` | Shared JSON responses and error mapping | L2 |
+| Service | ✓ `SalesReportNamespaceService` | Namespace-safe REST/page paths (P6) | L3 |
+| Other | ✓ `SalesReportException` | Typed exception with a plain-language message | L2 |
+| Test only | ✓ `SalesReportHttpMock`, ✓ `SalesReportTestFactory` | Callout mocks (per-endpoint routes), test data | L2 |
 
 ## 6. [VERIFY] results
 
@@ -128,16 +147,19 @@ response. Services hold the logic. Only `…CalloutService` classes make HTTP ca
 | Also check in Apex | `aud` == our channel ID, `iss` == `https://access.line.me`, `exp` > now (the endpoint already checks these; re-check defensively). LIFF tokens are ES256-signed. | LINE docs — confirmed |
 | ID token lifetime | **1 hour** after issue (`liff.getIDToken()` docs). Token is obtained at `liff.init()`; a page left open > 1 h must re-init (reload) when the server returns `token_expired`. | LIFF API reference — confirmed |
 | What to send to the server | Send the **ID token** (or access token), never the profile from `liff.getProfile()` / `getDecodedIDToken()`. | "Using user data in LIFF apps and servers" — confirmed |
-| `liff.openWindow` | `external: false` → LINE in-app browser; `true` → external browser; "use in an external browser isn't guaranteed"; Universal-link URLs may jump to apps on newer LINE versions. | LIFF API reference — confirmed; device test in L3 (D-15) |
-| LIFF SDK bundling | `@line/liff` npm package bundled into a static resource (no CDN). Exact build (esbuild/rollup) chosen in L2. | Not re-fetched; low risk |
+| `liff.openWindow` | `external: false` → LINE in-app browser; `true` → external browser; "use in an external browser isn't guaranteed"; Universal-link URLs may jump to apps on newer LINE versions. | Confirmed on a phone in L3: `external: true` opens the link page as a plain page (D-15, D-28 closed) |
+| LIFF SDK bundling | `@line/liff` 2.31.2 bundled with esbuild into static resource `SalesReport_LiffApp`; at runtime the SDK still fetches optional files from `*.line-scdn.net` (D-26). | Built and working (L2) |
 | Packaged remote site applies to non-package code? | **Not confirmed** by docs found. Irrelevant in practice: we ship our own remote site (D-10). | Salesforce docs — unverified, avoided by design |
-| JWT bearer with External Client App | ECA with OAuth + JWT bearer enabled, certificate uploaded, **Permitted Users = "Admin approved users are pre-authorized"**, access granted via our permission set `SalesReport_User`. User must be pre-authorised or the exchange fails. Apex: `Auth.JWT` (iss = consumer key, sub = rep username, aud = login host) → `Auth.JWS(jwt, '<cert unique name>')` → `Auth.JWTBearerTokenExchange(tokenEndpoint, jws).getAccessToken()`. | Salesforce CLI ECA docs + Apex reference (search summaries; full pages blocked from this environment) — **verify hands-on in L3** |
-| Token endpoint / audience in sandbox | Token endpoint `<My Domain>/services/oauth2/token`; `aud` = `https://test.salesforce.com` for sandboxes, `https://login.salesforce.com` for production — derive from `Organization.IsSandbox`, never hardcode. | From prior knowledge — **verify in L3** |
-| Callout to own My Domain | Needs a Remote Site Setting (or Named Credential) for the org's My Domain host unless proven otherwise. Plan: add a remote site `SalesReport_Org_Domain` for the org's My Domain at setup (a Named Credential is an alternative to evaluate in L3). | Docs found don't exempt same-org hosts — **verify in L3** |
-| Access-token caching | No doc found that blesses caching; keep per-request exchange (D-16). | Design choice |
-| Apex REST via public Site vs API limit | **Measured 2026-10-29 (sandbox):** 100 anonymous `/me` calls through the Site raised `DailyApiRequests` by ~17 (background org traffic), so Site guest Apex REST calls do not count 1:1 against the daily API limit. They do count against Site limits (sandbox: 1,024 MB/day bandwidth, 30 min/day request time, 500k page views/month). Each rep request = 1 Site request + 1 LINE verify callout (+ JWT exchange and 1 REST call as the rep from L3 — those internal calls do count; re-measure in L3). | Measured |
+| JWT bearer with External Client App | ECA with OAuth + JWT bearer enabled, certificate uploaded, **Permitted Users = "Admin approved users are pre-authorized"**, permission set `SalesReport_User`. Scopes must include **`refresh_token`** — without it Salesforce answers "refresh_token scope is required…" even though no refresh token is issued. Apex: `Auth.JWT` → `Auth.JWS(jwt, cert)` → `Auth.JWTBearerTokenExchange(...).getAccessToken()`. | **Verified hands-on in L3** (2026-10-29) |
+| Token endpoint / audience in sandbox | Token endpoint `<My Domain>/services/oauth2/token`; `aud` = `https://test.salesforce.com` (sandbox) / `https://login.salesforce.com` (production), from `Organization.IsSandbox`. | **Verified in L3** (sandbox) |
+| Callout to own My Domain | **No Remote Site Setting needed** — Apex callouts to the org's own My Domain work without one. | **Verified in L3** (D-27) |
+| Access-token caching | Not cached: exchange per request costs 117–185 ms (+ userinfo 53–152 ms) — acceptable (D-16). | Measured in L3 |
+| Apex REST via public Site vs API limit | **Measured 2026-10-29 (sandbox):** 100 anonymous `/me` calls through the Site raised `DailyApiRequests` by ~17 (background org traffic), so Site guest Apex REST calls do not count 1:1 against the daily API limit. They do count against Site limits (sandbox: 1,024 MB/day bandwidth, 30 min/day request time, 500k page views/month). Each rep request = 1 Site request + 1 LINE verify callout (+ JWT exchange and 1 REST call as the rep from L3; Account search query 60–170 ms in L4). Re-measure the daily API count with real usage in L8. | Measured |
 
-## 7. Field lists (proposed — confirm in BA session)
+## 7. Field lists (open — waiting on the BA, `BA-QUESTIONS.md` §2–3)
+
+The mockup (`MOCKUP-REVIEW.md`) suggests: Log Activity = Account, Activity Type, Date, Comments as a **Task**; Update
+Opportunity = Opportunity, Stage, Amount, Next Step. The org-based draft below is kept until the BA decides.
 
 **Log Activity (if Event, D-11)**: Account (ID, required) · Type (Event `Type`, default `On-site / Visit`) · Subject
 (default from Type + Account name, editable) · Date + start time + duration (default now, 60 min) · Description / notes
@@ -155,10 +177,13 @@ Field lists below are the **initial members of the field sets** (D-21); admins c
 
 Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 
-
-- Every class declares sharing; Site-facing REST classes are `without sharing` only for the identity lookup, with a
-  written justification; all record reads/writes go through the rep's session (Option B).
-- Guest profile: our Apex REST classes + LIFF VF page only, **no object permissions**.
+- Every class declares sharing. Controllers and most services are `with sharing`; only `SalesReportLinkService` and
+  `SalesReportLogService` are `without sharing` and state system mode explicitly (D-25), with written justifications
+  (`DATA-DICTIONARY.md` §5.3). All business-data reads/writes go through the rep's own session (Option B).
+- Guest profile: our Apex REST controllers + LIFF VF page only, **no object permissions** (checked by query).
+- Link page: custom permission required, explicit Connect, single-use 5-min codes stored as hashes (D-27).
+- Code Analyzer (Recommended rules): 0 Critical/High after each milestone; one documented suppression (named-credential
+  suggestion for the per-request rep session).
 - No secrets in code, JS, logs or docs. LINE channel ID and ECA consumer key are configuration, not secrets; the JWT
   private key stays in the certificate store.
 - Rate limit per LINE user (D-14). Never trust a LINE user ID sent as data.
@@ -171,7 +196,14 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 4. Rep moves an Opportunity to Stage 02 without PreSales Engineer → sees the org's validation message, nothing saved.
 5. Admin deactivates/unlinks the rep → next LIFF open shows "Connect Salesforce" again.
 
-## 10. Next milestone
+## 10. Where we are
 
-**L1 ([HUMAN] LINE setup)** — see HANDOFF §9 items 1–3. Then **L2**: Site + guest config, LIFF shell, Apex REST
-skeleton, first proof point (rich-menu button opens the page and shows the LINE display name).
+| Milestone | State |
+|---|---|
+| L0 Spec + decisions | Done |
+| L1 LINE setup | Done |
+| L2 Site, LIFF shell, `/me` | Done — LINE name shown on the phone |
+| L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
+| L4 Account search | Deployed; waiting on guest access (`SETUP-GUIDE.md` L4-2) and a device test |
+| L5 Forms | Blocked on BA answers (D-11, D-12, field lists) |
+| L6–L8 | Not started |

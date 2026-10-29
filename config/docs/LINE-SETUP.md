@@ -122,17 +122,11 @@ Reply in the Claude session (or the issue/PR) with:
 
 Do **not** send: channel secrets, channel access tokens, Business ID passwords.
 
-## 8. What happens next (L2, needs you again)
+## 8. What happened next (L2 — done 2026-10-29)
 
-After Claude builds the Salesforce Site page, you will:
-1. LINE Login channel → **LIFF** tab → **Add**: name `Sales Reporting`, size **Full**, endpoint URL = the Site URL Claude
-   gives you — in the sandbox `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/` (Site
-   `SalesReport_Site`, home page `SalesReport_Liff`; must be `https://`, no `#fragment`), scopes **`openid`** and **`profile`**, Add friend option **On (normal)**,
-   Scan QR off, Module mode off → send the **LIFF ID** (format `1234567890-AbcdEfgh`).
-2. Rich menu (OA Manager → **Chat screen → Rich menus**, or created by Claude through the API — your choice):
-   two **Link** actions → `https://liff.line.me/{LIFF ID}?form=activity` and `?form=opportunity`,
-   labels "Log Activity / 訪問報告" and "Update Opportunity / 商談更新" (as in the mockup), shown by default; image designer is BA Q-N3. Rich menus don't appear on
-   LINE for PC.
+The LIFF app and the rich menu were added in L2. Their steps, values and the reasons behind them are now in
+`SETUP-GUIDE.md` part F (LIFF ID 2012273127-wBh0Giwq, endpoint
+`https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/SalesReport_Liff`).
 
 ## Sources
 

@@ -1,9 +1,10 @@
 # Data dictionary — LINE Sales Reporting
 
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
-`FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07. Status of the whole document:
-**design approved 2026-10-29** (field-level details for D-11/D-12 still wait on the BA) — rows change to *Done* in `FILE-INVENTORY.md` as they are built; update this file in the same
-commit whenever a field or setting changes.
+`FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
+**State (2026-10-29): §1, §2 (except L7 fields), §3a Account search, §4, §5–§8 are built and deployed to sandbox `dev5`
+(milestones L2–L4).** Still open: Log Activity / Update Opportunity fields (§3, §3a forms — BA: D-11, D-12) and the L7
+items (rate limit, retention, cache). Update this file in the same commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.
 Every custom field gets a **Description** (for admins) and, where users see it, **Help Text** — both as below.
@@ -82,7 +83,7 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 > Visibility "Protected" only has effect inside a managed package. Unpackaged, admins with "View Setup and Configuration"
 > can read these values — so **no secrets are stored here** (none of the fields below is a secret).
 
-| Field | Label | Type | Default in code | Set in | Description |
+| Field | Label | Type | Default in code | Milestone | Description |
 |---|---|---|---|---|---|
 | `Line_Login_Channel_Id__c` | LINE Login Channel ID | Text(20) | — (required) | L2 | `client_id` for ID-token verify; also the expected `aud`. |
 | `Liff_Id__c` | LIFF ID | Text(40) | — (required) | L2 | Passed to the LIFF page for `liff.init`. |
@@ -91,9 +92,9 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Link_Code_Ttl_Minutes__c` | Link Code TTL (min) | Number(3,0) | 5 | L3 | |
 | `Account_Search_Min_Chars__c` | Account Search Min Chars | Number(2,0) | 2 | L4 | |
 | `Account_Search_Max_Results__c` | Account Search Max Results | Number(3,0) | 10 | L4 | Capped at 50 in code. |
-| `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 | Per LINE user. |
+| `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 (not built yet) | Per LINE user. |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
-| `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 | |
+| `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 (not built yet) | |
 | `Enabled__c` | Enabled | Checkbox | true | L2 | Kill switch: when false all endpoints return "temporarily unavailable". |
 
 ## 3. Standard object fields used (no changes to standard objects)
@@ -104,7 +105,7 @@ feature does not grant standard-object access.
 | Object | Field | Read | Write | Notes |
 |---|---|---|---|---|
 | User | `Id`, `Name`, `Username`, `IsActive` | ✓ (system) | — | `Username` = JWT `sub`; `IsActive` checked before exchange. |
-| Account | `Id`, `Name` | ✓ | — | Search fields beyond Name: BA (HANDOFF §8). |
+| Account | `Id`, `Name` + text fields in field set `SalesReport_Account_Search` | ✓ | — | Built in L4 (D-29); which extra fields: BA Q-C1. |
 | Opportunity | `Id`, `Name`, `AccountId`, `OwnerId`, `IsClosed` | ✓ | — | List filter: `AccountId = :id AND IsClosed = false`. |
 | Opportunity | `StageName` | ✓ | ✓ | Open stages only (`01.`–`03.`) in this phase. |
 | Opportunity | `Your_Win_Confidence__c` | ✓ | ✓ | Field-level required picklist. |
@@ -122,7 +123,8 @@ feature does not grant standard-object access.
 |---|---|---|---|
 | `SalesReport_Account_Search` | Account | Extra text fields searched by the Account picker; first non-empty one shown under the name | Name only (admins add e.g. `Account_Name_TH__c`, `Account_No__c`) |
 
-The forms and the server-side whitelist read these field sets by describe, so no org-specific field is referenced in code.
+Planned for L5 — the forms and the server-side whitelist read these by describe, so no org-specific field is referenced
+in code. Members wait on the BA (D-11 Task vs Event, D-12 Next Step field, MOCKUP-REVIEW G1–G3):
 
 | Field set | Object | Initial members (BA to confirm) | Required in set |
 |---|---|---|---|
@@ -133,28 +135,43 @@ Always set by code, never from the field set: `WhatId` (selected Account), `Owne
 
 ## 4. Custom Labels (`SalesReport_*`)
 
-**Deployed in L2 (English):** `SalesReport_Activity_Title`, `SalesReport_Close`, `SalesReport_Coming_Soon`, `SalesReport_Error_Generic`, `SalesReport_Error_Session_Expired`, `SalesReport_Error_Unavailable`, `SalesReport_Hello` ("Hello, {0}"), `SalesReport_Loading`, `SalesReport_Menu_Title`, `SalesReport_Open_In_Line`, `SalesReport_Opportunity_Title`. They reach the LIFF app through `SalesReportLiffPageController` (no text hardcoded in JS, P11). JA / TH translations in L6.
+Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3). The LIFF page gets them through
+`SalesReportLiffPageController` (no text hardcoded in JS, P11); the link page uses `$Label` directly.
 
-Planned for later milestones:
+| Label | English value | Used on | Milestone |
+|---|---|---|---|
+| `SalesReport_Menu_Title` | Sales Report | LIFF | L2 |
+| `SalesReport_Activity_Title` | Log activity | LIFF | L2 |
+| `SalesReport_Opportunity_Title` | Update opportunity | LIFF | L2 |
+| `SalesReport_Hello` | Hello, {0} | LIFF | L2 |
+| `SalesReport_Loading` | Loading… | LIFF | L2 |
+| `SalesReport_Coming_Soon` | This form is coming soon. | LIFF (until L5) | L2 |
+| `SalesReport_Close` | Close | LIFF | L2 |
+| `SalesReport_Open_In_Line` | Please open this page from the Sales Reporting menu in LINE. | LIFF | L2 |
+| `SalesReport_Error_Generic` | Something went wrong. Please try again. | LIFF | L2 |
+| `SalesReport_Error_Session_Expired` | Your session expired. Reopening… | LIFF | L2 |
+| `SalesReport_Error_Unavailable` | The service is temporarily unavailable. | LIFF | L2 |
+| `SalesReport_Connect_Title` | Connect Salesforce | LIFF | L3 |
+| `SalesReport_Connect_Body` | To use Sales Report, log in to Salesforce once. After that you will not need to log in again. | LIFF | L3 |
+| `SalesReport_Connect_Button` | Log in to Salesforce | LIFF | L3 |
+| `SalesReport_Connect_Waiting` | Finish logging in to Salesforce in your browser, then come back here. | LIFF | L3 |
+| `SalesReport_Connect_Check` | I've finished | LIFF | L3 |
+| `SalesReport_Linked_As` | Salesforce: {0} | LIFF | L3 |
+| `SalesReport_Error_Not_Authorized` | Your Salesforce user is not set up for Sales Report. Please ask your administrator. | LIFF, link page | L3 |
+| `SalesReport_Link_Title` | Connect LINE to Salesforce | Link page | L3 |
+| `SalesReport_Link_Confirm_Body` | Connect the LINE account "{0}" to your Salesforce user {1}? | Link page | L3 |
+| `SalesReport_Link_Confirm_Note` | Only continue if you opened this page yourself from the Sales Report menu in LINE. | Link page | L3 |
+| `SalesReport_Link_Confirm_Button` | Connect | Link page | L3 |
+| `SalesReport_Link_Done` | Done. Your LINE account is connected. You can go back to LINE. | Link page | L3 |
+| `SalesReport_Link_Return` | Open Sales Report in LINE | Link page | L3 |
+| `SalesReport_Link_Invalid` | This link has expired or was already used. Open the form in LINE and try again. | Link page | L3 |
+| `SalesReport_Account_Label` | Account | LIFF | L4 |
+| `SalesReport_Account_Search_Placeholder` | Type at least {0} characters | LIFF | L4 |
+| `SalesReport_Searching` | Searching… | LIFF | L4 |
+| `SalesReport_No_Results` | No matching accounts | LIFF | L4 |
+| `SalesReport_Change` | Change | LIFF | L4 |
 
-Categories `SalesReport` (label "Sales Report"). Translations JA / EN / TH (BA). Initial set — final list grows with the UI:
-
-| Label | English value |
-|---|---|
-| `SalesReport_Connect_Title` | Connect your Salesforce account |
-| `SalesReport_Connect_Button` | Log in to Salesforce |
-| `SalesReport_Connect_Done` | Done — you can return to LINE. |
-| `SalesReport_Link_Expired` | This link has expired. Open the form in LINE and try again. |
-| `SalesReport_Account_Search_Placeholder` | Type at least 2 characters |
-| `SalesReport_No_Results` | No matching accounts |
-| `SalesReport_Activity_Title` | Log activity |
-| `SalesReport_Opportunity_Title` | Update opportunity |
-| `SalesReport_Save` | Save |
-| `SalesReport_Saved` | Saved |
-| `SalesReport_Error_Generic` | Something went wrong. Please try again. |
-| `SalesReport_Error_Session_Expired` | Your session expired. Reopening… |
-| `SalesReport_Error_Rate_Limited` | Too many requests. Please wait a moment. |
-| `SalesReport_Error_Unavailable` | The service is temporarily unavailable. |
+Planned: Save / Saved and form field messages (L5), rate-limit message (L7).
 
 Validation-rule messages from the org are shown as returned (they are already in the org's language).
 
@@ -179,7 +196,7 @@ Validation-rule messages from the org are shown as returned (they are already in
 | `SalesReport_Link_Code__c` | Read, Edit (required by Salesforce for Delete), Delete, View All; fields read-only |
 | `SalesReport_Log__c` | Read, Edit, Delete, View All (Edit is required by Salesforce for Delete; all log fields are read-only via FLS) |
 | Tabs | `SalesReport_Line_Link__c`, `SalesReport_Log__c` visible |
-| Apex | none beyond the above (unlink via `SalesReportLinkService` invocable, L3) |
+| Apex | none (unlink = set Status to Unlinked in the tab; no extra action needed) |
 
 ### 5.3 `without sharing` justifications
 
@@ -191,22 +208,21 @@ Justifications (repeated in class headers):
 
 | Class | Why |
 |---|---|
-| `SalesReportIdentityService` | Guest context must read the link for a **verified** LINE user ID; guest has no object access by design. Reads only `User__c`, `Status__c`. |
-| `SalesReportLinkService` | Creates/consumes link codes from the guest context and writes links on behalf of the logged-in rep (`UserInfo.getUserId()`); reps get no object access so mappings can't be edited by hand. |
+| `SalesReportLinkService` | Creates link codes and reads the active link from the guest context (only for a **verified** LINE user ID), consumes codes and writes links on behalf of the logged-in rep (`UserInfo.getUserId()`), ends links of deactivated users. Reps and the guest get no object access, so mappings can't be edited by hand. |
 | `SalesReportLogService` | Logs must be written whoever the running user is. |
 
-All other classes: `with sharing`; queries/DML on business data happen through the org REST API as the rep.
+All other classes: `with sharing`; queries/DML on business data happen through the org REST API as the rep. (`SalesReportSessionCalloutService` reads `Organization.IsSandbox` with `WITH SYSTEM_MODE` — no business data.)
 
-### 5.4 Site guest profile (`SalesReport_Site`, [HUMAN] in L2)
+### 5.4 Site guest profile (`SalesReport_Site`, [HUMAN])
 
 | Area | Grant |
 |---|---|
-| Apex classes | L2: `SalesReportMeController`. Added later: `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportOpportunityController`, `SalesReportActivityController` (L5). Page controllers need no class access. |
-| Visualforce pages | `SalesReport_Liff` |
-| Objects | **none** |
+| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4 — [HUMAN] step L4-2); later `SalesReportOpportunityController`, `SalesReportActivityController` (L5). Page controllers need no class access. |
+| Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages, harmless) |
+| Objects | **none** (checked by query 2026-10-29) |
 | Other | Leave all "View …"/API permissions off |
 
-## 6. Salesforce Site `SalesReport_Site` ([HUMAN], L2)
+## 6. Salesforce Site `SalesReport_Site` ([HUMAN], L2 — created and checked 2026-10-29)
 
 | Setting | Value |
 |---|---|
@@ -214,25 +230,26 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 | Default web address | `https://<sites domain>/salesreport` |
 | Active site home page | `SalesReport_Liff` |
 | Site contact | Admin user |
-| Default record owner | An active admin/integration user (owns guest-created `SalesReport_Link_Code__c` records) |
+| Default record owner | An active admin user (owns guest-created `SalesReport_Link_Code__c` and `SalesReport_Log__c` records) |
 | Require secure connections (HTTPS) | On |
 | Upgrade insecure requests | On |
 | Clickjack protection | "Allow framing by the same origin only" (LIFF does not frame the page) |
-| Guest access to Salesforce APIs | Off (Apex REST through the Site does not need it) |
+| Guest access to Salesforce APIs | Off (Apex REST through the Site does not need it; `/services/data` as guest → 401, checked) |
 | Lightning features for guest | Off |
+| Redirect to custom domain | Off (the LIFF endpoint uses the `salesforce-sites.com` URL) |
 | Cache public Visualforce pages | Off for `SalesReport_Liff` (LIFF ID is injected) |
 
-## 7. External Client App `SalesReport_App` ([HUMAN], L3)
+## 7. External Client App `SalesReport_App` ([HUMAN], L3 — created and checked 2026-10-29)
 
 | Setting | Value |
 |---|---|
 | Distribution | Local |
-| OAuth | Enabled; callback URL `https://localhost/callback` (unused by JWT flow, but required) |
+| OAuth | Enabled; callback URL `https://login.salesforce.com/services/oauth2/success` (unused by the JWT flow, but required) |
 | OAuth scopes | `api`, `id` (for `/services/oauth2/userinfo`) and `refresh_token` (required by Salesforce for the JWT bearer flow; no refresh token is issued) |
 | Flow enablement | **JWT Bearer Flow** on; certificate = public cert of `SalesReport_JWT_Signing` |
 | Permitted users | Admin approved users are pre-authorized → permission set `SalesReport_User` |
 | IP relaxation | Relax IP restrictions (callouts come from Salesforce IPs) |
-| Session policy | Short session timeout (15 min); tokens are not stored (D-16) |
+| Session / refresh-token policy | Defaults kept; tokens are never stored (D-16), so they don't matter here |
 | Value sent back | Consumer key → `SalesReport_Settings__c.Eca_Consumer_Key__c` (consumer secret not needed, never sent) |
 
 ## 8. Other org components
@@ -241,6 +258,6 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 |---|---|---|
 | Remote Site Setting | `SalesReport_LINE_API` | `https://api.line.me`, protocol security on, description "Sales Report: LINE ID token verification" |
 | Remote Site Setting | ~~`SalesReport_Org_Domain`~~ | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) |
-| Certificate | `SalesReport_JWT_Signing` | Self-signed, 2048-bit, **not** exportable; renew before expiry (default 1 year) and re-upload to the ECA |
-| Platform Cache partition | `SalesReportCache` | Org cache only, smallest allocation (~1 MB); session cache 0 (D-14, L7) |
-| Scheduled job | "Sales Report cleanup" | `SalesReportLinkCleanupService`, daily, 02:00 Asia/Bangkok (L7) |
+| Certificate | `SalesReport_JWT_Signing` | Self-signed, 2048-bit, **not** exportable; expires **2027-10-29** — renew before then and re-upload to the ECA |
+| Platform Cache partition | `SalesReportCache` | Org cache only, smallest allocation (~1 MB); session cache 0 (D-14, L7 — not built yet) |
+| Scheduled job | "Sales Report cleanup" | `SalesReportLinkCleanupService`, daily, 02:00 Asia/Bangkok (L7 — not built yet) |

@@ -122,19 +122,19 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | `fa/remoteSiteSettings/SalesReport_Org_Domain.remoteSite-meta.xml` | Remote Site | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) | L3 | Removed (not needed) |
 | `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 30 English labels (L2 shell, L3 connect / link page, L4 Account picker), translations JA / TH in L6 | L2, L3, L6 | Done (L2–L3 part) |
 | `fa/customPermissions/SalesReport_Access.customPermission-meta.xml` | Custom permission | Checked by the link page; granted by `SalesReport_User` | L3 | Done |
-| Site guest profile settings | Profile (org-generated) | Apex `SalesReport*Controller` (REST) + VF `SalesReport_Liff` only, no object access | L2 | [HUMAN] |
+| Site guest profile settings | Profile (org-generated) | Apex `SalesReportMeController`, `SalesReportLinkController` (done), `SalesReportAccountController` (L4-2, pending) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — partly done |
 
 ## 8. Components created in Setup ([HUMAN], not in the repo)
 
 | Component | Name | Where | Milestone | Status |
 |---|---|---|---|---|
-| Salesforce Site | `SalesReport_Site` (path `salesreport`) | Setup → Sites | L2 | [HUMAN] |
-| Certificate | `SalesReport_JWT_Signing` | Setup → Certificate and Key Management | L3 | [HUMAN] |
-| External Client App | `SalesReport_App` | Setup → External Client App Manager | L3 | [HUMAN] |
+| Salesforce Site | `SalesReport_Site` (path `salesreport`) | Setup → Sites | L2 | [HUMAN] — done |
+| Certificate | `SalesReport_JWT_Signing` | Setup → Certificate and Key Management | L3 | [HUMAN] — done |
+| External Client App | `SalesReport_App` | Setup → External Client App Manager | L3 | [HUMAN] — done |
 | Platform Cache partition | `SalesReportCache` | Setup → Platform Cache | L7 | [HUMAN] |
-| Settings values | `SalesReport_Settings__c` org defaults | Setup → Custom Settings | L2–L3 | [HUMAN] |
-| LINE OA, Messaging API channel, LINE Login channel | "Sales Reporting" | LINE consoles (`LINE-SETUP.md`) | L1 | [HUMAN] |
-| LIFF app, rich menu | "Sales Reporting" | LINE Developers Console / OA Manager | L2 | [HUMAN] |
+| Settings values | `SalesReport_Settings__c` org defaults | Setup → Custom Settings | L2–L3 | [HUMAN] — done |
+| LINE OA, Messaging API channel, LINE Login channel | "Sales Reporting" | LINE consoles (`LINE-SETUP.md`) | L1 | [HUMAN] — done |
+| LIFF app, rich menu | "Sales Reporting" | LINE Developers Console / OA Manager | L2 | [HUMAN] — done |
 
 ## 9. Project configuration
 
