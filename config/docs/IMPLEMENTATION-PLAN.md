@@ -58,11 +58,12 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
 - [ ] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.
 - [ ] H · Rich menu: 2 URI actions → `https://liff.line.me/{liffId}?form=activity` / `?form=opportunity` (OA Manager or API).
-- [ ] C · Measure (after the Site is live): `sf org list limits` before/after 10 `/me` calls — API request count per call (§6 [VERIFY]).
+- [~] C · Measure (after the Site is live): `sf org list limits` before/after 10 `/me` calls — first runs (10 and 30 public calls) moved `DailyApiRequests` by ≤ 1, but the counter lags; re-measure with a larger sample — API request count per call (§6 [VERIFY]).
 
 - [x] C · Deploy to sandbox `dev5`: 31/31 tests pass, coverage 97.3%; Code Analyzer (Recommended): 0 Critical/High.
 - [x] C · Settings org default: LINE Login channel ID, Enabled, Log Level WARN; `SalesReport_Admin` assigned to the deploying admin.
-- [ ] C · Set LIFF ID in settings once received; smoke-test the Site endpoint.
+- [x] C · Smoke-test the Site endpoint and page over the public URL (2026-10-29).
+- [ ] C · Set LIFF ID in settings once received.
 
 **Exit / proof point:** tapping a rich-menu button opens the LIFF page from the new Site and shows the rep's LINE display name.
 
