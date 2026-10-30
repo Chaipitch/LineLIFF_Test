@@ -127,8 +127,8 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · LIFF form: dynamic fields from `GET /activity`, client-side required check, errors cleared on change, success screen with "Log another" / Close (checked headless 2026-10-30).
 - [x] C · Tests: success, required field missing, validation-rule error (mocked), field outside field set rejected, not linked — 92 tests, 95.8% coverage; Code Analyzer 0 Critical/High.
 - [x] C · Live check through the real JWT session: form (Type 4 values, Due Date Only, Description; none required in `dev5`) ~1.0 s; past date → `Completed`, future → `Open`, Priority `Normal`, owner = rep; test Tasks deleted.
-- [ ] H · Guest profile: add Apex class `SalesReportActivityController` (public `/activity` answers 403 "no access to the Apex class" until then).
-- [ ] H+C · Device test: log a Task from the phone, check it on the Account.
+- [x] H · Guest profile: add Apex class `SalesReportActivityController` — done 2026-10-30; public `/activity` answers 401 for a fake token.
+- [x] H+C · Device test (2026-10-30): Task logged from the phone on *Mock Customer 030 Co., Ltd.* — Created By / Assigned To = the rep, Subject "<Type> – <Account>", Status `Completed`, Priority `Normal`, Subtype `Task`.
 
 ### L5b — Attachments (after L5a works)
 
