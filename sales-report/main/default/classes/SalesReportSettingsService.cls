@@ -15,6 +15,15 @@ public with sharing class SalesReportSettingsService {
   static final Integer DEFAULT_SEARCH_MAX_RESULTS = 10;
   @TestVisible
   static final Integer MAX_SEARCH_RESULTS = 50;
+  @TestVisible
+  static final Integer DEFAULT_ATTACHMENT_MAX_FILES = 5;
+  @TestVisible
+  static final Integer MAX_ATTACHMENT_FILES = 10;
+  /** Also the hard cap: a 4 MB file peaks at ~5.6 MB of the 6 MB Apex heap on its way to the API (D-34). */
+  @TestVisible
+  static final Integer MAX_ATTACHMENT_SIZE_MB = 4;
+  @TestVisible
+  static final String DEFAULT_ATTACHMENT_TYPES = 'jpg,jpeg,png,pdf';
 
   @TestVisible
   private static SalesReport_Settings__c cached;
@@ -67,6 +76,39 @@ public with sharing class SalesReportSettingsService {
       DEFAULT_SEARCH_MAX_RESULTS,
       MAX_SEARCH_RESULTS
     );
+  }
+
+  /** Between 1 and MAX_ATTACHMENT_FILES; blank = DEFAULT_ATTACHMENT_MAX_FILES. */
+  public static Integer attachmentMaxFiles() {
+    return bounded(
+      settings().Attachment_Max_Files__c,
+      DEFAULT_ATTACHMENT_MAX_FILES,
+      MAX_ATTACHMENT_FILES
+    );
+  }
+
+  /** Between 1 and MAX_ATTACHMENT_SIZE_MB; blank = MAX_ATTACHMENT_SIZE_MB. */
+  public static Integer attachmentMaxSizeMb() {
+    return bounded(
+      settings().Attachment_Max_Size_Mb__c,
+      MAX_ATTACHMENT_SIZE_MB,
+      MAX_ATTACHMENT_SIZE_MB
+    );
+  }
+
+  /** Allowed file extensions, lower case without dots; blank = DEFAULT_ATTACHMENT_TYPES. */
+  public static List<String> attachmentFileTypes() {
+    String raw = trimToNull(settings().Attachment_File_Types__c);
+    List<String> types = new List<String>();
+    for (
+      String part : (raw == null ? DEFAULT_ATTACHMENT_TYPES : raw).split(',')
+    ) {
+      String extension = part.trim().removeStart('.').toLowerCase();
+      if (extension.length() > 0 && !types.contains(extension)) {
+        types.add(extension);
+      }
+    }
+    return types;
   }
 
   public static String logLevel() {

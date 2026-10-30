@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Attachment_File_Types__c</fullName>
+    <description
+  >Comma-separated file extensions reps may attach from LINE, e.g. jpg,jpeg,png,pdf. Blank = jpg,jpeg,png,pdf.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Comma-separated file extensions reps may attach from LINE, e.g. jpg,jpeg,png,pdf. Blank = jpg,jpeg,png,pdf.</inlineHelpText>
+    <label>Attachment File Types</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

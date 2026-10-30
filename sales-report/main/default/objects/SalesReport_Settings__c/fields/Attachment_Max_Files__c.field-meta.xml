@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Attachment_Max_Files__c</fullName>
+    <description
+  >Maximum photos/files attached to one activity from LINE. Blank = 5; capped at 10. 0 is treated as blank.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Maximum photos/files attached to one activity from LINE. Blank = 5; capped at 10. 0 is treated as blank.</inlineHelpText>
+    <label>Attachment Max Files</label>
+    <precision>2</precision>
+    <scale>0</scale>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

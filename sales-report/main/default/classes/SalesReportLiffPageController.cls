@@ -19,6 +19,11 @@ public with sharing class SalesReportLiffPageController {
           'minChars' => SalesReportSettingsService.accountSearchMinChars(),
           'maxResults' => SalesReportSettingsService.accountSearchMaxResults()
         },
+        'attachments' => new Map<String, Object>{
+          'maxFiles' => SalesReportSettingsService.attachmentMaxFiles(),
+          'maxSizeMb' => SalesReportSettingsService.attachmentMaxSizeMb(),
+          'types' => SalesReportSettingsService.attachmentFileTypes()
+        },
         'labels' => labels()
       }
     );
@@ -42,6 +47,15 @@ public with sharing class SalesReportLiffPageController {
       'change' => System.Label.SalesReport_Change,
       'activityTitle' => System.Label.SalesReport_Activity_Title,
       'activitySaved' => System.Label.SalesReport_Activity_Saved,
+      'attachmentsLabel' => System.Label.SalesReport_Attachments_Label,
+      'addFile' => System.Label.SalesReport_Add_File,
+      'removeFile' => System.Label.SalesReport_Remove_File,
+      'fileTooLarge' => System.Label.SalesReport_File_Too_Large,
+      'fileTypeNotAllowed' => System.Label.SalesReport_File_Type_Not_Allowed,
+      'maxFiles' => System.Label.SalesReport_Max_Files,
+      'uploading' => System.Label.SalesReport_Uploading,
+      'uploadFailed' => System.Label.SalesReport_Upload_Failed,
+      'retry' => System.Label.SalesReport_Retry,
       'checkFields' => System.Label.SalesReport_Check_Fields,
       'chooseAccount' => System.Label.SalesReport_Choose_Account,
       'logAnother' => System.Label.SalesReport_Log_Another,

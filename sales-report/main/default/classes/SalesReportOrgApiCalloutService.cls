@@ -14,6 +14,8 @@ public with sharing class SalesReportOrgApiCalloutService {
   private final String accessToken;
   /** The rep's time zone (from their User record), so "today" means the rep's today. */
   public final String timeZoneSidKey;
+  /** The rep's User ID (from the link), e.g. to check that a record is the rep's own. */
+  public final Id userId;
 
   public SalesReportOrgApiCalloutService(String accessToken) {
     this(accessToken, null);
@@ -23,8 +25,17 @@ public with sharing class SalesReportOrgApiCalloutService {
     String accessToken,
     String timeZoneSidKey
   ) {
+    this(accessToken, timeZoneSidKey, null);
+  }
+
+  public SalesReportOrgApiCalloutService(
+    String accessToken,
+    String timeZoneSidKey,
+    Id userId
+  ) {
     this.accessToken = accessToken;
     this.timeZoneSidKey = timeZoneSidKey;
+    this.userId = userId;
   }
 
   /** Today's date in the rep's time zone (the running user's when unknown). */
@@ -68,6 +79,35 @@ public with sharing class SalesReportOrgApiCalloutService {
       'POST',
       '/services/data/' + API_VERSION + '/sobjects/' + sObjectType,
       JSON.serialize(fields)
+    );
+    return (String) result.get('id');
+  }
+
+  /**
+   * Uploads one file as the rep (POST sobjects/ContentVersion, published to recordId) and returns the
+   * ContentVersion ID. The JSON body carries the file base64-encoded: the only copy that counts against the heap,
+   * ~1.33 × the file size (D-34).
+   */
+  public String createFile(
+    String title,
+    String pathOnClient,
+    Id recordId,
+    Blob data
+  ) {
+    String body =
+      '{"Title":' +
+      JSON.serialize(title) +
+      ',"PathOnClient":' +
+      JSON.serialize(pathOnClient) +
+      ',"FirstPublishLocationId":"' +
+      recordId +
+      '","VersionData":"' +
+      EncodingUtil.base64Encode(data) +
+      '"}';
+    Map<String, Object> result = (Map<String, Object>) send(
+      'POST',
+      '/services/data/' + API_VERSION + '/sobjects/ContentVersion',
+      body
     );
     return (String) result.get('id');
   }

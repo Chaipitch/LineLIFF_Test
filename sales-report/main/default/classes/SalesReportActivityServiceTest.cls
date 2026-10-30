@@ -127,7 +127,7 @@ private class SalesReportActivityServiceTest {
       .create(api(), body(ACCOUNT_ID, visit(Date.today().addDays(-2))));
     Test.stopTest();
 
-    Assert.areEqual('00T000000000001AAA', result.id, 'Created Task ID');
+    Assert.areEqual('00T000000000001EAA', result.id, 'Created Task ID');
     Map<String, Object> task = sentTask(mock);
     Assert.areEqual(ACCOUNT_ID, task.get('WhatId'), 'Linked to the Account');
     Assert.areEqual(

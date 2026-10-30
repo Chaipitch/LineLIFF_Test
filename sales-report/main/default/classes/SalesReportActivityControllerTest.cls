@@ -61,7 +61,7 @@ private class SalesReportActivityControllerTest {
 
     Assert.areEqual(200, RestContext.response.statusCode, 'OK');
     Map<String, Object> result = responseJson();
-    Assert.areEqual('00T000000000001AAA', result.get('id'), 'Task ID');
+    Assert.areEqual('00T000000000001EAA', result.get('id'), 'Task ID');
     Assert.areEqual(
       'Phone Call – Toyota Motor Thailand',
       result.get('subject'),

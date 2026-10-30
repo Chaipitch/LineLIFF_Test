@@ -80,7 +80,8 @@ public with sharing class SalesReportIdentityService {
       .accessTokenFor(link.User__r.Username);
     return new SalesReportOrgApiCalloutService(
       accessToken,
-      link.User__r.TimeZoneSidKey
+      link.User__r.TimeZoneSidKey,
+      link.User__c
     );
   }
 }

@@ -83,4 +83,47 @@ private class SalesReportSettingsServiceTest {
       'Capped'
     );
   }
+
+  @IsTest
+  static void attachmentLimitsFollowSettings() {
+    Assert.areEqual(
+      SalesReportSettingsService.DEFAULT_ATTACHMENT_MAX_FILES,
+      SalesReportSettingsService.attachmentMaxFiles(),
+      'Default count'
+    );
+    Assert.areEqual(
+      SalesReportSettingsService.MAX_ATTACHMENT_SIZE_MB,
+      SalesReportSettingsService.attachmentMaxSizeMb(),
+      'Default size'
+    );
+    Assert.areEqual(
+      new List<String>{ 'jpg', 'jpeg', 'png', 'pdf' },
+      SalesReportSettingsService.attachmentFileTypes(),
+      'Default types'
+    );
+
+    insert new SalesReport_Settings__c(
+      SetupOwnerId = UserInfo.getOrganizationId(),
+      Attachment_Max_Files__c = 50,
+      Attachment_Max_Size_Mb__c = 9,
+      Attachment_File_Types__c = ' .PNG, pdf ,,png'
+    );
+    SalesReportSettingsService.cached = null;
+
+    Assert.areEqual(
+      SalesReportSettingsService.MAX_ATTACHMENT_FILES,
+      SalesReportSettingsService.attachmentMaxFiles(),
+      'Count capped'
+    );
+    Assert.areEqual(
+      SalesReportSettingsService.MAX_ATTACHMENT_SIZE_MB,
+      SalesReportSettingsService.attachmentMaxSizeMb(),
+      'Size capped'
+    );
+    Assert.areEqual(
+      new List<String>{ 'png', 'pdf' },
+      SalesReportSettingsService.attachmentFileTypes(),
+      'Normalised, no duplicates'
+    );
+  }
 }

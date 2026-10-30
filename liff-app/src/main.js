@@ -7,6 +7,7 @@ import liff from "@line/liff";
 import { createApi, ApiError } from "./api.js";
 import { createAccountPicker } from "./accountPicker.js";
 import { createActivityForm } from "./activityForm.js";
+import { uploadFiles } from "./attachments.js";
 
 const RELOAD_FLAG = "salesReport.reloadedForToken";
 const FORMS = { activity: "activityTitle", opportunity: "opportunityTitle" };
@@ -97,7 +98,8 @@ function showHome(me, formKey) {
       api: apiClient,
       labels,
       createPicker: newPicker,
-      onSaved: (result) => showActivitySaved(me, result),
+      attachments: config.attachments,
+      onSaved: (result, failed) => showActivitySaved(me, result, failed),
       onError: handleApiError
     });
     card.append(form.element);
@@ -128,13 +130,37 @@ function identityBar(me) {
   return bar;
 }
 
-function showActivitySaved(me, result) {
+function showActivitySaved(me, result, failed) {
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels.activityTitle));
   card.append(
     el("p", "sr-message", format(labels.activitySaved, result.subject || ""))
   );
-  card.append(button(labels.logAnother, () => showHome(me, "activity")));
+  if (failed && failed.length) {
+    card.append(
+      el("p", "sr-error", format(labels.uploadFailed, failed.length))
+    );
+    const retry = button(labels.retry, async () => {
+      retry.disabled = true;
+      const stillFailed = await uploadFiles(
+        apiClient,
+        result.id,
+        failed,
+        (done, total) => {
+          retry.textContent = format(labels.uploading, done, total);
+        }
+      );
+      showActivitySaved(me, result, stillFailed);
+    });
+    card.append(retry);
+  }
+  card.append(
+    button(
+      labels.logAnother,
+      () => showHome(me, "activity"),
+      failed && failed.length > 0
+    )
+  );
   if (liff.isInClient())
     card.append(button(labels.close, () => liff.closeWindow(), true));
   render(identityBar(me), card);

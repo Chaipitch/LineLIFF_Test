@@ -3,6 +3,7 @@
 // for a quick answer; the server checks them again, and Salesforce's own errors (validation rules) come back as
 // messages next to the fields they name. All text is rendered with textContent.
 import { ApiError } from "./api.js";
+import { createAttachmentPicker, uploadFiles } from "./attachments.js";
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -89,6 +90,12 @@ function localToday() {
   );
 }
 
+function format(template, ...values) {
+  return String(template || "").replace(/\{(\d+)\}/g, (match, i) =>
+    values[i] !== undefined ? values[i] : match
+  );
+}
+
 function isEmpty(value) {
   return (
     value === "" ||
@@ -104,6 +111,10 @@ export function createActivityForm(options) {
   // The Account picker is created here so choosing an Account clears its error.
   const picker = options.createPicker(() => showError(accountError));
   const onSaved = options.onSaved;
+  const attachments =
+    options.attachments && options.attachments.maxFiles > 0
+      ? createAttachmentPicker({ labels, limits: options.attachments })
+      : null;
   const onError = options.onError;
 
   const form = el("form", "sr-form");
@@ -121,7 +132,9 @@ export function createActivityForm(options) {
   // Save stays at the bottom of the screen while the rep scrolls a long form.
   const actions = el("div", "sr-actions");
   actions.append(formError, save);
-  form.append(picker.element, accountError, fieldsBox, actions);
+  form.append(picker.element, accountError, fieldsBox);
+  if (attachments) form.append(attachments.element);
+  form.append(actions);
 
   const controls = [];
 
@@ -219,7 +232,12 @@ export function createActivityForm(options) {
         accountId: account.id,
         values: collected.values
       });
-      onSaved(result, account);
+      // The Task exists from here on: upload problems are reported on the saved screen, never as a form error.
+      const files = attachments ? attachments.files() : [];
+      const failed = await uploadFiles(api, result.id, files, (done, total) => {
+        save.textContent = format(labels.uploading, done, total);
+      });
+      onSaved(result, failed);
     } catch (error) {
       save.disabled = false;
       save.textContent = labels.save;

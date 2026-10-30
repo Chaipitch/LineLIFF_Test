@@ -85,7 +85,7 @@ npm run build:liff
 Sandbox (only this feature's tests):
 
 ```bash
-sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportMeControllerTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
+sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityServiceTest --tests SalesReportActivityFileControllerTest --tests SalesReportActivityFileServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportMeControllerTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
 ```
 
 Production: validate first with `--test-level RunLocalTests` (`sf project deploy validate`), then quick-deploy.
@@ -168,6 +168,7 @@ Save. Then on the Site detail page:
      - `SalesReportLinkController` — "start my one-time login" (L3)
      - `SalesReportAccountController` — "search Accounts" (L4)
      - `SalesReportActivityController` — "show the Log Activity form and save it" (L5a)
+     - `SalesReportActivityFileController` — "attach a photo or file to the activity just saved" (L5b)
      - later `SalesReportOpportunityController` (L5c)
    - **Enabled Visualforce Page Access** → `SalesReport_Liff` (often added automatically).
    - Object Settings: leave **all objects without access**. Don't assign `LINE_Webhook_Guest` or any other permission set.
@@ -286,6 +287,10 @@ Create, then:
   **page layout** of the reps' profile, or tick *Required* for it in the field set. Validation rules on Task also apply
   and their message is shown on the form. If you make a field required on the layout but **don't** add it to the field
   set, reps get the message "Salesforce requires *X* … ask your admin to add it to field set SalesReport_Activity_Form".
+- **Attachment limits (L5b).** Part C settings: *Attachment Max Files* (blank = 5, at most 10), *Attachment Max Size MB*
+  (blank = 4; 4 is the most Salesforce can handle on this route), *Attachment File Types* (blank = `jpg,jpeg,png,pdf`).
+  Photos are shrunk on the phone and always arrive as .jpg, so keep `jpg` in the list. Files count against the org's
+  **file storage** (Setup → Storage Usage). *Why:* keeps uploads quick on mobile data and storage under control.
 - **Activity Type values.** The Type list is Salesforce's Task *Type* picklist (BA Q-A2): Object Manager → Activity →
   Fields → Type → add values such as *Customer Visit*. They also appear for normal Task entry in Salesforce.
 - **Switch off for everyone.** Part C: untick *Enabled*.

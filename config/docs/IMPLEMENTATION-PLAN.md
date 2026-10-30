@@ -130,12 +130,18 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] H · Guest profile: add Apex class `SalesReportActivityController` — done 2026-10-30; public `/activity` answers 401 for a fake token.
 - [x] H+C · Device test (2026-10-30): Task logged from the phone on *Mock Customer 030 Co., Ltd.* — Created By / Assigned To = the rep, Subject "<Type> – <Account>", Status `Completed`, Priority `Normal`, Subtype `Task`.
 
-### L5b — Attachments (after L5a works)
+### L5b — Attachments (built 2026-10-30 with the proposed limits)
 
-- [ ] BA · Limits: count, size, types (Q-A6a; proposed 5 × 4 MB, photos + PDF).
-- [ ] C · Settings fields for the limits; `POST /salesreport/v1/activity/files` → `ContentVersion` on the Task as the rep (D-34).
-- [ ] C · LIFF: camera/gallery picker, resize photos in the browser (~1600 px JPEG), upload one by one with progress and retry.
-- [ ] C · Tests: size/type/count limits, Task not the rep's, upload error.
+- [ ] BA · Limits: count, size, types (Q-A6a). Built with the proposal 5 × 4 MB, jpg/jpeg/png/pdf — change in Settings, no code.
+- [x] C · Settings `Attachment_Max_Files__c` (5, cap 10), `Attachment_Max_Size_Mb__c` (4, hard cap 4), `Attachment_File_Types__c`.
+- [x] C · `POST /salesreport/v1/activity/files?taskId=&name=` (raw bytes) → `ContentVersion` on the Task as the rep (D-34): only the
+      rep's own Task, within 60 min of logging it, count/size/type limits, clean file name.
+- [x] C · Heap measured (anonymous Apex): file bytes don't count, the base64 JSON does (~1.33 ×); 4 MB → ~5.6 MB of 6 MB. Live: 3.9 MB
+      uploaded in ~3 s as the rep; someone else's Task refused; test data deleted.
+- [x] C · LIFF: camera/gallery/file picker, photos shrunk to ≤ 1600 px JPEG on the phone (4000×3000 PNG → 113 KB), thumbnails,
+      remove, type/size/count messages; uploads one by one after Save with "Uploading 1 of 2…", failed files → "Try again" (checked headless).
+- [x] C · Tests: size/type/count limits, Task not the rep's, old Task, upload as the rep, name cleaning — 102 tests, 96.2%; Code Analyzer 0 Critical/High.
+- [ ] H · Guest profile: add Apex class `SalesReportActivityFileController` (public `/activity/files` answers 403 until then).
 - [ ] H+C · Device test on iOS and Android (camera and gallery). Keep test files small (sandbox file storage: 59 MB free).
 
 ### L5c — Update Opportunity (waiting on BA: Q-O1–Q-O7, D-12; D-13 licences)

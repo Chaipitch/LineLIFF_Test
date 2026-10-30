@@ -81,14 +81,14 @@ private class SalesReportOrgApiCalloutServiceTest {
   static void createPostsJsonAsTheRep() {
     SalesReportHttpMock mock = new SalesReportHttpMock(
       201,
-      '{"id":"00T000000000001AAA","success":true,"errors":[]}'
+      '{"id":"00T000000000001EAA","success":true,"errors":[]}'
     );
     Test.setMock(HttpCalloutMock.class, mock);
 
     String id = new SalesReportOrgApiCalloutService('session-token')
       .create('Task', new Map<String, Object>{ 'Subject' => 'Visit' });
 
-    Assert.areEqual('00T000000000001AAA', id, 'New ID');
+    Assert.areEqual('00T000000000001EAA', id, 'New ID');
     Assert.areEqual('POST', mock.lastRequest.getMethod(), 'Method');
     Assert.isTrue(
       mock.lastRequest.getEndpoint().endsWith('/sobjects/Task'),
@@ -186,6 +186,38 @@ private class SalesReportOrgApiCalloutServiceTest {
       mock.lastRequest.getEndpoint()
         .endsWith('/ui-api/record-defaults/create/Task'),
       'UI API path'
+    );
+  }
+
+  @IsTest
+  static void createFileSendsBase64ContentAsTheRep() {
+    SalesReportHttpMock mock = new SalesReportHttpMock(
+      201,
+      '{"id":"068000000000001AAA","success":true,"errors":[]}'
+    );
+    Test.setMock(HttpCalloutMock.class, mock);
+
+    String id = new SalesReportOrgApiCalloutService('session-token')
+      .createFile(
+        'Visit "notes"',
+        'Visit "notes".pdf',
+        Id.valueOf('00T000000000001EAA'),
+        Blob.valueOf('%PDF')
+      );
+
+    Assert.areEqual('068000000000001AAA', id, 'New ID');
+    Map<String, Object> sent = (Map<String, Object>) JSON.deserializeUntyped(
+      mock.lastRequest.getBody()
+    );
+    Assert.areEqual('Visit "notes"', sent.get('Title'), 'Escaped title');
+    Assert.areEqual(
+      EncodingUtil.base64Encode(Blob.valueOf('%PDF')),
+      sent.get('VersionData'),
+      'Base64 content'
+    );
+    Assert.isTrue(
+      mock.lastRequest.getEndpoint().endsWith('/sobjects/ContentVersion'),
+      'Endpoint'
     );
   }
 }

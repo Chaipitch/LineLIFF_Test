@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Attachment_Max_Size_Mb__c</fullName>
+    <description
+  >Maximum size of one attached file in MB, after photos are shrunk on the phone. Blank = 4; capped at 4 (Apex memory limit, D-34).</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Maximum size of one attached file in MB, after photos are shrunk on the phone. Blank = 4; capped at 4 (Apex memory limit, D-34).</inlineHelpText>
+    <label>Attachment Max Size MB</label>
+    <precision>1</precision>
+    <scale>0</scale>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

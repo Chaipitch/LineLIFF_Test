@@ -81,7 +81,7 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses 
 | `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5 | `IsClosed = false`, ordered by CloseDate. |
 | `GET /activity` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | Done (L5a) | Field set `SalesReport_Activity_Form` + UI API object-info, layout, picklist-values read **as the rep** (D-31, D-35). |
 | `POST /activity` | Create the **Task** (D-11): body `{ accountId, values: { <field>: <value> } }` | yes | Done (L5a) | Only field-set fields accepted; `WhatId` = Account ID only (D-33), checked visible to the rep; `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
-| `POST /activity/files` | Attach one file to a Task the rep just created | yes | L5 | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). One file per request, size/type/count limits from settings. |
+| `POST /activity/files?taskId=&name=` | Attach one file (raw bytes, `application/octet-stream`) to a Task the rep just created | yes | Done (L5b) | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). Only the rep's own Task, within 60 min; count/size/type limits from settings. Returns `{ id, name, size }`. |
 | `POST /opportunity` | Update one Opportunity | yes | L5 | Only field-set fields (D-21); `Id` must belong to the chosen Account. |
 
 Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` —
@@ -220,5 +220,5 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/me` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments next; L5c Update Opportunity waiting on the BA (D-12, Q-O1) |
+| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments built (device test pending); L5c Update Opportunity waiting on the BA (D-12, Q-O1) |
 | L6–L8 | Not started |

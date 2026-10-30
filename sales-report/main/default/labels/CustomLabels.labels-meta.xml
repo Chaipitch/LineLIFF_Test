@@ -42,6 +42,22 @@
         <value>Log activity</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Add_File</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Add_File</shortDescription>
+        <value>Add photo or file</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Attachments_Label</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Attachments_Label</shortDescription>
+        <value>Photos and files</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Change</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -157,6 +173,22 @@
         <value>The service is temporarily unavailable.</value>
     </labels>
     <labels>
+        <fullName>SalesReport_File_Too_Large</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_File_Too_Large</shortDescription>
+        <value>{0} is larger than {1} MB.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_File_Type_Not_Allowed</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_File_Type_Not_Allowed</shortDescription>
+        <value>{0}: this file type can’t be attached.</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Hello</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -249,6 +281,14 @@
         <value>Log another activity</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Max_Files</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Max_Files</shortDescription>
+        <value>You can attach up to {0} files.</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Menu_Title</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -282,12 +322,28 @@
         <value>Update opportunity</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Remove_File</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Remove_File</shortDescription>
+        <value>Remove</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Required</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>SalesReport_Required</shortDescription>
         <value>Required</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Retry</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Retry</shortDescription>
+        <value>Try again</value>
     </labels>
     <labels>
         <fullName>SalesReport_Save</fullName>
@@ -320,5 +376,22 @@
         <protected>false</protected>
         <shortDescription>SalesReport_Select_Placeholder</shortDescription>
         <value>— Select —</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Upload_Failed</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Upload_Failed</shortDescription>
+        <value
+    >The activity was saved, but {0} file(s) could not be attached.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Uploading</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Uploading</shortDescription>
+        <value>Uploading {0} of {1}…</value>
     </labels>
 </CustomLabels>

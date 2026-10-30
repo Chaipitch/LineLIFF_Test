@@ -256,11 +256,54 @@ public with sharing class SalesReportTestFactory {
       .route(
         '/sobjects/Task',
         201,
-        '{"id":"00T000000000001AAA","success":true,"errors":[]}'
+        '{"id":"00T000000000001EAA","success":true,"errors":[]}'
       );
   }
 
   public static SalesReportHttpMock taskApiMock() {
     return taskApiMock(taskObjectInfoBody(), taskLayoutBody());
+  }
+
+  private static String apiDate(Datetime value) {
+    return value.formatGmt('yyyy-MM-dd\'T\'HH:mm:ss.SSS') + '+0000';
+  }
+
+  /** Task query, file count and upload answered like the REST API would (attachments, L5b). */
+  public static SalesReportHttpMock taskFileMock(
+    Id createdById,
+    Datetime createdDate,
+    Integer existingFiles
+  ) {
+    List<String> links = new List<String>();
+    for (Integer i = 0; i < existingFiles; i++) {
+      links.add('{"Id":"06A00000000000' + i + 'AAA"}');
+    }
+    return new SalesReportHttpMock(500, '{}')
+      .route('api.line.me', 200, verifyBody())
+      .route(
+        'FROM+Task+WHERE',
+        200,
+        '{"totalSize":1,"done":true,"records":[{"Id":"' +
+          '00T000000000001EAA' +
+          '","CreatedById":"' +
+          createdById +
+          '","CreatedDate":"' +
+          apiDate(createdDate) +
+          '"}]}'
+      )
+      .route(
+        'FROM+ContentDocumentLink',
+        200,
+        '{"totalSize":' +
+          existingFiles +
+          ',"done":true,"records":[' +
+          String.join(links, ',') +
+          ']}'
+      )
+      .route(
+        '/sobjects/ContentVersion',
+        201,
+        '{"id":"068000000000001AAA","success":true,"errors":[]}'
+      );
   }
 }

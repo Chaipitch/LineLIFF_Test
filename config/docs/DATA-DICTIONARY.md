@@ -3,7 +3,7 @@
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
 **State (2026-10-29): §1, §2 (except L7 fields), §3a Account search, §4, §5–§8 are built and deployed to sandbox `dev5`
-(milestones L2–L4).** Log Activity is decided (Task, D-11, D-31–D-34; build in L5a/L5b). Still open: Update Opportunity
+(milestones L2–L4).** Log Activity is built (Task, D-11, D-31–D-35; L5a, L5b). Still open: Update Opportunity
 fields (§3, §3a — BA: D-12, Q-O1), attachment limits (Q-A6a) and the L7
 items (rate limit, retention, cache). Update this file in the same commit whenever a field or setting changes.
 
@@ -93,6 +93,9 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Link_Code_Ttl_Minutes__c` | Link Code TTL (min) | Number(3,0) | 5 | L3 | |
 | `Account_Search_Min_Chars__c` | Account Search Min Chars | Number(2,0) | 2 | L4 | |
 | `Account_Search_Max_Results__c` | Account Search Max Results | Number(3,0) | 10 | L4 | Capped at 50 in code. |
+| `Attachment_Max_Files__c` | Attachment Max Files | Number(2,0) | 5 | L5b | Files per activity; capped at 10 in code. |
+| `Attachment_Max_Size_Mb__c` | Attachment Max Size MB | Number(1,0) | 4 | L5b | Per file, after photos are shrunk; 4 is also the hard cap (Apex heap, D-34). |
+| `Attachment_File_Types__c` | Attachment File Types | Text(255) | jpg,jpeg,png,pdf | L5b | Comma-separated extensions. Photos become .jpg on the phone, so keep jpg in the list. |
 | `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 (not built yet) | Per LINE user. |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
 | `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 (not built yet) | |
@@ -182,8 +185,17 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Check_Fields` | Please check the highlighted fields. | LIFF | L5a |
 | `SalesReport_Select_Placeholder` | — Select — | LIFF | L5a |
 | `SalesReport_Choose_Account` | Choose an Account first. | LIFF | L5a |
+| `SalesReport_Attachments_Label` | Photos and files | LIFF | L5b |
+| `SalesReport_Add_File` | Add photo or file | LIFF | L5b |
+| `SalesReport_Remove_File` | Remove | LIFF | L5b |
+| `SalesReport_File_Too_Large` | {0} is larger than {1} MB. | LIFF | L5b |
+| `SalesReport_File_Type_Not_Allowed` | {0}: this file type can’t be attached. | LIFF | L5b |
+| `SalesReport_Max_Files` | You can attach up to {0} files. | LIFF | L5b |
+| `SalesReport_Uploading` | Uploading {0} of {1}… | LIFF (Save button) | L5b |
+| `SalesReport_Upload_Failed` | The activity was saved, but {0} file(s) could not be attached. | LIFF | L5b |
+| `SalesReport_Retry` | Try again | LIFF | L5b |
 
-Planned: Update Opportunity texts (L5c), attachment texts (L5b), rate-limit message (L7). Note: the Subject label is
+Planned: Update Opportunity texts (L5c), rate-limit message (L7). Note: the Subject label is
 read in the Site guest user's language (en_US), not the rep's.
 
 Validation-rule messages from the org are shown as returned (they are already in the org's language).
@@ -230,7 +242,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 
 | Area | Grant |
 |---|---|
-| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a); later `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
+| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a), `SalesReportActivityFileController` (L5b); later `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
 | Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages, harmless) |
 | Objects | **none** (checked by query 2026-10-29) |
 | Other | Leave all "View …"/API permissions off |
