@@ -220,5 +220,5 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/me` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments built (device test pending); L5c Update Opportunity waiting on the BA (D-12, Q-O1) |
+| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS (Android check pending); L5c Update Opportunity waiting on the BA (D-12, Q-O1) |
 | L6–L8 | Not started |

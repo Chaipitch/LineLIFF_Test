@@ -141,8 +141,9 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · LIFF: camera/gallery/file picker, photos shrunk to ≤ 1600 px JPEG on the phone (4000×3000 PNG → 113 KB), thumbnails,
       remove, type/size/count messages; uploads one by one after Save with "Uploading 1 of 2…", failed files → "Try again" (checked headless).
 - [x] C · Tests: size/type/count limits, Task not the rep's, old Task, upload as the rep, name cleaning — 102 tests, 96.2%; Code Analyzer 0 Critical/High.
-- [ ] H · Guest profile: add Apex class `SalesReportActivityFileController` (public `/activity/files` answers 403 until then).
-- [ ] H+C · Device test on iOS and Android (camera and gallery). Keep test files small (sandbox file storage: 59 MB free).
+- [x] H · Guest profile: add Apex class `SalesReportActivityFileController` — done 2026-10-30; a 4 MB body through the Site reaches the token check (401 for a fake token).
+- [x] H+C · Device test iOS (2026-10-30): first upload failed (class not yet on the guest profile), Task kept; after adding the class, **Try again** attached IMG_8787.jpg (198 KB, shrunk on the phone) to the Task, Created By = the rep.
+- [ ] H+C · Device test Android (camera and gallery). Keep test files small (sandbox file storage: 59 MB free).
 
 ### L5c — Update Opportunity (waiting on BA: Q-O1–Q-O7, D-12; D-13 licences)
 
