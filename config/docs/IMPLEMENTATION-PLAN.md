@@ -17,7 +17,7 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 - [x] C · Check [VERIFY] items against LINE / Salesforce docs (`L0-SPEC.md` §6).
 - [x] C · Write `L0-SPEC.md`, `DECISIONS.md`, this plan, `FILE-INVENTORY.md`.
 - [x] C · Review concept mockups (`MOCKUP-REVIEW.md`) and collect all BA questions (`BA-QUESTIONS.md`).
-- [ ] BA · Answer `BA-QUESTIONS.md` (⚑ items block L5: D-11 Task vs Event, Task Type values, D-12 Next Step field, editable fields, D-13 licences).
+- [ ] BA · Answer `BA-QUESTIONS.md` — Log Activity answered 2026-10-30 (D-11, D-31–D-34); still open: Task Type values (Q-A2), attachment limits (Q-A6a), Opportunity fields (Q-O1–Q-O7, D-12), licences (D-13).
 - [x] H · Confirm or change the Proposed decisions — all confirmed 2026-10-29.
 
 **Exit:** decisions blocking L2 signed off (D-06, D-07, D-09, D-20, D-21 decided).
@@ -110,19 +110,41 @@ Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
 
 **Exit (met 2026-10-29, except the non-admin visibility check below the line, moved to L8 with Q-T1):** typing 2–3 characters shows only visible Accounts within ~1 s on a phone.
 
-## L5 — Forms and write endpoints (3–4 d) — needs D-11, D-12 answered
+## L5 — Forms and write endpoints (4–5 d)
 
-- [ ] C · `POST /salesreport/v1/activity` → Event or Task (D-11), fields per `L0-SPEC.md` §7, `WhatId` = Account.
-- [ ] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities visible to the rep.
-- [ ] C · Field sets `SalesReport_Opportunity_Form`, `SalesReport_Activity_Form` (D-21); forms and whitelist read them by describe.
-- [ ] C · `POST /salesreport/v1/opportunity` → whitelisted fields only (Stage 01–03, Win Confidence, CloseDate, Amount, Next Step, due date);
-      Opportunity must belong to the chosen Account.
+BA answers 2026-10-30: Task (D-11), required fields follow Salesforce (D-31), any date (D-32), Account only (D-33),
+attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5 is split.
+
+### L5a — Log Activity (ready to build)
+
+- [ ] H · Admin adds the agreed Task `Type` values in `dev5` (Q-A2) — the form works without them, using whatever values exist.
+- [ ] C · Field set `SalesReport_Activity_Form` on Task (Type, ActivityPurpose__c, ActivityDate, Description) (D-21).
+- [ ] C · `GET /salesreport/v1/activity/form` → field-set fields with label, type, picklist values, defaults and the
+      required flag from the rep's layout (UI API `record-defaults/create/Task` as the rep), the database and the field set (D-31).
+- [ ] C · `POST /salesreport/v1/activity` → Task as the rep: `WhatId` = Account, Subject built, Status from the date (D-32);
+      only field-set fields accepted; Account must be visible to the rep.
 - [ ] C · Map org errors (validation rules, required fields, FLS) to plain-language messages with field highlights; nothing silently dropped.
-- [ ] C · Tests: validation-rule failure for Opportunity (e.g. Stage 02 without PreSales Engineer) and for the activity object,
-      `runAs` update denied outside sharing, success paths.
-- [ ] H · Confirm org automation (Slack flows, Opp meeting counter) behaves as expected for LINE-created records.
+- [ ] C · LIFF form: dynamic fields from `/activity/form`, client-side required check, success screen.
+- [ ] C · Tests: success, required field missing, validation-rule error (mocked), field outside field set rejected, not linked.
+- [ ] H+C · Device test: log a Task from the phone, check it on the Account.
 
-**Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form.
+### L5b — Attachments (after L5a works)
+
+- [ ] BA · Limits: count, size, types (Q-A6a; proposed 5 × 4 MB, photos + PDF).
+- [ ] C · Settings fields for the limits; `POST /salesreport/v1/activity/files` → `ContentVersion` on the Task as the rep (D-34).
+- [ ] C · LIFF: camera/gallery picker, resize photos in the browser (~1600 px JPEG), upload one by one with progress and retry.
+- [ ] C · Tests: size/type/count limits, Task not the rep's, upload error.
+- [ ] H+C · Device test on iOS and Android (camera and gallery). Keep test files small (sandbox file storage: 59 MB free).
+
+### L5c — Update Opportunity (waiting on BA: Q-O1–Q-O7, D-12; D-13 licences)
+
+- [ ] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities visible to the rep.
+- [ ] C · Field set `SalesReport_Opportunity_Form`; required flags per D-31.
+- [ ] C · `POST /salesreport/v1/opportunity` → field-set fields only; Opportunity must belong to the chosen Account.
+- [ ] C · Tests: validation-rule failure (e.g. Stage 02 without PreSales Engineer), update denied outside sharing, success.
+- [ ] H · Confirm org automation (Next Step date stamps, Opp meeting counter) behaves as expected for LINE updates.
+
+**Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form; photos attached to the Task.
 
 ## L6 — Mobile UI polish + i18n (2–3 d)
 
@@ -158,6 +180,8 @@ Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
 | L2 start | — (L1 values received 2026-10-29) |
 | L2 exit | H: Site created, LIFF app + rich menu |
 | L3 Option B | H: certificate + ECA consumer key |
-| L5 | BA: D-11, D-12, field lists; D-13 licences |
+| L5a | — (Task `Type` values from admin are nice to have) |
+| L5b | BA: attachment limits (Q-A6a) — proposed defaults used until then |
+| L5c | BA: Opportunity fields (Q-O1–Q-O7, D-12); D-13 licences |
 | L7 rate limiting | H: Platform Cache allocation (D-14) |
 | L8 | H: test users and LINE accounts |

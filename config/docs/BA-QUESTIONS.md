@@ -24,19 +24,20 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 | # | Question | Context / options | Recommendation | Answer |
 |---|---|---|---|---|
-| Q-A1 ⚑ | Record visits as **Task** or **Event**? (D-11, G1) | Mockup shows **Task**. Event fits time-bound meetings and triggers the org's Slack note + Opportunity meeting-count flows; Task fits "something done on a date". | **Task** (as in the mockup), Status `Completed` | |
+| Q-A1 ⚑ | Record visits as **Task** or **Event**? (D-11, G1) | Mockup shows **Task**. Event fits time-bound meetings and triggers the org's Slack note + Opportunity meeting-count flows; Task fits "something done on a date". | **Task** (as in the mockup), Status `Completed` | **Task** — answered 2026-10-30 (D-11) |
 | Q-A2 ⚑ | Which **Activity Type** values should reps choose from? | Task `Type` today has only call outcomes (Connected – Had Conversation, Busy / Call Back, Not Connected / Voicemail, Invalid Number / No Fit). "Customer Visit" doesn't exist. An admin must add the new values (they also appear for normal Task entry). | e.g. Customer Visit, Online Meeting, Phone Call, Demo, Other — BA to finalise | |
-| Q-A3 ⚑ | Confirm the fields: Account*, Activity Type*, Date*, Comments | Mockup fields. Subject auto-built as "<Type> – <Account>". | Confirm; Comments required? | |
-| Q-A4 | Date: past and today only, or future too (planned activities)? | Completed vs planned changes Status. | Past and today only (`Completed`) | |
-| Q-A5 | Link the activity to the Account only, or also to an Opportunity / Contact? | Extra pickers add scope. | Account only in phase 1 | |
-| Q-A6 | Photos / attachments? | Not in plan (adds scope). | Not in phase 1 | |
+| Q-A3 ⚑ | Confirm the fields: Account*, Activity Type*, Date*, Comments | Mockup fields. Subject auto-built as "<Type> – <Account>". | Confirm; Comments required? | Follow Salesforce: required = required on the rep's layout, in the database or in the field set; validation rules run on save (D-31) — 2026-10-30 |
+| Q-A4 | Date: past and today only, or future too (planned activities)? | Completed vs planned changes Status. | Past and today only (`Completed`) | **Not restricted**: past, today and future; future → `Open`, otherwise `Completed` (D-32) — 2026-10-30 |
+| Q-A5 | Link the activity to the Account only, or also to an Opportunity / Contact? | Extra pickers add scope. | Account only in phase 1 | **Account only** (D-33) — 2026-10-30 |
+| Q-A6 | Photos / attachments? | Not in plan (adds scope). | Not in phase 1 | **Yes, attachments in scope** (D-34) — limits in Q-A6a — 2026-10-30 |
+| Q-A6a | Attachment limits: how many files per activity, max size, which types? | Files are stored on the Task as Salesforce Files and count against file storage (sandbox `dev5`: 59 MB free of 200 MB). Photos are shrunk on the phone before upload. | 5 files, 4 MB each after resizing, photos (camera or gallery) + PDF | |
 | Q-A7 | Who should own the Task? | With Option B the rep who submits is the owner (mockup "Assigned To Roj"). | The submitting rep | |
 
 ## 3. Update Opportunity
 
 | # | Question | Context / options | Recommendation | Answer |
 |---|---|---|---|---|
-| Q-O1 ⚑ | Which fields can reps edit? (G3) | Mockup: Stage, Amount, Next Step. Other candidates: Close Date, Your Win Confidence, Next Step Due Date. Fields come from a field set, so admins can change this later without code (D-21). | Stage, Amount, Next Step, Close Date | |
+| Q-O1 ⚑ | Which fields can reps edit? (G3) | Mockup: Stage, Amount, Next Step. Other candidates: Close Date, Your Win Confidence, Next Step Due Date. Fields come from a field set, so admins can change this later without code (D-21). | Stage, Amount, Next Step, Close Date | BA will confirm later (2026-10-30) |
 | Q-O2 ⚑ | Which "Next Step" field do reps use? (D-12) | Two fields are labelled "Next Step": standard `NextStep` and custom `Next_Step_Custom__c` (+ `Next_Step_Due_Date__c`). Flows stamp "Next Step updated" dates. | Whichever the sales team uses in reports | |
 | Q-O3 ⚑ | Which stages can be chosen? | Org stages: 01. Before 1st MTG, 02. Early Stage, 03. Final Proposal, 08.Closed Won, 08.Closed Lost. Closing needs extra fields (signed contract + win reason; lost reason + detail) by active validation rules. | Open stages 01–03 only; close in Salesforce | |
 | Q-O4 ⚑ | Moving to Stage 02+ requires **PreSales Engineer** (active validation rule). Add it to the form? | Without it, reps will see the error and can't save. | Add PreSales Engineer to the form | |
@@ -115,18 +116,21 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 **Log Activity (บันทึกกิจกรรม)**
 
-2. บันทึกการเข้าพบลูกค้าเป็น **Task** หรือ **Event**? → แนะนำ: **Task** ตาม mockup (สถานะ Completed) (Q-A1, D-11)
+2. ✅ ตอบแล้ว (30 ต.ค.): บันทึกเป็น **Task** (Q-A1, D-11)
 3. Activity Type ให้ Rep เลือกได้มีค่าอะไรบ้าง? ตอนนี้ Task Type มีแต่ค่าผลการโทร ยังไม่มี "Customer Visit" → admin
    ต้องเพิ่มค่าใหม่ → เสนอ: Customer Visit, Online Meeting, Phone Call, Demo, Other (Q-A2)
-4. ยืนยันฟิลด์ในฟอร์ม: Account*, Activity Type*, Date*, Comments → Comments บังคับกรอกไหม? (Q-A3)
-5. วันที่ให้เลือกได้เฉพาะวันนี้/ย้อนหลัง หรือวันในอนาคตด้วย (นัดล่วงหน้า)? → แนะนำ: วันนี้และย้อนหลังเท่านั้น (Q-A4)
-6. ผูกกิจกรรมกับ Account อย่างเดียว หรือผูกกับ Opportunity/Contact ด้วย? → แนะนำ: Account อย่างเดียวในเฟสแรก (Q-A5)
-7. ต้องแนบรูป/ไฟล์ไหม? → แนะนำ: ไม่ทำในเฟสแรก (เพิ่ม scope) (Q-A6)
+4. ✅ ตอบแล้ว (30 ต.ค.): ฟิลด์บังคับกรอกให้ **ตาม Salesforce** (page layout ของ Rep / ฐานข้อมูล / field set)
+   validation rule ทำงานตอนกดบันทึก (Q-A3, D-31)
+5. ✅ ตอบแล้ว (30 ต.ค.): วันที่ **ไม่จำกัด** (ย้อนหลัง/วันนี้/อนาคต) — วันในอนาคตจะเป็นสถานะ Open (Q-A4, D-32)
+6. ✅ ตอบแล้ว (30 ต.ค.): ผูกกับ **Account อย่างเดียว** (Q-A5, D-33)
+7. ✅ ตอบแล้ว (30 ต.ค.): **ทำ** แนบไฟล์ได้ (Q-A6, D-34) — เหลือยืนยัน: แนบได้กี่ไฟล์ ขนาดเท่าไร ประเภทอะไร?
+   → แนะนำ: 5 ไฟล์ ไฟล์ละไม่เกิน 4 MB (ย่อรูปบนมือถือก่อนส่ง) รูปถ่าย/รูปในเครื่อง + PDF (Q-A6a)
 
 **Update Opportunity (อัปเดตดีล)**
 
 8. Rep แก้ไขฟิลด์ไหนได้บ้าง? mockup มี: Stage, Amount, Next Step / ตัวเลือกเพิ่ม: Close Date, Your Win Confidence,
    Next Step Due Date → แนะนำ: Stage, Amount, Next Step, Close Date (Q-O1)
+   ⏳ BA จะยืนยันฟิลด์ของ Update Opportunity ทีหลัง (30 ต.ค.)
 9. ใช้ฟิลด์ "Next Step" ตัวไหน? ใน org มี 2 ตัวชื่อเหมือนกัน: `NextStep` (มาตรฐาน) และ `Next_Step_Custom__c`
    → ใช้ตัวที่ทีม sales ใช้ใน report (Q-O2, D-12)
 10. ให้เลือก Stage ได้ถึงไหน? Stage ที่มี: 01. Before 1st MTG / 02. Early Stage / 03. Final Proposal / 08. Closed Won /

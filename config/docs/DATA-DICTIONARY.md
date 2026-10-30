@@ -3,7 +3,8 @@
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
 **State (2026-10-29): §1, §2 (except L7 fields), §3a Account search, §4, §5–§8 are built and deployed to sandbox `dev5`
-(milestones L2–L4).** Still open: Log Activity / Update Opportunity fields (§3, §3a forms — BA: D-11, D-12) and the L7
+(milestones L2–L4).** Log Activity is decided (Task, D-11, D-31–D-34; build in L5a/L5b). Still open: Update Opportunity
+fields (§3, §3a — BA: D-12, Q-O1), attachment limits (Q-A6a) and the L7
 items (rate limit, retention, cache). Update this file in the same commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.
@@ -114,8 +115,8 @@ feature does not grant standard-object access.
 | Opportunity | `NextStep` **or** `Next_Step_Custom__c` | ✓ | ✓ | D-12 open. |
 | Opportunity | `Next_Step_Due_Date__c` | ✓ | ✓ | |
 | Opportunity | `PreSales_Engineer__c` | ✓ | (BA) | Needed by active VR for Stage ≥ 02. |
-| Event (if D-11 = Event) | `WhatId`, `Subject`, `Type`, `StartDateTime`, `EndDateTime` / `DurationInMinutes`, `Description` | — | ✓ | `OwnerId` defaults to the rep. |
-| Task (if D-11 = Task) | `WhatId`, `Subject`, `Type`, `ActivityDate`, `Status` (`Completed`), `Description` | — | ✓ | |
+| Task (D-11) | `WhatId` (Account only, D-33), `Subject` (built), `Type`, `ActivityPurpose__c`, `ActivityDate`, `Status` (from date, D-32), `Priority` (layout default), `Description` | — | ✓ | `OwnerId` = the rep. Required flags follow Salesforce (D-31). |
+| ContentVersion (D-34) | `Title`, `PathOnClient`, `VersionData`, `FirstPublishLocationId` (= Task) | — | ✓ | Attachments, uploaded as the rep (L5b). |
 
 ## 3a. Field sets (D-21, D-29)
 
@@ -124,14 +125,16 @@ feature does not grant standard-object access.
 | `SalesReport_Account_Search` | Account | Extra text fields searched by the Account picker; first non-empty one shown under the name | Name only (admins add e.g. `Account_Name_TH__c`, `Account_No__c`) |
 
 Planned for L5 — the forms and the server-side whitelist read these by describe, so no org-specific field is referenced
-in code. Members wait on the BA (D-11 Task vs Event, D-12 Next Step field, MOCKUP-REVIEW G1–G3):
+in code. Activity form decided 2026-10-30; Opportunity form waits on the BA (D-12, Q-O1). The "Required in set" column
+is only an extra: a field is also required when the rep's layout or the database requires it (D-31).
 
 | Field set | Object | Initial members (BA to confirm) | Required in set |
 |---|---|---|---|
 | `SalesReport_Opportunity_Form` | Opportunity | `StageName`, `Your_Win_Confidence__c`, `CloseDate`, `Amount`, `NextStep` or `Next_Step_Custom__c` (D-12), `Next_Step_Due_Date__c` | `StageName`, `CloseDate`, `Your_Win_Confidence__c` |
-| `SalesReport_Activity_Form` | Event (or Task, D-11) | Event: `Type`, `Subject`, `StartDateTime`, `DurationInMinutes`, `Description` | `Subject`, `StartDateTime`, `Description` |
+| `SalesReport_Activity_Form` | Task (D-11) | `Type`, `ActivityPurpose__c`, `ActivityDate`, `Description` | none (follow the layout, D-31) |
 
-Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`.
+Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`;
+for Tasks also `Subject`, `Priority` and (unless `Status` is in the field set) `Status` (D-31, D-32).
 
 ## 4. Custom Labels (`SalesReport_*`)
 

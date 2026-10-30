@@ -1,7 +1,7 @@
 # Spec — LINE Sales Reporting (LIFF → Salesforce)
 
 **Status (2026-10-29):** L0–L4 done (Account search works on the phone). L5 waits on the BA.
-Written in L0, kept up to date since. Open: the two form field lists (§7), waiting on the BA (`BA-QUESTIONS.md`).
+Written in L0, kept up to date since. Open: Update Opportunity fields (§7), waiting on the BA (`BA-QUESTIONS.md`).
 **Background:** `HANDOFF.md` (original brief). **Decisions:** `DECISIONS.md` (D-xx). **Progress:** `IMPLEMENTATION-PLAN.md`.
 **Plain-language overview for non-technical readers:** `SETUP-GUIDE.md` §0 and `BA-FAQ.md`.
 
@@ -79,7 +79,9 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses 
 | `POST /link/start` | Create one-time link code; return link-page URL | no | Done (L3) | 256 random bits, base64url; SHA-256 stored only; 5-min expiry; single use. |
 | `GET /accounts?q=` | Account auto-complete | yes | Done (L4) | Min 2 chars, max 10 (settings). Runs as the rep → only visible Accounts. Name + field set `SalesReport_Account_Search` (D-29); prefix matches first. |
 | `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5 | `IsClosed = false`, ordered by CloseDate. |
-| `POST /activity` | Create the activity (Task or Event, D-11) | yes | L5 | `WhatId` = Account ID, `OwnerId` = rep (implicit). |
+| `GET /activity/form` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | L5 | Field set `SalesReport_Activity_Form` + UI API `record-defaults/create/Task` read **as the rep** (D-31). |
+| `POST /activity` | Create the **Task** (D-11) | yes | L5 | `WhatId` = Account ID only (D-33), `OwnerId` = rep, Subject built from Type + Account, Status from date (D-32). Returns the Task ID. |
+| `POST /activity/files` | Attach one file to a Task the rep just created | yes | L5 | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). One file per request, size/type/count limits from settings. |
 | `POST /opportunity` | Update one Opportunity | yes | L5 | Only field-set fields (D-21); `Id` must belong to the chosen Account. |
 
 Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` —
@@ -156,17 +158,30 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | Access-token caching | Not cached: exchange per request costs 117–185 ms (+ userinfo 53–152 ms) — acceptable (D-16). | Measured in L3 |
 | Apex REST via public Site vs API limit | **Measured 2026-10-29 (sandbox):** 100 anonymous `/me` calls through the Site raised `DailyApiRequests` by ~17 (background org traffic), so Site guest Apex REST calls do not count 1:1 against the daily API limit. They do count against Site limits (sandbox: 1,024 MB/day bandwidth, 30 min/day request time, 500k page views/month). Each rep request = 1 Site request + 1 LINE verify callout (+ JWT exchange and 1 REST call as the rep from L3; Account search query 60–170 ms in L4). Re-measure the daily API count with real usage in L8. | Measured |
 
-## 7. Field lists (open — waiting on the BA, `BA-QUESTIONS.md` §2–3)
-
-The mockup (`MOCKUP-REVIEW.md`) suggests: Log Activity = Account, Activity Type, Date, Comments as a **Task**; Update
-Opportunity = Opportunity, Stage, Amount, Next Step. The org-based draft below is kept until the BA decides.
-
-**Log Activity (if Event, D-11)**: Account (ID, required) · Type (Event `Type`, default `On-site / Visit`) · Subject
-(default from Type + Account name, editable) · Date + start time + duration (default now, 60 min) · Description / notes
-(required) · Related open Opportunity (optional `WhatId` alternative — BA). If Task: Subject, ActivityDate, Status
-`Completed`, Type, Description.
+## 7. Field lists
 
 Field lists below are the **initial members of the field sets** (D-21); admins can change them without code.
+
+**Log Activity — decided 2026-10-30 (D-11, D-31–D-34).** Saved as a **Task** linked to the Account only.
+
+| Shown on the form | Task field | Required? | Notes |
+|---|---|---|---|
+| Account | `WhatId` | always | From the search (L4); not in the field set. |
+| Activity Type | `Type` | as Salesforce says (D-31) | Values to be agreed and added by an admin (Q-A2); today only call outcomes exist. |
+| Activity Purpose | `ActivityPurpose__c` | as Salesforce says | Existing org picklist (1. Initial Meeting … 6. Other). Proposed; BA may drop it. |
+| Date | `ActivityDate` | as Salesforce says | Any date (D-32). |
+| Comments | `Description` | as Salesforce says | Long text. |
+| Attachments | Salesforce Files | no | After save; limits Q-A6a (D-34). |
+| — (server) | `Subject` | layout | "<Type> – <Account name>" (or "Activity – <Account name>" without a Type). |
+| — (server) | `OwnerId` | layout | The rep. |
+| — (server) | `Status` | layout | Date ≤ today → `Completed`, future → layout default (`Open`) (D-32). |
+| — (server) | `Priority` | layout | Layout default (`Normal`). |
+
+"As Salesforce says" = required if required on the rep's Task layout, required in the database, or ticked *Required* in
+the field set; validation rules are checked on save (D-31). In `dev5` (2026-10-30) the Task layout requires only Subject,
+Assigned To, Priority and Status, so Type, Date and Comments are optional unless an admin changes the layout.
+
+**Update Opportunity — waiting on the BA (Q-O1–Q-O7, D-12).** Draft kept below.
 
 **Update Opportunity**: Opportunity (from Account's open list) · `StageName` (open stages only, `01`–`03`) ·
 `Your_Win_Confidence__c` · `CloseDate` · `Amount` ("Target TCV") · Next Step (`NextStep` or `Next_Step_Custom__c`, D-12) ·
@@ -192,7 +207,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 
 1. New rep taps **Log Activity** → sees "Connect Salesforce" → logs in once → returns to LINE → form shows their name.
 2. Rep types "ter" → within ~1 s sees ≤ 10 Accounts they can see; cannot find an Account outside their sharing.
-3. Rep logs a visit → Event (or Task) appears on the Account, Created By = the rep, Slack flow fires as for UI entries.
+3. Rep logs a visit with a photo → a Task appears on the Account with the photo under Files, Created By = the rep.
 4. Rep moves an Opportunity to Stage 02 without PreSales Engineer → sees the org's validation message, nothing saved.
 5. Admin deactivates/unlinks the rep → next LIFF open shows "Connect Salesforce" again.
 
@@ -205,5 +220,5 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/me` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | Blocked on BA answers (D-11, D-12, field lists) |
+| L5 Forms | Log Activity (Task + attachments) ready to build; Update Opportunity waiting on the BA (D-12, Q-O1) |
 | L6–L8 | Not started |
