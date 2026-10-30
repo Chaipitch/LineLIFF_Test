@@ -69,6 +69,7 @@ public with sharing class SalesReportLiffPageController {
       'connectTitle' => System.Label.SalesReport_Connect_Title,
       'connectWaiting' => System.Label.SalesReport_Connect_Waiting,
       'errorNotAuthorized' => System.Label.SalesReport_Error_Not_Authorized,
+      'errorRateLimited' => System.Label.SalesReport_Error_Rate_Limited,
       'linkedAs' => System.Label.SalesReport_Linked_As,
       'close' => System.Label.SalesReport_Close,
       'comingSoon' => System.Label.SalesReport_Coming_Soon,

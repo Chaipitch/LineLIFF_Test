@@ -126,4 +126,34 @@ private class SalesReportSettingsServiceTest {
       'Normalised, no duplicates'
     );
   }
+
+  @IsTest
+  static void rateLimitAndRetentionFollowSettings() {
+    Assert.areEqual(
+      SalesReportSettingsService.DEFAULT_RATE_LIMIT_PER_MINUTE,
+      SalesReportSettingsService.rateLimitPerMinute(),
+      'Default rate'
+    );
+    Assert.areEqual(
+      SalesReportSettingsService.DEFAULT_LOG_RETENTION_DAYS,
+      SalesReportSettingsService.logRetentionDays(),
+      'Default retention'
+    );
+    insert new SalesReport_Settings__c(
+      SetupOwnerId = UserInfo.getOrganizationId(),
+      Rate_Limit_Per_Minute__c = 5000,
+      Log_Retention_Days__c = 7
+    );
+    SalesReportSettingsService.cached = null;
+    Assert.areEqual(
+      SalesReportSettingsService.MAX_RATE_LIMIT_PER_MINUTE,
+      SalesReportSettingsService.rateLimitPerMinute(),
+      'Rate capped'
+    );
+    Assert.areEqual(
+      7,
+      SalesReportSettingsService.logRetentionDays(),
+      'Retention'
+    );
+  }
 }

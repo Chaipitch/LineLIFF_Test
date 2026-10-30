@@ -17,6 +17,7 @@ public with sharing class SalesReportException extends Exception {
   public static final String QUERY_TOO_SHORT = 'QUERY_TOO_SHORT';
   public static final String INVALID_INPUT = 'INVALID_INPUT';
   public static final String SAVE_FAILED = 'SAVE_FAILED';
+  public static final String RATE_LIMITED = 'RATE_LIMITED';
 
   public String code { get; private set; }
   public Integer statusCode { get; private set; }

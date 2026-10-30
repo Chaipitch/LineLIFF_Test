@@ -19,7 +19,7 @@ global with sharing class SalesReportActivityController {
     } catch (Exception e) {
       SalesReportRestService.fail(SOURCE_FORM, e);
     } finally {
-      SalesReportLogService.flush();
+      SalesReportRestService.finish();
     }
   }
 
@@ -36,7 +36,7 @@ global with sharing class SalesReportActivityController {
     } catch (Exception e) {
       SalesReportRestService.fail(SOURCE_CREATE, e);
     } finally {
-      SalesReportLogService.flush();
+      SalesReportRestService.finish();
     }
   }
 }

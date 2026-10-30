@@ -48,7 +48,7 @@ Every custom field gets a **Description** (for admins) and, where users see it, 
 | Sharing (OWD) | Private |
 | Who writes | `SalesReportLinkService` (create from Site request, consume from link page) — system mode |
 | Owner | Created in a Site (guest) context → owned by the Site's **default record owner** (§6, [HUMAN]) |
-| Retention | Deleted by `SalesReportLinkCleanupService` 24 h after expiry (L7) |
+| Retention | Deleted (and purged from the Recycle Bin) by the nightly `SalesReportCleanupService` 24 h after expiry (L7) |
 
 | Field | Label | Type | Req | Unique / Ext ID | Default | Description / Help |
 |---|---|---|---|---|---|---|
@@ -74,7 +74,20 @@ Written by `SalesReportLogService` (buffered, one insert per transaction, never 
 | `User__c` | User | Lookup(User) | No | Rep, when known. |
 | `Line_User_Ref__c` | LINE User Ref | Text(16) | No | Last 6 chars of the LINE user ID only (enough to correlate, not to identify). |
 
-Retention: delete after `Log_Retention_Days__c` days (default 30) by the L7 cleanup job.
+Retention: deleted after `Log_Retention_Days__c` days (default 30) by the nightly `SalesReportCleanupService` (L7).
+
+### 1.4 `SalesReport_Rate_Limit__c` — request counter for the rate limit (L7, D-36)
+
+One row per LINE user who used the feature; holds only the current minute's count. Written only by
+`SalesReportRateLimitService` (system mode, at the end of each request); rows older than a day are deleted by
+`SalesReportCleanupService`. No tab; admins can read it through `SalesReport_Admin`.
+
+| Field | Label | Type | Req | Unique / Ext ID | Description |
+|---|---|---|---|---|---|
+| `Name` | Counter No. | Auto Number `RL-{000000}` | — | — | |
+| `Key__c` | Key | Text(64) | Yes (in code) | Unique (case-sensitive), Ext ID | SHA-256 hex of the LINE user ID — the ID itself is not stored. |
+| `Window_Start__c` | Window Start | Date/Time | Yes (in code) | — | Start of the counted minute (GMT, seconds cut off). |
+| `Request_Count__c` | Request Count | Number(6,0) | Yes (in code) | — | Requests in that minute. A new minute starts again at 1. |
 
 ## 2. Custom setting — `SalesReport_Settings__c`
 
@@ -96,9 +109,9 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Attachment_Max_Files__c` | Attachment Max Files | Number(2,0) | 5 | L5b | Files per activity; capped at 10 in code. |
 | `Attachment_Max_Size_Mb__c` | Attachment Max Size MB | Number(1,0) | 4 | L5b | Per file, after photos are shrunk; 4 is also the hard cap (Apex heap, D-34). |
 | `Attachment_File_Types__c` | Attachment File Types | Text(255) | jpg,jpeg,png,pdf | L5b | Comma-separated extensions. Photos become .jpg on the phone, so keep jpg in the list. |
-| `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 (not built yet) | Per LINE user. |
+| `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 | Per verified LINE user per calendar minute; over it → `RATE_LIMITED` (429). Capped at 1000. |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
-| `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 (not built yet) | |
+| `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 | Used by the nightly cleanup; capped at 365. |
 | `Enabled__c` | Enabled | Checkbox | true | L2 | Kill switch: when false all endpoints return "temporarily unavailable". |
 
 ## 3. Standard object fields used (no changes to standard objects)
@@ -194,8 +207,9 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Uploading` | Uploading {0} of {1}… | LIFF (Save button) | L5b |
 | `SalesReport_Upload_Failed` | The activity was saved, but {0} file(s) could not be attached. | LIFF | L5b |
 | `SalesReport_Retry` | Try again | LIFF | L5b |
+| `SalesReport_Error_Rate_Limited` | Too many requests. Please wait a minute and try again. | LIFF | L7 |
 
-Planned: Update Opportunity texts (L5c), rate-limit message (L7). Note: the Subject label is
+Planned: Update Opportunity texts (L5c). Note: the Subject label is
 read in the Site guest user's language (en_US), not the rep's.
 
 Validation-rule messages from the org are shown as returned (they are already in the org's language).
@@ -220,6 +234,7 @@ Validation-rule messages from the org are shown as returned (they are already in
 | `SalesReport_Line_Link__c` | Read, Edit, Delete, View All. Unlink = set `Status__c` to Unlinked (or delete); all other fields read-only via FLS |
 | `SalesReport_Link_Code__c` | Read, Edit (required by Salesforce for Delete), Delete, View All; fields read-only |
 | `SalesReport_Log__c` | Read, Edit, Delete, View All (Edit is required by Salesforce for Delete; all log fields are read-only via FLS) |
+| `SalesReport_Rate_Limit__c` | Read, Edit (required for Delete), Delete, View All; fields read-only. No tab (L7) |
 | Tabs | `SalesReport_Line_Link__c`, `SalesReport_Log__c` visible |
 | Apex | none (unlink = set Status to Unlinked in the tab; no extra action needed) |
 
@@ -235,6 +250,8 @@ Justifications (repeated in class headers):
 |---|---|
 | `SalesReportLinkService` | Creates link codes and reads the active link from the guest context (only for a **verified** LINE user ID), consumes codes and writes links on behalf of the logged-in rep (`UserInfo.getUserId()`), ends links of deactivated users. Reps and the guest get no object access, so mappings can't be edited by hand. |
 | `SalesReportLogService` | Logs must be written whoever the running user is. |
+| `SalesReportRateLimitService` | Reads and writes the per-LINE-user counter for the Site guest (only after the LINE token is verified); stores only a hash of the LINE user ID. |
+| `SalesReportCleanupService` | Deletes expired link codes, old logs and old counters owned by the guest / default record owner, whoever schedules the job. |
 
 All other classes: `with sharing`; queries/DML on business data happen through the org REST API as the rep. (`SalesReportSessionCalloutService` reads `Organization.IsSandbox` with `WITH SYSTEM_MODE` — no business data.)
 
@@ -243,9 +260,9 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 | Area | Grant |
 |---|---|
 | Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a), `SalesReportActivityFileController` (L5b); later `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
-| Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages, harmless) |
-| Objects | **none** (checked by query 2026-10-29) |
-| Other | Leave all "View …"/API permissions off |
+| Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages: error pages, `SiteLogin`, `SiteRegister`, `ForgotPassword` … — optional tidy-up: remove the login/register/password pages, the Site has no login) |
+| Objects | **none** (audit 2026-10-30: 0 object permissions; the 440 field-permission rows are Salesforce defaults on standard/org objects — ineffective without object access, none on `SalesReport_*`) |
+| Other | Leave all "View …"/API permissions off (audit 2026-10-30: API Enabled, View All Data, Modify All Data, View Setup, Run Reports all off; no permission sets assigned to the guest user) |
 
 ## 6. Salesforce Site `SalesReport_Site` ([HUMAN], L2 — created and checked 2026-10-29)
 
@@ -284,5 +301,5 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 | Remote Site Setting | `SalesReport_LINE_API` | `https://api.line.me`, protocol security on, description "Sales Report: LINE ID token verification" |
 | Remote Site Setting | ~~`SalesReport_Org_Domain`~~ | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) |
 | Certificate | `SalesReport_JWT_Signing` | Self-signed, 2048-bit, **not** exportable; expires **2027-10-29** — renew before then and re-upload to the ECA |
-| Platform Cache partition | `SalesReportCache` | Org cache only, smallest allocation (~1 MB); session cache 0 (D-14, L7 — not built yet) |
-| Scheduled job | "Sales Report cleanup" | `SalesReportLinkCleanupService`, daily, 02:00 Asia/Bangkok (L7 — not built yet) |
+| Platform Cache partition | `SalesReportCache` | Deployed with 0 MB (no free org capacity, D-30). Not used: rate limiting uses `SalesReport_Rate_Limit__c` instead (D-36) |
+| Scheduled job | "Sales Report cleanup" | `SalesReportCleanupService`, daily 02:00 in the scheduling user's time zone (Asia/Bangkok). Scheduled in `dev5` on 2026-10-30 with `scripts/apex/schedule-cleanup.apex` |

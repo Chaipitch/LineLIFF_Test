@@ -70,7 +70,7 @@ First-time login (flow B): LIFF "Connect Salesforce" → `POST /link/start` → 
 All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses are JSON, never cached; errors use
 `{ "error": { "code": "...", "message": "<plain-language>", "fields": { … } } }` (`fields` only on form errors). Error codes: `TOKEN_MISSING`,
 `TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
-(403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
+(403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `RATE_LIMITED` (429; L7), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
 
 | Method & path | Purpose | Rep must be linked | Status | Notes |
 |---|---|---|---|---|
@@ -104,6 +104,8 @@ search limits, log level, kill switch.
 No secrets are stored in it (unpackaged "Protected" visibility has no effect); the JWT private key stays in the certificate store.
 Reps get **no** access to these objects; only the services write them (justifications in `DATA-DICTIONARY.md` §5.3).
 
+**`SalesReport_Rate_Limit__c`** — per-LINE-user request counter for the rate limit (L7, D-36); key = SHA-256 of the LINE user ID.
+
 Full field lists, types, defaults, permissions and Site/ECA settings: **`DATA-DICTIONARY.md`**.
 
 ## 5a. Apex classes (D-07 naming)
@@ -129,7 +131,8 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | Service | ✓ `SalesReportActivityService` | Form definition from field set + UI API, Task create as the rep (D-11, D-31–D-35) | L5a |
 | Service | ✓ `SalesReportSettingsService` | Single reader of `SalesReport_Settings__c` | L2 |
 | Service | ✓ `SalesReportLogService` | Buffered logging, `flush()`, never throws | L2 |
-| Service | `SalesReportRateLimitService` | Per-LINE-user counter (D-14) | L7 |
+| Service | ✓ `SalesReportRateLimitService` | Per-LINE-user counter, custom object (D-36) | L7 |
+| Service | ✓ `SalesReportCleanupService` | Nightly cleanup of codes, logs, counters (D-37) | L7 |
 | CalloutService | ✓ `SalesReportLineCalloutService` | `POST api.line.me/oauth2/v2.1/verify` | L2 |
 | CalloutService | ✓ `SalesReportSessionCalloutService` | JWT bearer exchange for the rep (Option B) | L3 |
 | CalloutService | ✓ `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (query, create, update) | L3–L5 |
@@ -221,4 +224,5 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
 | L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS (Android check pending); L5c Update Opportunity waiting on the BA (D-12, Q-O1) |
-| L6–L8 | Not started |
+| L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
+| L6, L8 | Not started |

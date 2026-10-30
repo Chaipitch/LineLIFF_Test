@@ -19,7 +19,7 @@ global with sharing class SalesReportAccountController {
     } catch (Exception e) {
       SalesReportRestService.fail(SOURCE, e);
     } finally {
-      SalesReportLogService.flush();
+      SalesReportRestService.finish();
     }
   }
 }

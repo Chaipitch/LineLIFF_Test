@@ -33,7 +33,7 @@ global with sharing class SalesReportMeController {
     } catch (Exception e) {
       SalesReportRestService.fail(SOURCE, e);
     } finally {
-      SalesReportLogService.flush();
+      SalesReportRestService.finish();
     }
   }
 }

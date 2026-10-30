@@ -161,14 +161,21 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [ ] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states; success screen with "close" (`liff.closeWindow`).
 - [ ] C · Accessibility basics (tap targets, contrast, font scaling).
 
-## L7 — Hardening (3 d)
+## L7 — Hardening (3 d) — done 2026-10-30
 
-- [ ] H · Setup → Platform Cache → new partition `SalesReportCache` with an allocation (D-14), or approve custom-object fallback.
-- [ ] C · Per-LINE-user rate limit; optional token-hash → user cache until `exp` (never the token itself).
-- [ ] C · Scheduled cleanup of expired link codes.
-- [ ] C · Code Analyzer: no Critical/High; every class declares sharing; `without sharing` justified in a comment.
-- [ ] C · Coverage ≥ 85% overall, every class ≥ 75%; all callouts mocked; fake secrets only.
-- [ ] C · Guest profile audit: only `SalesReport*Controller` classes + `SalesReport_Liff` page, zero object permissions.
+- [x] H · Platform Cache: still 0 MB in `dev5` → custom-object fallback chosen (D-36). No token-hash cache (nothing to cache in).
+- [x] C · Per-LINE-user rate limit: `SalesReportRateLimitService` + `SalesReport_Rate_Limit__c`, 60/min default, `RATE_LIMITED` (429)
+      with its own message in LINE; count written in `SalesReportRestService.finish()` after all callouts.
+- [x] C · Nightly cleanup `SalesReportCleanupService`: expired link codes (+24 h), logs older than 30 days, old counters;
+      scheduled in `dev5` (`scripts/apex/schedule-cleanup.apex`, next run 02:00 Bangkok). First run: nothing old enough yet.
+- [x] C · Code Analyzer (Recommended): 0 Critical/High. Every class declares sharing; the four `without sharing` services
+      (Link, Log, RateLimit, Cleanup) state why in their header and in DATA-DICTIONARY §5.3.
+- [x] C · Coverage 96.2% overall, every class ≥ 81% (lowest `SalesReportSessionCalloutService`); 111 tests; all callouts mocked; fake secrets only.
+- [x] C · Guest profile audit (2026-10-30): Apex = exactly the 5 `SalesReport*Controller` REST classes; VF = `SalesReport_Liff`
+      + Salesforce's default Site pages; **0 object permissions**; 440 default field rows on standard/org objects (ineffective
+      without object access, none on ours); API Enabled / View All / Modify All / View Setup off; no permission sets on the guest.
+- [ ] H · Optional tidy-up: remove `SiteLogin`, `SiteRegister`, `SiteRegisterConfirm`, `ForgotPassword`, `ForgotPasswordConfirm`
+      from the guest profile's Visualforce access (the Site has no login).
 
 ## L8 — QA, UAT, guides (2–3 d)
 
@@ -192,5 +199,5 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 | L5a | — (Task `Type` values from admin are nice to have) |
 | L5b | BA: attachment limits (Q-A6a) — proposed defaults used until then |
 | L5c | BA: Opportunity fields (Q-O1–Q-O7, D-12); D-13 licences |
-| L7 rate limiting | H: Platform Cache allocation (D-14) |
+| L7 rate limiting | — (custom-object fallback, D-36) |
 | L8 | H: test users and LINE accounts |

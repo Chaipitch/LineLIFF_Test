@@ -26,7 +26,7 @@ global with sharing class SalesReportActivityFileController {
     } catch (Exception e) {
       SalesReportRestService.fail(SOURCE, e);
     } finally {
-      SalesReportLogService.flush();
+      SalesReportRestService.finish();
     }
   }
 }

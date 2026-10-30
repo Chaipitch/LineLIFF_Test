@@ -3,6 +3,12 @@
  * failures to error responses. Unexpected exceptions are logged in full but answered with a generic message.
  */
 public with sharing class SalesReportRestService {
+  /** End of every request (in `finally`): writes the rate-limit count and the log buffer, after all callouts. */
+  public static void finish() {
+    SalesReportRateLimitService.flush();
+    SalesReportLogService.flush();
+  }
+
   public static void ok(Object body) {
     write(200, body);
   }

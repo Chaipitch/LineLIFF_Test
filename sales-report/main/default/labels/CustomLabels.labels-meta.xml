@@ -157,6 +157,14 @@
     >Your Salesforce user is not set up for Sales Report. Please ask your administrator.</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Error_Rate_Limited</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Error_Rate_Limited</shortDescription>
+        <value>Too many requests. Please wait a minute and try again.</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Error_Session_Expired</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>

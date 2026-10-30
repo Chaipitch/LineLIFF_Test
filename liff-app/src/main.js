@@ -61,6 +61,7 @@ function errorText(code) {
   if (code === "UNAVAILABLE" || code === "CONFIG_MISSING")
     return labels.errorUnavailable;
   if (code === "NOT_AUTHORIZED") return labels.errorNotAuthorized;
+  if (code === "RATE_LIMITED") return labels.errorRateLimited;
   return labels.errorGeneric;
 }
 

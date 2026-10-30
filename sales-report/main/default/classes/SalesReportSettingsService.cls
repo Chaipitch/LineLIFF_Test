@@ -24,6 +24,14 @@ public with sharing class SalesReportSettingsService {
   static final Integer MAX_ATTACHMENT_SIZE_MB = 4;
   @TestVisible
   static final String DEFAULT_ATTACHMENT_TYPES = 'jpg,jpeg,png,pdf';
+  @TestVisible
+  static final Integer DEFAULT_RATE_LIMIT_PER_MINUTE = 60;
+  @TestVisible
+  static final Integer MAX_RATE_LIMIT_PER_MINUTE = 1000;
+  @TestVisible
+  static final Integer DEFAULT_LOG_RETENTION_DAYS = 30;
+  @TestVisible
+  static final Integer MAX_LOG_RETENTION_DAYS = 365;
 
   @TestVisible
   private static SalesReport_Settings__c cached;
@@ -109,6 +117,24 @@ public with sharing class SalesReportSettingsService {
       }
     }
     return types;
+  }
+
+  /** Requests per LINE user per minute, between 1 and MAX_RATE_LIMIT_PER_MINUTE; blank = DEFAULT_RATE_LIMIT_PER_MINUTE. */
+  public static Integer rateLimitPerMinute() {
+    return bounded(
+      settings().Rate_Limit_Per_Minute__c,
+      DEFAULT_RATE_LIMIT_PER_MINUTE,
+      MAX_RATE_LIMIT_PER_MINUTE
+    );
+  }
+
+  /** Days logs are kept, between 1 and MAX_LOG_RETENTION_DAYS; blank = DEFAULT_LOG_RETENTION_DAYS. */
+  public static Integer logRetentionDays() {
+    return bounded(
+      settings().Log_Retention_Days__c,
+      DEFAULT_LOG_RETENTION_DAYS,
+      MAX_LOG_RETENTION_DAYS
+    );
   }
 
   public static String logLevel() {

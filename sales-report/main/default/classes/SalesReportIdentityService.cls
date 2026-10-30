@@ -44,6 +44,7 @@ public with sharing class SalesReportIdentityService {
     SalesReportLineVerifyData identity = new SalesReportLineCalloutService()
       .verifyIdToken(token.trim(), channelId);
     SalesReportLogService.setLineUserRef(identity.sub);
+    SalesReportRateLimitService.check(identity.sub);
     return identity;
   }
 

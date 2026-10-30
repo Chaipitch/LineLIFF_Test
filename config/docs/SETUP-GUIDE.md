@@ -291,6 +291,13 @@ Create, then:
   (blank = 4; 4 is the most Salesforce can handle on this route), *Attachment File Types* (blank = `jpg,jpeg,png,pdf`).
   Photos are shrunk on the phone and always arrive as .jpg, so keep `jpg` in the list. Files count against the org's
   **file storage** (Setup → Storage Usage). *Why:* keeps uploads quick on mobile data and storage under control.
+- **Rate limit (L7).** Part C setting *Rate Limit per Minute* (blank = 60): how many requests one LINE user may make per
+  minute before seeing "Too many requests. Please wait a minute". *Why:* stops a stuck phone or a misuse from flooding
+  Salesforce. Normal use (search, save, a few photos) stays far below 60.
+- **Nightly cleanup (L7).** Scheduled job *Sales Report cleanup* (Setup → Scheduled Jobs) runs every night at 02:00 and
+  deletes used-up one-time codes, logs older than *Log Retention (days)* (blank = 30) and old rate-limit counters.
+  *Why:* keeps temporary data from piling up. In a new org (e.g. production) schedule it once:
+  `sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex` (run it as an admin in the Bangkok time zone).
 - **Activity Type values.** The Type list is Salesforce's Task *Type* picklist (BA Q-A2): Object Manager → Activity →
   Fields → Type → add values such as *Customer Visit*. They also appear for normal Task entry in Salesforce.
 - **Switch off for everyone.** Part C: untick *Enabled*.

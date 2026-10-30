@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Log_Retention_Days__c</fullName>
+    <description
+  >Sales Report Log records older than this many days are deleted by the nightly cleanup. Blank = 30; capped at 365.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Sales Report Log records older than this many days are deleted by the nightly cleanup. Blank = 30; capped at 365.</inlineHelpText>
+    <label>Log Retention (days)</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>
