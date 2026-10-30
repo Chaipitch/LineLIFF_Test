@@ -76,7 +76,17 @@ function buildControl(field, labels, id) {
   }
   if (field.maxLength) input.maxLength = field.maxLength;
   if (field.defaultValue != null) input.value = field.defaultValue;
+  else if (field.type === "date") input.value = localToday();
   return { node: input, read: () => input.value.trim() };
+}
+
+/** Today on the phone as yyyy-mm-dd: activities are usually logged the day they happen. */
+function localToday() {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return (
+    now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate())
+  );
 }
 
 function isEmpty(value) {
@@ -104,11 +114,14 @@ export function createActivityForm(options) {
   const accountError = el("p", "sr-error");
   accountError.hidden = true;
   const fieldsBox = el("div", "sr-fields");
-  fieldsBox.append(el("p", "sr-status", labels.loading || "…"));
+  fieldsBox.append(el("p", "sr-hint", labels.loading || "…"));
   const save = el("button", "sr-button", labels.save);
   save.type = "submit";
   save.disabled = true;
-  form.append(picker.element, accountError, fieldsBox, formError, save);
+  // Save stays at the bottom of the screen while the rep scrolls a long form.
+  const actions = el("div", "sr-actions");
+  actions.append(formError, save);
+  form.append(picker.element, accountError, fieldsBox, actions);
 
   const controls = [];
 

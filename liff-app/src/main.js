@@ -92,12 +92,6 @@ function newPicker(onSelect) {
 function showHome(me, formKey) {
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels[FORMS[formKey]] || labels.menuTitle));
-  card.append(
-    el("p", "sr-greeting", format(labels.hello, me.lineDisplayName || ""))
-  );
-  card.append(
-    el("p", "sr-sub", format(labels.linkedAs, me.salesforceUserName || ""))
-  );
   if (formKey === "activity") {
     const form = createActivityForm({
       api: apiClient,
@@ -111,7 +105,27 @@ function showHome(me, formKey) {
     card.append(newPicker().element);
     card.append(el("p", "sr-message", labels.comingSoon));
   }
-  render(card);
+  render(identityBar(me), card);
+}
+
+/** Compact "who is logged in" bar: LINE name and the linked Salesforce user. */
+function identityBar(me) {
+  const name = String(me.lineDisplayName || "").trim();
+  const bar = el("header", "sr-identity");
+  bar.append(
+    el("span", "sr-avatar", name ? name.charAt(0).toUpperCase() : "?")
+  );
+  const who = el("div", "sr-identity-text");
+  who.append(el("p", "sr-identity-name", name));
+  who.append(
+    el(
+      "p",
+      "sr-identity-sub",
+      format(labels.linkedAs, me.salesforceUserName || "")
+    )
+  );
+  bar.append(who);
+  return bar;
 }
 
 function showActivitySaved(me, result) {
@@ -123,7 +137,7 @@ function showActivitySaved(me, result) {
   card.append(button(labels.logAnother, () => showHome(me, "activity")));
   if (liff.isInClient())
     card.append(button(labels.close, () => liff.closeWindow(), true));
-  render(card);
+  render(identityBar(me), card);
 }
 
 let waitingForLink = false;
