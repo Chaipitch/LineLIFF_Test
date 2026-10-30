@@ -153,7 +153,13 @@ public without sharing class SalesReportLinkService {
       return null;
     }
     List<SalesReport_Line_Link__c> rows = [
-      SELECT Id, User__c, User__r.Name, User__r.Username, User__r.IsActive
+      SELECT
+        Id,
+        User__c,
+        User__r.Name,
+        User__r.Username,
+        User__r.IsActive,
+        User__r.TimeZoneSidKey
       FROM SalesReport_Line_Link__c
       WHERE Line_User_Id__c = :lineUserId AND Status__c = :STATUS_ACTIVE
       WITH SYSTEM_MODE

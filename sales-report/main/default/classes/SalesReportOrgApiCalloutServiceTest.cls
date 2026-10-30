@@ -76,4 +76,116 @@ private class SalesReportOrgApiCalloutServiceTest {
       'Unreachable'
     );
   }
+
+  @IsTest
+  static void createPostsJsonAsTheRep() {
+    SalesReportHttpMock mock = new SalesReportHttpMock(
+      201,
+      '{"id":"00T000000000001AAA","success":true,"errors":[]}'
+    );
+    Test.setMock(HttpCalloutMock.class, mock);
+
+    String id = new SalesReportOrgApiCalloutService('session-token')
+      .create('Task', new Map<String, Object>{ 'Subject' => 'Visit' });
+
+    Assert.areEqual('00T000000000001AAA', id, 'New ID');
+    Assert.areEqual('POST', mock.lastRequest.getMethod(), 'Method');
+    Assert.isTrue(
+      mock.lastRequest.getEndpoint().endsWith('/sobjects/Task'),
+      'Endpoint'
+    );
+    Assert.areEqual(
+      'Visit',
+      ((Map<String, Object>) JSON.deserializeUntyped(
+          mock.lastRequest.getBody()
+        ))
+        .get('Subject'),
+      'Body'
+    );
+  }
+
+  @IsTest
+  static void saveErrorsSplitFieldAndFormMessages() {
+    Test.setMock(
+      HttpCalloutMock.class,
+      new SalesReportHttpMock(
+        400,
+        '[{"message":"Close the deal in Salesforce.","errorCode":"FIELD_CUSTOM_VALIDATION_EXCEPTION","fields":[]},' +
+        '{"message":"Required fields are missing: [Region]","errorCode":"REQUIRED_FIELD_MISSING","fields":["Region__c"]}]'
+      )
+    );
+    try {
+      new SalesReportOrgApiCalloutService('token')
+        .create('Task', new Map<String, Object>());
+      Assert.fail('Expected a save error');
+    } catch (SalesReportException e) {
+      Assert.areEqual(SalesReportException.SAVE_FAILED, e.code, 'Code');
+      Assert.areEqual(400, e.statusCode, 'Status');
+      Assert.areEqual(
+        'Close the deal in Salesforce.',
+        e.getMessage(),
+        'Form message'
+      );
+      Assert.areEqual(
+        'Required fields are missing: [Region]',
+        e.fieldErrors.get('Region__c'),
+        'Field message'
+      );
+    }
+  }
+
+  @IsTest
+  static void postErrorWithoutErrorListIsSessionError() {
+    Test.setMock(HttpCalloutMock.class, new SalesReportHttpMock(400, '{}'));
+    try {
+      new SalesReportOrgApiCalloutService('token')
+        .create('Task', new Map<String, Object>());
+      Assert.fail('Expected an error');
+    } catch (SalesReportException e) {
+      Assert.areEqual(SalesReportException.SESSION_ERROR, e.code, 'Code');
+    }
+    Assert.isNull(
+      SalesReportOrgApiCalloutService.saveErrors('not json'),
+      'Not JSON'
+    );
+    Assert.isNull(SalesReportOrgApiCalloutService.saveErrors('[]'), 'Empty');
+    Assert.isNull(
+      SalesReportOrgApiCalloutService.saveErrors('[1]'),
+      'Not errors'
+    );
+  }
+
+  @IsTest
+  static void repTodayUsesTheRepTimeZone() {
+    Date expected = Date.valueOf(
+      Datetime.now().format('yyyy-MM-dd', 'Pacific/Kiritimati')
+    );
+    Assert.areEqual(
+      expected,
+      new SalesReportOrgApiCalloutService('token', 'Pacific/Kiritimati')
+        .repToday(),
+      'Rep time zone'
+    );
+    Assert.areEqual(
+      Date.today(),
+      new SalesReportOrgApiCalloutService('token').repToday(),
+      'Running user without a zone'
+    );
+  }
+
+  @IsTest
+  static void uiApiReadsAsTheRep() {
+    SalesReportHttpMock mock = new SalesReportHttpMock(200, '{"layout":{}}');
+    Test.setMock(HttpCalloutMock.class, mock);
+
+    Map<String, Object> result = new SalesReportOrgApiCalloutService('token')
+      .uiApi('record-defaults/create/Task');
+
+    Assert.isTrue(result.containsKey('layout'), 'Parsed');
+    Assert.isTrue(
+      mock.lastRequest.getEndpoint()
+        .endsWith('/ui-api/record-defaults/create/Task'),
+      'UI API path'
+    );
+  }
 }

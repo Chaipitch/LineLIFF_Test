@@ -131,7 +131,7 @@ is only an extra: a field is also required when the rep's layout or the database
 | Field set | Object | Initial members (BA to confirm) | Required in set |
 |---|---|---|---|
 | `SalesReport_Opportunity_Form` | Opportunity | `StageName`, `Your_Win_Confidence__c`, `CloseDate`, `Amount`, `NextStep` or `Next_Step_Custom__c` (D-12), `Next_Step_Due_Date__c` | `StageName`, `CloseDate`, `Your_Win_Confidence__c` |
-| `SalesReport_Activity_Form` | Task (D-11) | `Type`, `ActivityPurpose__c`, `ActivityDate`, `Description` | none (follow the layout, D-31) |
+| `SalesReport_Activity_Form` | Task (D-11) | `Type`, `ActivityDate`, `Description` (built, L5a). Admins may add `ActivityPurpose__c` in Setup (org field, kept out of the repo, P3) | none (follow the layout, D-31) |
 
 Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`;
 for Tasks also `Subject`, `Priority` and (unless `Status` is in the field set) `Status` (D-31, D-32).
@@ -173,8 +173,18 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Searching` | Searching… | LIFF | L4 |
 | `SalesReport_No_Results` | No matching accounts | LIFF | L4 |
 | `SalesReport_Change` | Change | LIFF | L4 |
+| `SalesReport_Activity_Subject` | {0} – {1} | Task Subject (Apex): {0} = Type label or "Task", {1} = Account name | L5a |
+| `SalesReport_Save` | Save | LIFF | L5a |
+| `SalesReport_Saving` | Saving… | LIFF | L5a |
+| `SalesReport_Activity_Saved` | Activity saved: {0} | LIFF ({0} = Task subject) | L5a |
+| `SalesReport_Log_Another` | Log another activity | LIFF | L5a |
+| `SalesReport_Required` | Required | LIFF | L5a |
+| `SalesReport_Check_Fields` | Please check the highlighted fields. | LIFF | L5a |
+| `SalesReport_Select_Placeholder` | — Select — | LIFF | L5a |
+| `SalesReport_Choose_Account` | Choose an Account first. | LIFF | L5a |
 
-Planned: Save / Saved and form field messages (L5), rate-limit message (L7).
+Planned: Update Opportunity texts (L5c), attachment texts (L5b), rate-limit message (L7). Note: the Subject label is
+read in the Site guest user's language (en_US), not the rep's.
 
 Validation-rule messages from the org are shown as returned (they are already in the org's language).
 
@@ -220,7 +230,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 
 | Area | Grant |
 |---|---|
-| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4); later `SalesReportOpportunityController`, `SalesReportActivityController` (L5). Page controllers need no class access. |
+| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a); later `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
 | Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages, harmless) |
 | Objects | **none** (checked by query 2026-10-29) |
 | Other | Leave all "View …"/API permissions off |

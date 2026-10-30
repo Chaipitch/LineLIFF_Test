@@ -28,7 +28,7 @@ private class SalesReportLiffPageControllerTest {
       labels.get('hello'),
       'Labels come from Custom Labels'
     );
-    Assert.areEqual(23, labels.size(), 'All page labels');
+    Assert.areEqual(31, labels.size(), 'All page labels');
   }
 
   @IsTest

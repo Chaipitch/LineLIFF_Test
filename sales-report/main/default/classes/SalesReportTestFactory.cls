@@ -133,4 +133,134 @@ public with sharing class SalesReportTestFactory {
     Database.insert(link, AccessLevel.SYSTEM_MODE);
     return link;
   }
+
+  /** UI API field info as returned in objectInfos.Task.fields. */
+  public static Map<String, Object> fieldInfo(
+    String dataType,
+    String label,
+    Boolean required,
+    Integer length
+  ) {
+    return new Map<String, Object>{
+      'dataType' => dataType,
+      'label' => label,
+      'required' => required,
+      'createable' => true,
+      'length' => length
+    };
+  }
+
+  /** Task field infos like dev5's (2026-10-30), with Description labelled "Comments". */
+  public static Map<String, Object> taskFieldInfos() {
+    return new Map<String, Object>{
+      'Subject' => fieldInfo('ComboBox', 'Subject', false, 255),
+      'Type' => fieldInfo('Picklist', 'Type', false, 255),
+      'ActivityDate' => fieldInfo('Date', 'Due Date Only', false, 0),
+      'Description' => fieldInfo('TextArea', 'Comments', false, 32000),
+      'Status' => fieldInfo('Picklist', 'Status', true, 255),
+      'Priority' => fieldInfo('Picklist', 'Priority', true, 20),
+      'OwnerId' => fieldInfo('Reference', 'Assigned To', true, 18)
+    };
+  }
+
+  /** Body of GET ui-api/object-info/Task. */
+  public static String taskObjectInfoBody(Map<String, Object> fieldInfos) {
+    return JSON.serialize(
+      new Map<String, Object>{
+        'apiName' => 'Task',
+        'label' => 'Task',
+        'defaultRecordTypeId' => '012000000000000AAA',
+        'fields' => fieldInfos
+      }
+    );
+  }
+
+  public static String taskObjectInfoBody() {
+    return taskObjectInfoBody(taskFieldInfos());
+  }
+
+  /** Body of GET ui-api/layout/Task?mode=Create: one section, required items = layoutRequired. */
+  public static String taskLayoutBody(Set<String> layoutRequired) {
+    List<Object> items = new List<Object>();
+    for (String name : taskFieldInfos().keySet()) {
+      items.add(
+        new Map<String, Object>{
+          'required' => layoutRequired.contains(name),
+          'layoutComponents' => new List<Object>{
+            new Map<String, Object>{ 'apiName' => name }
+          }
+        }
+      );
+    }
+    for (String name : layoutRequired) {
+      if (!taskFieldInfos().containsKey(name)) {
+        items.add(
+          new Map<String, Object>{
+            'required' => true,
+            'layoutComponents' => new List<Object>{
+              new Map<String, Object>{ 'apiName' => name }
+            }
+          }
+        );
+      }
+    }
+    return JSON.serialize(
+      new Map<String, Object>{
+        'sections' => new List<Object>{
+          new Map<String, Object>{
+            'layoutRows' => new List<Object>{
+              new Map<String, Object>{ 'layoutItems' => items }
+            }
+          }
+        }
+      }
+    );
+  }
+
+  /** dev5's Task layout (2026-10-30) requires Subject, Assigned To, Priority and Status. */
+  public static String taskLayoutBody() {
+    return taskLayoutBody(
+      new Set<String>{ 'Subject', 'OwnerId', 'Priority', 'Status' }
+    );
+  }
+
+  /** Body of GET ui-api/object-info/Task/picklist-values/<record type>: Type = Visit / Call, defaults Open / Normal. */
+  public static String taskPicklistsBody() {
+    return '{"picklistFieldValues":{' +
+      '"Type":{"defaultValue":null,"values":[' +
+      '{"value":"Visit","label":"Customer Visit"},' +
+      '{"value":"Call","label":"Phone Call"}]},' +
+      '"Status":{"defaultValue":{"value":"Open","label":"Open"},"values":[{"value":"Open","label":"Open"}]},' +
+      '"Priority":{"defaultValue":{"value":"Normal","label":"Normal"},"values":[{"value":"Normal","label":"Normal"}]}}}';
+  }
+
+  /** Mock answering the rep-session Task calls: object info, layout, picklists, the Account query and the create. */
+  public static SalesReportHttpMock taskApiMock(
+    String objectInfoBody,
+    String layoutBody
+  ) {
+    return new SalesReportHttpMock(500, '{}')
+      .route('api.line.me', 200, verifyBody())
+      .route('/ui-api/object-info/Task', 200, objectInfoBody)
+      .route('/ui-api/layout/Task', 200, layoutBody)
+      .route(
+        '/ui-api/object-info/Task/picklist-values/',
+        200,
+        taskPicklistsBody()
+      )
+      .route(
+        '/query?q=',
+        200,
+        '{"totalSize":1,"done":true,"records":[{"Id":"001000000000001AAA","Name":"Toyota Motor Thailand"}]}'
+      )
+      .route(
+        '/sobjects/Task',
+        201,
+        '{"id":"00T000000000001AAA","success":true,"errors":[]}'
+      );
+  }
+
+  public static SalesReportHttpMock taskApiMock() {
+    return taskApiMock(taskObjectInfoBody(), taskLayoutBody());
+  }
 }

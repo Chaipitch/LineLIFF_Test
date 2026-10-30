@@ -15,9 +15,13 @@ public with sharing class SalesReportException extends Exception {
   public static final String SESSION_ERROR = 'SESSION_ERROR';
   public static final String NOT_LINKED = 'NOT_LINKED';
   public static final String QUERY_TOO_SHORT = 'QUERY_TOO_SHORT';
+  public static final String INVALID_INPUT = 'INVALID_INPUT';
+  public static final String SAVE_FAILED = 'SAVE_FAILED';
 
   public String code { get; private set; }
   public Integer statusCode { get; private set; }
+  /** Field API name → plain-language message, for errors the form shows next to a field; null when none. */
+  public Map<String, String> fieldErrors { get; private set; }
 
   public static SalesReportException of(
     String code,
@@ -27,6 +31,19 @@ public with sharing class SalesReportException extends Exception {
     SalesReportException e = new SalesReportException(message);
     e.code = code;
     e.statusCode = statusCode;
+    return e;
+  }
+
+  public static SalesReportException withFields(
+    String code,
+    Integer statusCode,
+    String message,
+    Map<String, String> fieldErrors
+  ) {
+    SalesReportException e = of(code, statusCode, message);
+    e.fieldErrors = fieldErrors == null || fieldErrors.isEmpty()
+      ? null
+      : fieldErrors;
     return e;
   }
 }

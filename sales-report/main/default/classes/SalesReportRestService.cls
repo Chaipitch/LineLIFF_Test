@@ -23,7 +23,11 @@ public with sharing class SalesReportRestService {
       }
       write(
         known.statusCode,
-        new SalesReportErrorData(known.code, known.getMessage())
+        new SalesReportErrorData(
+          known.code,
+          known.getMessage(),
+          known.fieldErrors
+        )
       );
       return;
     }

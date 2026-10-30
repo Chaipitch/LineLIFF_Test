@@ -40,10 +40,18 @@ public with sharing class SalesReportHttpMock implements HttpCalloutMock {
   public HttpResponse respond(HttpRequest req) {
     lastRequest = req;
     requests.add(req);
+    String match;
     for (String endpointPart : routes.keySet()) {
-      if (req.getEndpoint().contains(endpointPart)) {
-        return routes.get(endpointPart);
+      if (
+        req.getEndpoint().contains(endpointPart) &&
+        (match == null ||
+        endpointPart.length() > match.length())
+      ) {
+        match = endpointPart;
       }
+    }
+    if (match != null) {
+      return routes.get(match);
     }
     if (fail) {
       throw new CalloutException('Read timed out');

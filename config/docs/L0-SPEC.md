@@ -68,9 +68,9 @@ First-time login (flow B): LIFF "Connect Salesforce" → `POST /link/start` → 
 ## 4. API (Apex REST on the Site, `/services/apexrest/salesreport/v1/...`)
 
 All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses are JSON, never cached; errors use
-`{ "error": { "code": "...", "message": "<plain-language>" } }` (`fields` added in L5). Error codes: `TOKEN_MISSING`,
+`{ "error": { "code": "...", "message": "<plain-language>", "fields": { … } } }` (`fields` only on form errors). Error codes: `TOKEN_MISSING`,
 `TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
-(403), `QUERY_TOO_SHORT` (400), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
+(403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
 
 | Method & path | Purpose | Rep must be linked | Status | Notes |
 |---|---|---|---|---|
@@ -79,8 +79,8 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses 
 | `POST /link/start` | Create one-time link code; return link-page URL | no | Done (L3) | 256 random bits, base64url; SHA-256 stored only; 5-min expiry; single use. |
 | `GET /accounts?q=` | Account auto-complete | yes | Done (L4) | Min 2 chars, max 10 (settings). Runs as the rep → only visible Accounts. Name + field set `SalesReport_Account_Search` (D-29); prefix matches first. |
 | `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5 | `IsClosed = false`, ordered by CloseDate. |
-| `GET /activity/form` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | L5 | Field set `SalesReport_Activity_Form` + UI API `record-defaults/create/Task` read **as the rep** (D-31). |
-| `POST /activity` | Create the **Task** (D-11) | yes | L5 | `WhatId` = Account ID only (D-33), `OwnerId` = rep, Subject built from Type + Account, Status from date (D-32). Returns the Task ID. |
+| `GET /activity` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | Done (L5a) | Field set `SalesReport_Activity_Form` + UI API object-info, layout, picklist-values read **as the rep** (D-31, D-35). |
+| `POST /activity` | Create the **Task** (D-11): body `{ accountId, values: { <field>: <value> } }` | yes | Done (L5a) | Only field-set fields accepted; `WhatId` = Account ID only (D-33), checked visible to the rep; `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
 | `POST /activity/files` | Attach one file to a Task the rep just created | yes | L5 | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). One file per request, size/type/count limits from settings. |
 | `POST /opportunity` | Update one Opportunity | yes | L5 | Only field-set fields (D-21); `Id` must belong to the chosen Account. |
 
@@ -121,12 +121,12 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | Controller | ✓ `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
 | Controller | ✓ `SalesReportAccountController` | `@RestResource` `GET /salesreport/v1/accounts` | L4 |
 | Controller | `SalesReportOpportunityController` | `@RestResource` `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 |
-| Controller | `SalesReportActivityController` | `@RestResource` `POST /salesreport/v1/activity` | L5 |
+| Controller | ✓ `SalesReportActivityController` | `@RestResource` `GET` (form) / `POST` (create) `/salesreport/v1/activity` | L5a |
 | Service | ✓ `SalesReportIdentityService` | Verify request token (via callout service), resolve LINE user → linked User | L2–L3 |
 | Service | ✓ `SalesReportLinkService` | Create/consume link codes, link/unlink, deactivated-user cleanup | L3 |
 | Service | ✓ `SalesReportAccountService` | Account search rules (min chars, limit, fields) | L4 |
 | Service | `SalesReportOpportunityService` | Field whitelist, Account ownership check, error mapping | L5 |
-| Service | `SalesReportActivityService` | Build the Event/Task (D-11), error mapping | L5 |
+| Service | ✓ `SalesReportActivityService` | Form definition from field set + UI API, Task create as the rep (D-11, D-31–D-35) | L5a |
 | Service | ✓ `SalesReportSettingsService` | Single reader of `SalesReport_Settings__c` | L2 |
 | Service | ✓ `SalesReportLogService` | Buffered logging, `flush()`, never throws | L2 |
 | Service | `SalesReportRateLimitService` | Per-LINE-user counter (D-14) | L7 |
@@ -168,7 +168,7 @@ Field lists below are the **initial members of the field sets** (D-21); admins c
 |---|---|---|---|
 | Account | `WhatId` | always | From the search (L4); not in the field set. |
 | Activity Type | `Type` | as Salesforce says (D-31) | Values to be agreed and added by an admin (Q-A2); today only call outcomes exist. |
-| Activity Purpose | `ActivityPurpose__c` | as Salesforce says | Existing org picklist (1. Initial Meeting … 6. Other). Proposed; BA may drop it. |
+| Activity Purpose | `ActivityPurpose__c` | as Salesforce says | Existing org picklist (1. Initial Meeting … 6. Other). Not in the repo field set (org field, P3): an admin adds it in Setup if the BA wants it. |
 | Date | `ActivityDate` | as Salesforce says | Any date (D-32). |
 | Comments | `Description` | as Salesforce says | Long text. |
 | Attachments | Salesforce Files | no | After save; limits Q-A6a (D-34). |
@@ -220,5 +220,5 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/me` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | Log Activity (Task + attachments) ready to build; Update Opportunity waiting on the BA (D-12, Q-O1) |
+| L5 Forms | L5a Log Activity built and checked live (2026-10-30), device test pending; L5b attachments next; L5c Update Opportunity waiting on the BA (D-12, Q-O1) |
 | L6–L8 | Not started |

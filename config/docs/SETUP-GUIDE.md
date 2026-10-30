@@ -85,7 +85,7 @@ npm run build:liff
 Sandbox (only this feature's tests):
 
 ```bash
-sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportMeControllerTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
+sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportMeControllerTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
 ```
 
 Production: validate first with `--test-level RunLocalTests` (`sf project deploy validate`), then quick-deploy.
@@ -167,7 +167,8 @@ Save. Then on the Site detail page:
      - `SalesReportMeController` — "who am I?" (L2)
      - `SalesReportLinkController` — "start my one-time login" (L3)
      - `SalesReportAccountController` — "search Accounts" (L4)
-     - later `SalesReportOpportunityController`, `SalesReportActivityController` (L5)
+     - `SalesReportActivityController` — "show the Log Activity form and save it" (L5a)
+     - later `SalesReportOpportunityController` (L5c)
    - **Enabled Visualforce Page Access** → `SalesReport_Liff` (often added automatically).
    - Object Settings: leave **all objects without access**. Don't assign `LINE_Webhook_Guest` or any other permission set.
 3. Do **not** change the existing `LineWebhook` Site (that belongs to LINE Connect).
@@ -277,6 +278,16 @@ Create, then:
   → drag the fields in → Save. The first of these fields with a value is shown under the name — useful when two
   Accounts have the same name. Reps must be able to read every field in the set, or their search fails. (BA Q-C1.)
 - **Search limits.** Part C: *Account Search Min Chars* / *Max Results*.
+- **Fields on the Log Activity form (L5a).** Setup → Object Manager → **Activity** (Task fields) → **Field Sets** →
+  *Sales Report Activity Form* → drag fields in or out, change the order → Save. The form in LINE changes on the next
+  open; no code change. Labels shown are the field labels in Salesforce (e.g. *Due Date Only* — rename the field label
+  if the reps should see "Date"). *Why:* the business decides the fields, not the program (D-21).
+- **Make a field required on the form.** The form follows Salesforce (D-31): make the field required on the Task
+  **page layout** of the reps' profile, or tick *Required* for it in the field set. Validation rules on Task also apply
+  and their message is shown on the form. If you make a field required on the layout but **don't** add it to the field
+  set, reps get the message "Salesforce requires *X* … ask your admin to add it to field set SalesReport_Activity_Form".
+- **Activity Type values.** The Type list is Salesforce's Task *Type* picklist (BA Q-A2): Object Manager → Activity →
+  Fields → Type → add values such as *Customer Visit*. They also appear for normal Task entry in Salesforce.
 - **Switch off for everyone.** Part C: untick *Enabled*.
 
 ---

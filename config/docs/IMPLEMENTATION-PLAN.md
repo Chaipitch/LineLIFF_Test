@@ -118,14 +118,16 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 ### L5a — Log Activity (ready to build)
 
 - [ ] H · Admin adds the agreed Task `Type` values in `dev5` (Q-A2) — the form works without them, using whatever values exist.
-- [ ] C · Field set `SalesReport_Activity_Form` on Task (Type, ActivityPurpose__c, ActivityDate, Description) (D-21).
-- [ ] C · `GET /salesreport/v1/activity/form` → field-set fields with label, type, picklist values, defaults and the
-      required flag from the rep's layout (UI API `record-defaults/create/Task` as the rep), the database and the field set (D-31).
-- [ ] C · `POST /salesreport/v1/activity` → Task as the rep: `WhatId` = Account, Subject built, Status from the date (D-32);
+- [x] C · Field set `SalesReport_Activity_Form` on Task: Type, ActivityDate, Description (D-21). Standard fields only in the repo (P3); admins add org fields such as `ActivityPurpose__c` in Setup.
+- [x] C · `GET /salesreport/v1/activity` → field-set fields with label, type, picklist values, defaults and the
+      required flag from the rep's layout, the database and the field set (D-31), via three small UI API reads as the rep (D-35).
+- [x] C · `POST /salesreport/v1/activity` → Task as the rep: `WhatId` = Account, Subject built, Status from the date (D-32);
       only field-set fields accepted; Account must be visible to the rep.
-- [ ] C · Map org errors (validation rules, required fields, FLS) to plain-language messages with field highlights; nothing silently dropped.
-- [ ] C · LIFF form: dynamic fields from `/activity/form`, client-side required check, success screen.
-- [ ] C · Tests: success, required field missing, validation-rule error (mocked), field outside field set rejected, not linked.
+- [x] C · Map org errors (validation rules, required fields, FLS) to plain-language messages with field highlights; nothing silently dropped.
+- [x] C · LIFF form: dynamic fields from `GET /activity`, client-side required check, errors cleared on change, success screen with "Log another" / Close (checked headless 2026-10-30).
+- [x] C · Tests: success, required field missing, validation-rule error (mocked), field outside field set rejected, not linked — 92 tests, 95.8% coverage; Code Analyzer 0 Critical/High.
+- [x] C · Live check through the real JWT session: form (Type 4 values, Due Date Only, Description; none required in `dev5`) ~1.0 s; past date → `Completed`, future → `Open`, Priority `Normal`, owner = rep; test Tasks deleted.
+- [ ] H · Guest profile: add Apex class `SalesReportActivityController` (public `/activity` answers 403 "no access to the Apex class" until then).
 - [ ] H+C · Device test: log a Task from the phone, check it on the Account.
 
 ### L5b — Attachments (after L5a works)

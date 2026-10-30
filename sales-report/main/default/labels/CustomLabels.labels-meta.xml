@@ -1,12 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>SalesReport_Account_Label</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Account_Label</shortDescription>
+        <value>Account</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Account_Search_Placeholder</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription
+    >SalesReport_Account_Search_Placeholder</shortDescription>
+        <value>Type at least {0} characters</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Activity_Saved</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Activity_Saved</shortDescription>
+        <value>Activity saved: {0}</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Activity_Subject</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Activity_Subject</shortDescription>
+        <value>{0} – {1}</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Activity_Title</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>SalesReport_Activity_Title</shortDescription>
         <value>Log activity</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Change</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Change</shortDescription>
+        <value>Change</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Check_Fields</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Check_Fields</shortDescription>
+        <value>Please check the highlighted fields.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Choose_Account</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Choose_Account</shortDescription>
+        <value>Choose an Account first.</value>
     </labels>
     <labels>
         <fullName>SalesReport_Close</fullName>
@@ -25,12 +82,63 @@
         <value>This form is coming soon.</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Connect_Body</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Connect_Body</shortDescription>
+        <value
+    >To use Sales Report, log in to Salesforce once. After that you will not need to log in again.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Connect_Button</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Connect_Button</shortDescription>
+        <value>Log in to Salesforce</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Connect_Check</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Connect_Check</shortDescription>
+        <value>I've finished</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Connect_Title</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Connect_Title</shortDescription>
+        <value>Connect Salesforce</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Connect_Waiting</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Connect_Waiting</shortDescription>
+        <value
+    >Finish logging in to Salesforce in your browser, then come back here.</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Error_Generic</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>SalesReport_Error_Generic</shortDescription>
         <value>Something went wrong. Please try again.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Error_Not_Authorized</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Error_Not_Authorized</shortDescription>
+        <value
+    >Your Salesforce user is not set up for Sales Report. Please ask your administrator.</value>
     </labels>
     <labels>
         <fullName>SalesReport_Error_Session_Expired</fullName>
@@ -57,6 +165,74 @@
         <value>Hello, {0}</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Link_Confirm_Body</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Link_Confirm_Body</shortDescription>
+        <value
+    >Connect the LINE account "{0}" to your Salesforce user {1}?</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Link_Confirm_Button</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Link_Confirm_Button</shortDescription>
+        <value>Connect</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Link_Confirm_Note</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Link_Confirm_Note</shortDescription>
+        <value
+    >Only continue if you opened this page yourself from the Sales Report menu in LINE.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Link_Done</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Link_Done</shortDescription>
+        <value
+    >Done. Your LINE account is connected. You can go back to LINE.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Link_Invalid</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Link_Invalid</shortDescription>
+        <value
+    >This link has expired or was already used. Open the form in LINE and try again.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Link_Return</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Link_Return</shortDescription>
+        <value>Open Sales Report in LINE</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Link_Title</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Link_Title</shortDescription>
+        <value>Connect LINE to Salesforce</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Linked_As</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Linked_As</shortDescription>
+        <value>Salesforce: {0}</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Loading</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -65,12 +241,28 @@
         <value>Loading…</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Log_Another</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Log_Another</shortDescription>
+        <value>Log another activity</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Menu_Title</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>SalesReport_Menu_Title</shortDescription>
         <value>Sales Report</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_No_Results</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_No_Results</shortDescription>
+        <value>No matching accounts</value>
     </labels>
     <labels>
         <fullName>SalesReport_Open_In_Line</fullName>
@@ -89,163 +281,44 @@
         <shortDescription>SalesReport_Opportunity_Title</shortDescription>
         <value>Update opportunity</value>
     </labels>
-  <labels>
-    <fullName>SalesReport_Connect_Body</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Connect_Body</shortDescription>
-    <value
-    >To use Sales Report, log in to Salesforce once. After that you will not need to log in again.</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Connect_Button</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Connect_Button</shortDescription>
-    <value>Log in to Salesforce</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Connect_Check</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Connect_Check</shortDescription>
-    <value>I&apos;ve finished</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Connect_Title</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Connect_Title</shortDescription>
-    <value>Connect Salesforce</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Connect_Waiting</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Connect_Waiting</shortDescription>
-    <value
-    >Finish logging in to Salesforce in your browser, then come back here.</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Error_Not_Authorized</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Error_Not_Authorized</shortDescription>
-    <value
-    >Your Salesforce user is not set up for Sales Report. Please ask your administrator.</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Linked_As</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Linked_As</shortDescription>
-    <value>Salesforce: {0}</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Link_Title</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Link_Title</shortDescription>
-    <value>Connect LINE to Salesforce</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Link_Confirm_Body</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Link_Confirm_Body</shortDescription>
-    <value
-    >Connect the LINE account &quot;{0}&quot; to your Salesforce user {1}?</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Link_Confirm_Note</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Link_Confirm_Note</shortDescription>
-    <value
-    >Only continue if you opened this page yourself from the Sales Report menu in LINE.</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Link_Confirm_Button</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Link_Confirm_Button</shortDescription>
-    <value>Connect</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Link_Done</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Link_Done</shortDescription>
-    <value
-    >Done. Your LINE account is connected. You can go back to LINE.</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Link_Return</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Link_Return</shortDescription>
-    <value>Open Sales Report in LINE</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Link_Invalid</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Link_Invalid</shortDescription>
-    <value
-    >This link has expired or was already used. Open the form in LINE and try again.</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Account_Label</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Account_Label</shortDescription>
-    <value>Account</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Account_Search_Placeholder</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Account_Search_Placeholder</shortDescription>
-    <value>Type at least {0} characters</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_No_Results</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_No_Results</shortDescription>
-    <value>No matching accounts</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Searching</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Searching</shortDescription>
-    <value>Searching…</value>
-  </labels>
-  <labels>
-    <fullName>SalesReport_Change</fullName>
-    <categories>SalesReport</categories>
-    <language>en_US</language>
-    <protected>false</protected>
-    <shortDescription>SalesReport_Change</shortDescription>
-    <value>Change</value>
-  </labels>
+    <labels>
+        <fullName>SalesReport_Required</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Required</shortDescription>
+        <value>Required</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Save</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Save</shortDescription>
+        <value>Save</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Saving</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Saving</shortDescription>
+        <value>Saving…</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Searching</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Searching</shortDescription>
+        <value>Searching…</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Select_Placeholder</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Select_Placeholder</shortDescription>
+        <value>— Select —</value>
+    </labels>
 </CustomLabels>

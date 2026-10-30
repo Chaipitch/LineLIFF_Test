@@ -78,6 +78,9 @@ public with sharing class SalesReportIdentityService {
     }
     String accessToken = new SalesReportSessionCalloutService()
       .accessTokenFor(link.User__r.Username);
-    return new SalesReportOrgApiCalloutService(accessToken);
+    return new SalesReportOrgApiCalloutService(
+      accessToken,
+      link.User__r.TimeZoneSidKey
+    );
   }
 }

@@ -1,10 +1,12 @@
 // Sales Report LIFF app.
 // Initialises LIFF and sends the LINE ID token to /me. Not linked yet: "Connect Salesforce" opens the one-time link
-// page in the browser (D-15) and /me is checked again when the rep comes back. Linked: greets the rep.
+// page in the browser (D-15) and /me is checked again when the rep comes back. Linked: greets the rep and shows the
+// form named by ?form= (activity = Log Activity, L5a; opportunity is still coming soon).
 // All text is rendered with textContent; no data is ever inserted as HTML.
 import liff from "@line/liff";
 import { createApi, ApiError } from "./api.js";
 import { createAccountPicker } from "./accountPicker.js";
+import { createActivityForm } from "./activityForm.js";
 
 const RELOAD_FLAG = "salesReport.reloadedForToken";
 const FORMS = { activity: "activityTitle", opportunity: "opportunityTitle" };
@@ -76,6 +78,17 @@ function button(text, onClick, secondary) {
   return node;
 }
 
+function newPicker(onSelect) {
+  const search = config.accountSearch || {};
+  return createAccountPicker({
+    api: apiClient,
+    labels,
+    minChars: search.minChars || 2,
+    onSelect: onSelect || (() => {}),
+    onError: handleApiError
+  });
+}
+
 function showHome(me, formKey) {
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels[FORMS[formKey]] || labels.menuTitle));
@@ -85,16 +98,31 @@ function showHome(me, formKey) {
   card.append(
     el("p", "sr-sub", format(labels.linkedAs, me.salesforceUserName || ""))
   );
-  const search = config.accountSearch || {};
-  const picker = createAccountPicker({
-    api: apiClient,
-    labels,
-    minChars: search.minChars || 2,
-    onSelect: () => {},
-    onError: handleApiError
-  });
-  card.append(picker.element);
-  card.append(el("p", "sr-message", labels.comingSoon));
+  if (formKey === "activity") {
+    const form = createActivityForm({
+      api: apiClient,
+      labels,
+      createPicker: newPicker,
+      onSaved: (result) => showActivitySaved(me, result),
+      onError: handleApiError
+    });
+    card.append(form.element);
+  } else {
+    card.append(newPicker().element);
+    card.append(el("p", "sr-message", labels.comingSoon));
+  }
+  render(card);
+}
+
+function showActivitySaved(me, result) {
+  const card = el("section", "sr-card");
+  card.append(el("h1", "sr-title", labels.activityTitle));
+  card.append(
+    el("p", "sr-message", format(labels.activitySaved, result.subject || ""))
+  );
+  card.append(button(labels.logAnother, () => showHome(me, "activity")));
+  if (liff.isInClient())
+    card.append(button(labels.close, () => liff.closeWindow(), true));
   render(card);
 }
 

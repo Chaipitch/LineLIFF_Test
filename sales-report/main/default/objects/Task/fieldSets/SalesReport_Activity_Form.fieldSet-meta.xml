@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SalesReport_Activity_Form</fullName>
+    <description
+  >Fields of the Sales Report "Log Activity" form in LINE (D-21, D-31). Order here = order on the form. Required flags follow the rep's Task layout and the database; ticking Required here makes a field required on the form as well. Standard fields only in the repo (P3); admins add org fields such as Activity Purpose in Setup.</description>
+    <displayedFields>
+        <field>Type</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>ActivityDate</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>Description</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <label>Sales Report Activity Form</label>
+</FieldSet>

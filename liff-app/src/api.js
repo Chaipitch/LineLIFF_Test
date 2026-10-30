@@ -4,10 +4,12 @@
 const TIMEOUT_MS = 15000;
 
 export class ApiError extends Error {
-  constructor(status, code, message) {
+  constructor(status, code, message, fields) {
     super(message || code || `HTTP ${status}`);
     this.status = status;
     this.code = code;
+    // Field API name → message, when the server can point at fields (INVALID_INPUT, SAVE_FAILED).
+    this.fields = fields || null;
   }
 }
 
@@ -60,7 +62,8 @@ export function createApi(apiBase, getIdToken) {
       throw new ApiError(
         response.status,
         detail.code || "HTTP_" + response.status,
-        detail.message
+        detail.message,
+        detail.fields
       );
     }
     return data;

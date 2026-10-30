@@ -45,25 +45,26 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportLinkPageController` | Controller | VF page `SalesReport_Link`: confirm, then link the logged-in rep | L3 | Done |
 | `SalesReportAccountController` | Controller | `GET /salesreport/v1/accounts` | L4 | Done |
 | `SalesReportOpportunityController` | Controller | `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 | Planned |
-| `SalesReportActivityController` | Controller | `POST /salesreport/v1/activity` | L5 | Planned |
+| `SalesReportActivityController` | Controller | `GET` (form) / `POST` (create Task) `/salesreport/v1/activity` | L5a | Done |
 | `SalesReportIdentityService` | Service | Token → verified LINE user (linked User via `SalesReportLinkService`) | L2–L3 | Done |
 | `SalesReportLinkService` | Service | Link codes, consume/link, one active link per User, lazy unlink of deactivated users | L3 | Done |
 | `SalesReportAccountService` | Service | Account search: min chars, field-set fields, escaping, ranking, cap | L4 | Done |
 | `SalesReportOpportunityService` | Service | Field whitelist, ownership check, error mapping | L5 | Planned |
-| `SalesReportActivityService` | Service | Build Event/Task, error mapping | L5 | Planned |
+| `SalesReportActivityService` | Service | Form from field set + UI API as the rep; Task create, Subject/Status rules, input checks | L5a | Done |
 | `SalesReportSettingsService` | Service | Only reader of `SalesReport_Settings__c` | L2 | Done |
 | `SalesReportLogService` | Service | Buffered logging, `flush()`, never throws | L2 | Done |
 | `SalesReportRateLimitService` | Service | Per-LINE-user rate limit | L7 | Planned |
 | `SalesReportLinkCleanupService` | Service | Schedulable: delete expired link codes and old logs | L7 | Planned |
 | `SalesReportLineCalloutService` | CalloutService | LINE ID-token verify | L2 | Done |
 | `SalesReportSessionCalloutService` | CalloutService | JWT bearer exchange (Option B) | L3 | Done |
-| `SalesReportOrgApiCalloutService` | CalloutService | Org REST API calls as the rep (L3: userinfo; L4–L5: data) | L3–L5 | Done (L3 part) |
+| `SalesReportOrgApiCalloutService` | CalloutService | Org REST API calls as the rep: userinfo, SOQL, UI API, create (save errors → `SAVE_FAILED` with fields), rep's today | L3–L5 | Done |
 | `SalesReportLineVerifyData` | Data | LINE verify response | L2 | Done |
 | `SalesReportMeData` | Data | `/me` response | L2 | Done |
 | `SalesReportAccountData` | Data | Account search result (`id`, `name`, `detail`) | L4 | Done |
 | `SalesReportOpportunityData` | Data | Opportunity list item / update request | L5 | Planned |
-| `SalesReportActivityData` | Data | Activity request | L5 | Planned |
-| `SalesReportErrorData` | Data | Error response (`code`, `message`; `fields` added in L5) | L2 | Done |
+| `SalesReportActivityData` | Data | `POST /activity` response (`id`, `subject`, `status`) | L5a | Done |
+| `SalesReportActivityFormData` | Data | `GET /activity` response (fields with label, type, required, default, options) | L5a | Done |
+| `SalesReportErrorData` | Data | Error response (`code`, `message`, `fields`) | L2, L5a | Done |
 | `SalesReportNamespaceService` | Service | Namespace-safe REST and page paths (P6) | L3 | Done |
 | `SalesReportLinkStartData` | Data | `/link/start` response (`linkUrl`) | L3 | Done |
 | `SalesReportException` | Other | Typed exception, plain-language message | L2 | Done |
@@ -89,7 +90,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 
 | Path | Purpose | Milestone | Status |
 |---|---|---|---|
-| `liff-app/build.mjs`, `liff-app/src/main.js`, `liff-app/src/api.js`, `liff-app/src/accountPicker.js`, `liff-app/src/app.css` | LIFF front-end source (esbuild bundle incl. `@line/liff` 2.31.2), `npm run build:liff` | L2 | Done |
+| `liff-app/build.mjs`, `liff-app/src/main.js`, `liff-app/src/api.js`, `liff-app/src/accountPicker.js`, `liff-app/src/activityForm.js` (L5a), `liff-app/src/app.css` | LIFF front-end source (esbuild bundle incl. `@line/liff` 2.31.2), `npm run build:liff` | L2 | Done |
 | `fa/staticresources/SalesReport_LiffApp` (+ `.resource-meta.xml`) | Built LIFF bundle (JS, CSS, LIFF SDK) | L2 | Done |
 
 ## 6. Objects, fields and settings (`fa/objects/`)
@@ -110,7 +111,7 @@ No fields are added to standard objects. Standard fields read/written as the rep
 |---|---|---|---|---|
 | `fa/objects/Account/fieldSets/SalesReport_Account_Search.fieldSet-meta.xml` | Account | Extra text fields searched by the Account picker (D-29); repo holds Name only | L4 | Done |
 | `fa/objects/Opportunity/fieldSets/SalesReport_Opportunity_Form.fieldSet-meta.xml` | Opportunity | Editable fields on Update Opportunity (D-21) | L5 | Planned |
-| `fa/objects/Event/fieldSets/SalesReport_Activity_Form.fieldSet-meta.xml` (or Task, D-11) | Event / Task | Fields on Log Activity (D-21) | L5 | Planned |
+| `fa/objects/Task/fieldSets/SalesReport_Activity_Form.fieldSet-meta.xml` | Task | Fields on Log Activity (D-21): Type, ActivityDate, Description | L5a | Done |
 
 ## 7. Security and access
 
@@ -121,9 +122,9 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | `fa/remoteSiteSettings/SalesReport_LINE_API.remoteSite-meta.xml` | Remote Site | `https://api.line.me` (D-10) | L2 | Done |
 | `fa/remoteSiteSettings/SalesReport_Org_Domain.remoteSite-meta.xml` | Remote Site | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) | L3 | Removed (not needed) |
 | `fa/cachePartitions/SalesReportCache.cachePartition-meta.xml` | Platform Cache partition | For the link-code comparison (D-30; the object stays) and rate limits (L7). Deployed to `dev5` with **0 MB** — the org has no free capacity; capacity is set in Setup, not in the repo | L3/L7 | Done (0 MB) |
-| `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 30 English labels (L2 shell, L3 connect / link page, L4 Account picker), translations JA / TH in L6 | L2, L3, L6 | Done (L2–L3 part) |
+| `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 39 English labels (L2 shell, L3 connect / link page, L4 Account picker, L5a activity form), translations JA / TH in L6 | L2–L5, L6 | Done (L2–L5a part) |
 | `fa/customPermissions/SalesReport_Access.customPermission-meta.xml` | Custom permission | Checked by the link page; granted by `SalesReport_User` | L3 | Done |
-| Site guest profile settings | Profile (org-generated) | Apex `SalesReportMeController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done) + VF `SalesReport_Liff`; no object access; L5 controllers to add | L2–L5 | [HUMAN] — done for L2–L4 |
+| Site guest profile settings | Profile (org-generated) | Apex `SalesReportMeController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done), `SalesReportActivityController` (L5a, to add) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — done for L2–L4, L5a pending |
 
 ## 8. Components created in Setup ([HUMAN], not in the repo)
 
