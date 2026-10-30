@@ -120,6 +120,7 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | `fa/permissionsets/SalesReport_Admin.permissionset-meta.xml` | Permission set | Admins: logs (L2), settings view (L2), manage links (L3) | L2–L3 | Done (L2 part) |
 | `fa/remoteSiteSettings/SalesReport_LINE_API.remoteSite-meta.xml` | Remote Site | `https://api.line.me` (D-10) | L2 | Done |
 | `fa/remoteSiteSettings/SalesReport_Org_Domain.remoteSite-meta.xml` | Remote Site | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) | L3 | Removed (not needed) |
+| `fa/cachePartitions/SalesReportCache.cachePartition-meta.xml` | Platform Cache partition | For link codes (planned swap, D-30 pending) and rate limits (L7). Deployed to `dev5` with **0 MB** — the org has no free capacity; capacity is set in Setup, not in the repo | L3/L7 | Done (0 MB) |
 | `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 30 English labels (L2 shell, L3 connect / link page, L4 Account picker), translations JA / TH in L6 | L2, L3, L6 | Done (L2–L3 part) |
 | `fa/customPermissions/SalesReport_Access.customPermission-meta.xml` | Custom permission | Checked by the link page; granted by `SalesReport_User` | L3 | Done |
 | Site guest profile settings | Profile (org-generated) | Apex `SalesReportMeController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done) + VF `SalesReport_Liff`; no object access; L5 controllers to add | L2–L5 | [HUMAN] — done for L2–L4 |
