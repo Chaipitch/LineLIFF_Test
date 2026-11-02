@@ -395,12 +395,29 @@
         <value>Try again</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Rule_Error</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Rule_Error</shortDescription>
+        <value
+    >A Salesforce rule couldn’t run, so nothing was saved. Please send this message to your administrator:</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Save</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>SalesReport_Save</shortDescription>
         <value>Save</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Save_Failed</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Save_Failed</shortDescription>
+        <value>Salesforce couldn’t save your changes:</value>
     </labels>
     <labels>
         <fullName>SalesReport_Saving</fullName>

@@ -162,6 +162,8 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · Tests: list, form prefill, stage limits, inactive current stage, update body (cleared field), other Account, closed Opportunity, VR message, bad ids, no access — 135 tests, 96.6%; Code Analyzer 0 Critical/High.
 - [x] C · Live read-only check through the real JWT session: 19 open Opportunities in 144 ms; form ~1.3 s with Stage (01–03), Target TCV (required), Next Step, Target Close Date (required). No live save (Opportunity flows post Slack alerts on update).
 - [x] H · Guest profile: add Apex class `SalesReportOpportunityController` — done 2026-11-02; public `/opportunities` answers 401 for a fake token.
+- [x] C · Friendlier save errors (2026-11-02): "Salesforce couldn't save your changes:" above Salesforce's text; a broken validation-rule formula gets "A Salesforce rule couldn't run … send this to your administrator"; the error sits above Save (not in the pinned bar) and scrolls into view.
+- [~] H · Org issue found in the device test (2026-11-02): validation rule `Require_Main_PreSales_Engineer_When_Stag` (`VALUE(LEFT(TEXT(StageName), 2)) >= 2`) crashes on old unnumbered stages (e.g. "Proposal"), so such Opportunities can't be saved anywhere until the stage changes. Suggested fix for the rule owner: add `ISNUMBER(LEFT(TEXT(StageName), 2))` as the first condition. Not changed by Claude (org rule outside this feature).
 - [ ] H+C · Device test: update a **test** Opportunity from the phone; check the record and that its automation (Next Step date stamps, Slack alert) behaves as expected.
 - [ ] BA · Q-O1–Q-O7, D-12, D-13 — answers become field-set / setting changes (D-39).
 

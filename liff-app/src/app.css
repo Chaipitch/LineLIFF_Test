@@ -324,6 +324,7 @@ input[type="date"].sr-input::-webkit-date-and-time-value {
 
 .sr-form-error {
   margin: 8px 0 0;
+  white-space: pre-line;
 }
 
 .sr-invalid .sr-input,

@@ -89,7 +89,9 @@ public with sharing class SalesReportLiffPageController {
       'chooseOpportunity' => System.Label.SalesReport_Choose_Opportunity,
       'opportunitySaved' => System.Label.SalesReport_Opportunity_Saved,
       'updateAnother' => System.Label.SalesReport_Update_Another,
-      'errorNoAccess' => System.Label.SalesReport_Error_No_Access
+      'errorNoAccess' => System.Label.SalesReport_Error_No_Access,
+      'saveFailed' => System.Label.SalesReport_Save_Failed,
+      'ruleError' => System.Label.SalesReport_Rule_Error
     };
   }
 }

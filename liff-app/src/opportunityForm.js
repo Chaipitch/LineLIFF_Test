@@ -59,12 +59,13 @@ export function createOpportunityForm(options) {
   save.type = "submit";
   save.disabled = true;
   const actions = el("div", "sr-actions");
-  actions.append(formError, save);
+  actions.append(save);
   form.append(
     picker.element,
     accountError,
     oppSection,
     fields.element,
+    formError,
     actions
   );
 

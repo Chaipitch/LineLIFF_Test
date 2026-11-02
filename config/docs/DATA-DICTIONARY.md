@@ -216,6 +216,8 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Choose_Opportunity` | Choose an opportunity first. | LIFF | L5c |
 | `SalesReport_Opportunity_Saved` | Opportunity updated: {0} | LIFF ({0} = Opportunity name) | L5c |
 | `SalesReport_Update_Another` | Update another opportunity | LIFF | L5c |
+| `SalesReport_Save_Failed` | Salesforce couldn’t save your changes: | LIFF — first line above Salesforce's own save error | L5c |
+| `SalesReport_Rule_Error` | A Salesforce rule couldn’t run, so nothing was saved. Please send this message to your administrator: | LIFF — when a validation-rule formula itself fails ("Validation Formula … Invalid") | L5c |
 | `SalesReport_Error_No_Access` | Your Salesforce user can’t open this data. Please ask your administrator. | LIFF (`NO_ACCESS`) | L5c |
 
 Note: the Subject label is

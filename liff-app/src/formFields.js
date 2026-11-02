@@ -19,6 +19,9 @@ export function format(template, ...values) {
 export function showError(box, message) {
   box.textContent = message || "";
   box.hidden = !message;
+  // The form-level error sits at the end of a long form: bring it into view so the rep sees why nothing was saved.
+  if (message && box.classList.contains("sr-form-error") && box.scrollIntoView)
+    box.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 
 const INPUT_TYPES = {
@@ -208,8 +211,16 @@ export function showSaveError(error, labels, fieldList, markExtra, formError) {
     )
       unplaced.push(error.fields[name]);
   });
-  const message =
-    error.code === "SAVE_FAILED" ? error.message : labels.checkFields;
-  showError(formError, [message].concat(unplaced).join(" "));
+  if (error.code !== "SAVE_FAILED") {
+    showError(formError, [labels.checkFields].concat(unplaced).join(" "));
+    return true;
+  }
+  // Salesforce's own text (often a validation rule, in the rep's language), after a plain-language first line. A rule
+  // whose formula itself fails ("Validation Formula … Invalid") is the admin's to fix, not the rep's input.
+  const detail = [error.message].concat(unplaced).join(" ");
+  const intro = /Validation Formula .* Invalid/i.test(detail)
+    ? labels.ruleError
+    : labels.saveFailed;
+  showError(formError, intro ? intro + "\n" + detail : detail);
   return true;
 }

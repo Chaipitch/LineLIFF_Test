@@ -37,12 +37,12 @@ export function createActivityForm(options) {
   const save = el("button", "sr-button", labels.save);
   save.type = "submit";
   save.disabled = true;
-  // Save stays at the bottom of the screen while the rep scrolls a long form.
+  // Save stays at the bottom of the screen while the rep scrolls a long form; errors sit above it in the form.
   const actions = el("div", "sr-actions");
-  actions.append(formError, save);
+  actions.append(save);
   form.append(picker.element, accountError, fields.element);
   if (attachments) form.append(attachments.element);
-  form.append(actions);
+  form.append(formError, actions);
 
   function markAccount(name, message) {
     if (name !== "accountId") return false;
