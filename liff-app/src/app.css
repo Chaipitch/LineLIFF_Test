@@ -427,11 +427,3 @@ input[type="date"].sr-input::-webkit-date-and-time-value {
 .sr-input[hidden] {
   display: none;
 }
-
-.sr-connect-hint {
-  margin-top: 20px;
-}
-
-.sr-connect-hint + .sr-button {
-  margin-top: 8px;
-}

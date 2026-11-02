@@ -37,7 +37,7 @@ appears in Salesforce under the rep's own name.
 | **F. LIFF app & rich menu** | Registering the form with LINE and adding the two menu buttons | Makes the buttons open our form inside LINE | Admin (LINE consoles) | Done |
 | **G. Certificate & External Client App** | A digital stamp and an "app pass" in Salesforce | Lets the system safely act **as the rep** after the one-time login, so data is saved under the rep's name with the rep's permissions | Admin | Done |
 | **H. Optional tuning** | Form fields, search fields, attachments switch, limits, nightly cleanup | Lets admins adjust the forms without a developer | Admin | Cleanup scheduled; attachments off |
-| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2–L5c built; login inside LINE tested on iOS (2026-11-02) |
+| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2–L5c built; browser login + return to the form tested on iOS (2026-11-02) |
 | **J. Editing the LINE screens** | Changing texts, fields, colours or layout of the forms | Most changes need no developer; the rest are a quick rebuild | Admin / developer | Reference |
 
 ### Words used in this guide
@@ -324,19 +324,15 @@ Create, then:
 **L2-7 — form opens (done 2026-10-29).** Add the OA (`https://line.me/R/ti/p/@939eyqft`) → tap **Log Activity** →
 allow LINE's permission the first time → the page shows **Log activity** and "Hello, <LINE name>".
 
-**L3-6 — one-time login (done 2026-10-29; inside LINE since 2026-11-02, D-40).**
-1. Tap **Log Activity** (not connected yet) → the Salesforce login opens **right inside LINE** (D-40).
-2. Log in (MFA if asked).
+**L3-6 — one-time login (done 2026-10-29; phone's browser, straight back to the form, since 2026-11-02, D-42).**
+1. Tap **Log Activity** (not connected yet) → the Salesforce login opens in **the phone's browser** right away; LINE shows
+   "Finish logging in to Salesforce in your browser" (with a button to reopen it).
+2. Log in (MFA / passkey / Face ID if asked — they work in the browser).
 3. **Connect LINE to Salesforce** — "Connect the LINE account "<LINE name>" to your Salesforce user <name>?" →
-   **Connect** → you are taken straight back to the form.
+   **Connect** → LINE opens again, straight on the form.
 4. Back in LINE you are on the form you tapped in the rich menu, with your LINE name
    and "Salesforce: <your name>" at the top. Reopening never asks to log in again. (Opened without a form, the app
    shows a small menu instead.)
-
-**Stuck on "Verify Your Identity" (passkey / Face ID)?** LINE's built-in browser can't do passkeys (D-41). Tap **Back**
-(or close and reopen the form within 2 minutes) → the Connect screen → **Open in your phone's browser** → verify there →
-**Connect** → LINE opens again on your form. Or use another verification method via *Having Trouble?*, or ask an admin
-for a temporary verification code (Setup → Users → the user → Generate temporary verification code).
 
 **L4-4 — Account search (done 2026-10-29).**
 1. Tap **Log Activity**. Under **Account**, type one letter: nothing happens. Type a second: after a short pause the
@@ -360,10 +356,9 @@ change something → **Save** → "Opportunity updated: <name>". Moving to Stage
 org's validation message instead.
 
 **Re-test the first-time login.** (1) Set your link to *Unlinked* (Day-to-day tasks below). (2) To see the Salesforce
-password screen again, also log out of Salesforce **inside LINE**: send yourself
-`https://<My Domain>/secur/logout.jsp` in a LINE chat (e.g. Keep memo) and tap it — otherwise LINE's browser still has
-your Salesforce session and goes straight to **Connect**. (3) Reopen the form from the rich menu → login inside LINE →
-**Connect** → back on the form. Reconnecting reuses the same link record.
+password screen again, also log out of Salesforce **in the phone's browser** (open `https://<My Domain>/secur/logout.jsp`
+there) — otherwise it still has your session and goes straight to **Connect**. (3) Reopen the form from the rich menu →
+login in the browser → **Connect** → back in LINE on the form. Reconnecting reuses the same link record.
 
 If anything else appears: Setup → **Sales Report Logs** tab → "Errors today" / "All", and send Claude a screenshot.
 

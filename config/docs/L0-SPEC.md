@@ -2,7 +2,7 @@
 
 **Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, **switched off** for now), L5c (Update
 Opportunity — built with the proposed defaults, D-39, **switched off** for now) and L7 (hardening) done. Since
-2026-11-02 the one-time login opens inside LINE (D-40, device-tested on iOS). L6 (languages, UI states) and L8 (QA,
+2026-11-02 the one-time login opens in the phone's browser right away and returns to the form (D-42, device-tested on iOS). L6 (languages, UI states) and L8 (QA,
 go-live) later. Open BA questions: `BA-QUESTIONS.md`.
 Written in L0, kept up to date since.
 **Background:** `HANDOFF.md` (original brief). **Decisions:** `DECISIONS.md` (D-xx). **Progress:** `IMPLEMENTATION-PLAN.md`.
@@ -64,10 +64,11 @@ LINE app ─ rich menu ─▶ https://liff.line.me/{liffId}?form=activity|opport
    REST API as the rep ──▶ <My Domain>/services/data/v68.0/...  (sharing, FLS, VRs native)
 ```
 
-First-time login (flow B, D-40): LIFF finds the rep not linked → `POST /link/start` → the **same LIFF window** opens
-`<My Domain>/apex/SalesReport_Link?code=…&form=…` → rep logs in (MFA if required) → page shows the LINE account →
-**Connect** → `SalesReport_Line_Link__c` written → back to the LIFF form automatically. (Until 2026-11-02 the link page
-opened in the phone's browser after a "Connect Salesforce" screen — D-15, proven on a phone 2026-10-29.)
+First-time login (flow B, D-42): LIFF finds the rep not linked → `POST /link/start` → the **phone's browser** opens
+`<My Domain>/apex/SalesReport_Link?code=…&form=…` right away (LINE shows "finish in your browser") → rep logs in (MFA /
+passkey works there) → page shows the LINE account → **Connect** → `SalesReport_Line_Link__c` written → redirect to
+`liff.line.me/<LIFF ID>?form=…` opens LINE on the form. (A login inside the LINE window, D-40, was tried and dropped:
+LINE's browser can't do passkeys, D-41.)
 
 ## 4. API (Apex REST on the Site, `/services/apexrest/salesreport/v1/...`)
 
@@ -160,7 +161,7 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | Also check in Apex | `aud` == our channel ID, `iss` == `https://access.line.me`, `exp` > now (the endpoint already checks these; re-check defensively). LIFF tokens are ES256-signed. | LINE docs — confirmed |
 | ID token lifetime | **1 hour** after issue (`liff.getIDToken()` docs). Token is obtained at `liff.init()`; a page left open > 1 h must re-init (reload) when the server returns `token_expired`. | LIFF API reference — confirmed |
 | What to send to the server | Send the **ID token** (or access token), never the profile from `liff.getProfile()` / `getDecodedIDToken()`. | "Using user data in LIFF apps and servers" — confirmed |
-| `liff.openWindow` | Not used for the login since D-40 (the LIFF window itself navigates to the link page). `external: false` → LINE in-app browser; `true` → external browser; "use in an external browser isn't guaranteed"; Universal-link URLs may jump to apps on newer LINE versions. | Confirmed on a phone in L3: `external: true` opens the link page as a plain page (D-15, D-28 closed) |
+| `liff.openWindow` | Used with `external: true` for the login (D-42). `external: false` → LINE in-app browser; `true` → external browser; "use in an external browser isn't guaranteed"; Universal-link URLs may jump to apps on newer LINE versions. | Confirmed on a phone in L3: `external: true` opens the link page as a plain page (D-15, D-28 closed) |
 | LIFF SDK bundling | `@line/liff` 2.31.2 bundled with esbuild into static resource `SalesReport_LiffApp`; at runtime the SDK still fetches optional files from `*.line-scdn.net` (D-26). | Built and working (L2) |
 | Packaged remote site applies to non-package code? | **Not confirmed** by docs found. Irrelevant in practice: we ship our own remote site (D-10). | Salesforce docs — unverified, avoided by design |
 | JWT bearer with External Client App | ECA with OAuth + JWT bearer enabled, certificate uploaded, **Permitted Users = "Admin approved users are pre-authorized"**, permission set `SalesReport_User`. Scopes must include **`refresh_token`** — without it Salesforce answers "refresh_token scope is required…" even though no refresh token is issued. Apex: `Auth.JWT` → `Auth.JWS(jwt, cert)` → `Auth.JWTBearerTokenExchange(...).getAccessToken()`. | **Verified hands-on in L3** (2026-10-29) |
@@ -225,8 +226,8 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 
 ## 9. Draft acceptance scenarios (for BA to confirm)
 
-1. New rep taps **Log Activity** → the Salesforce login opens inside LINE → logs in once → **Connect** → back on the form
-   with their name (D-40).
+1. New rep taps **Log Activity** → the Salesforce login opens in the phone's browser → logs in once → **Connect** → back
+   in LINE on the form with their name (D-42).
 2. Rep types "ter" → within ~1 s sees ≤ 10 Accounts they can see; cannot find an Account outside their sharing.
 3. Rep logs a visit → a Task appears on the Account, Created By = the rep (with photos under Files once attachments are switched on).
 4. Rep moves an Opportunity to Stage 02 without PreSales Engineer → sees the org's validation message, nothing saved.

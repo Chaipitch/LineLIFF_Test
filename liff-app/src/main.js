@@ -1,6 +1,6 @@
 // Sales Report LIFF app.
-// Initialises LIFF and sends the LINE ID token to /connection. Not linked yet: the LIFF window goes straight to the
-// Salesforce login of the one-time link page (D-40); after Connect the link page brings the rep back to their form. Linked: greets the rep and shows the
+// Initialises LIFF and sends the LINE ID token to /connection. Not linked yet: the one-time link page (Salesforce
+// login) opens right away in the phone's browser (D-42); after Connect the link page brings the rep back to their form. Linked: greets the rep and shows the
 // form named by ?form= (activity = Log Activity, L5a; opportunity = Update Opportunity, L5c).
 // All text is rendered with textContent; no data is ever inserted as HTML.
 import liff from "@line/liff";
@@ -236,56 +236,38 @@ async function newLinkUrl(api) {
     : result.linkUrl;
 }
 
-/** One-time login inside the LIFF window (BA request, D-40): the Salesforce login page opens right here. */
+/**
+ * One-time login in the phone's own browser (D-42): LINE's built-in browser can't do Salesforce's passkey / Face ID
+ * verification. After Connect, the link page's return address (liff.line.me) opens LINE on the form; this window
+ * also re-checks when it becomes visible again.
+ */
 async function startLogin(api) {
   const url = await newLinkUrl(api);
   markLoginStarted(true);
-  window.location.assign(url);
-}
-
-/**
- * The same login in the phone's own browser (D-41): LINE's built-in browser can't do passkeys / Face ID, so a rep
- * stuck on Salesforce's "Verify Your Identity" uses this. After Connect, the link page's return address
- * (liff.line.me) opens LINE again; this window re-checks when it becomes visible.
- */
-async function startLoginInBrowser(api) {
-  const url = await newLinkUrl(api);
-  markLoginStarted(true);
-  onConnectScreen = true;
   liff.openWindow({ url, external: true });
 }
 
 let onConnectScreen = false;
 
-/** Shown when the rep came back from the login without connecting (Back, cancel, or stuck on a passkey). */
-function showConnect(api) {
+/** Not linked yet. opened = the browser login was just opened, so tell the rep to finish there. */
+function showConnect(api, opened) {
   onConnectScreen = true;
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels.connectTitle));
-  card.append(el("p", "sr-message", labels.connectBody));
-  const buttons = [];
-  function run(action) {
-    return async () => {
-      buttons.forEach((b) => (b.disabled = true));
-      try {
-        await action(api);
-      } catch (error) {
-        handleApiError(error);
-      } finally {
-        buttons.forEach((b) => (b.disabled = false));
-      }
-    };
-  }
-  const inLine = button(labels.connectButton, run(startLogin));
-  const inBrowser = button(
-    labels.connectInBrowser,
-    run(startLoginInBrowser),
-    true
+  card.append(
+    el("p", "sr-message", opened ? labels.connectWaiting : labels.connectBody)
   );
-  buttons.push(inLine, inBrowser);
-  card.append(inLine);
-  card.append(el("p", "sr-hint sr-connect-hint", labels.connectBrowserHint));
-  card.append(inBrowser);
+  const login = button(labels.connectButton, async () => {
+    login.disabled = true;
+    try {
+      await startLogin(api);
+      showConnect(api, true);
+    } catch (error) {
+      login.disabled = false;
+      handleApiError(error);
+    }
+  });
+  card.append(login);
   render(card);
 }
 
@@ -313,9 +295,11 @@ async function checkMe(api) {
       markLoginStarted(false);
       showHome(me, requestedForm());
     } else if (loginRecentlyStarted()) {
-      showConnect(api);
+      showConnect(api, true);
     } else {
+      // Open the browser login right away; the screen behind it says to finish there (and can reopen it).
       await startLogin(api);
+      showConnect(api, true);
     }
   } catch (error) {
     handleApiError(error);

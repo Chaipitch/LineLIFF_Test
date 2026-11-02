@@ -60,7 +60,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 |---|---|---|---|---|
 | Q-L1 | How long does a link last? | Forever until unlinked, or re-confirm every N months. | Until unlinked or user deactivated | |
 | Q-L2 | Who unlinks reps when they leave or change phones? | Built: *Sales Report LINE Links* tab (set Status = Unlinked) and automatic unlink when the user is deactivated. | Salesforce admin | |
-| Q-L3 | Should the one-time login happen **inside LINE** (as in the mockup) or in the phone's browser? (G4, D-15) | In-app: matches the mockup, rep returns to the form automatically. External browser: may reuse an existing Salesforce login. | **Tested 2026-10-29:** the phone's browser works well (plain page, back to LINE with one tap). Keep the browser unless the BA wants the in-app look | **Inside LINE (LIFF window), no Connect screen first** — 2026-11-02 (D-40) |
+| Q-L3 | Should the one-time login happen **inside LINE** (as in the mockup) or in the phone's browser? (G4, D-15) | In-app: matches the mockup, rep returns to the form automatically. External browser: may reuse an existing Salesforce login. | **Tested 2026-10-29:** the phone's browser works well (plain page, back to LINE with one tap). Keep the browser unless the BA wants the in-app look | **Phone's browser, opened right away; back to the form in LINE after Connect** — 2026-11-02 (D-42; in-LINE login dropped because of passkeys) |
 | Q-L4 | (Info) After linking, reps never log in again unless unlinked, deactivated or permission removed — there is no session expiry. OK? (G5) | Mockup says "re-authentication when session expires"; our design is stricter and simpler. | Confirm; update slide wording | |
 | Q-L5 | What should the "connected" screen show? (G6) | Mockup shows the raw LINE User ID. | LINE display name ↔ Salesforce name | |
 | Q-L8 | When a second LINE account logs in as the same rep: keep **latest wins** (old link ended automatically) or **first wins** (refuse until an admin unlinks)? Notify on replacement? | Explained in `BA-FAQ.md` §4. | Latest wins, no notification in phase 1 | |
@@ -140,7 +140,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 ### 🟡 ยืนยันค่าที่เราตั้งไว้ (ถ้าโอเคตอบ "ได้" ได้เลย)
 
-13. ✅ ตอบแล้ว (2 พ.ย.): ล็อกอิน Salesforce ครั้งแรก**ในหน้า LIFF เลย** ไม่ต้องกดปุ่ม Connect ก่อน (Q-L3, D-40)
+13. ✅ ตอบแล้ว (2 พ.ย.): ล็อกอิน Salesforce ครั้งแรก**เปิดใน browser ของมือถือทันที** (ไม่ต้องกดปุ่มก่อน) เพราะหน้าล็อกอินใน LINE ใช้ passkey/Face ID ไม่ได้ — กด Connect แล้วกลับมาที่ฟอร์มใน LINE อัตโนมัติ (Q-L3, D-42)
 14. ☐ ผูกบัญชีแล้ว**ไม่หมดอายุ** Rep ไม่ต้องล็อกอินซ้ำ จนกว่า admin จะยกเลิกการผูก หรือ user ถูก deactivate — โอเคไหม? (Q-L1, Q-L4)
 15. ☐ ถ้า Rep ผูก LINE บัญชีที่สองกับ user เดิม → **บัญชีล่าสุดใช้ได้ บัญชีเก่าถูกยกเลิกอัตโนมัติ** หรือให้ปฏิเสธจนกว่า admin จะยกเลิก? (Q-L8)
 16. ☐ **ใครเป็นคนยกเลิกการผูก** เมื่อ Rep ลาออก/เปลี่ยนมือถือ? → เสนอ: admin ทำผ่านแท็บ Line Link (Q-L2)
@@ -150,7 +150,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 ### 🔵 Security / นโยบาย (ตอบก่อนขึ้น production)
 
 19. ☐ Production บังคับ **MFA** สำหรับ Rep ไหม? ใช้วิธียืนยันตัวตนแบบไหน (passkey/Face ID, Salesforce Authenticator, รหัสทางอีเมล)? มีแผนใช้ **SSO** ไหม? (Q-L6)
-    ⚠️ passkey/Face ID ใช้ในหน้าล็อกอินที่เปิดใน LINE ไม่ได้ — Rep ต้องกด "Open in your phone’s browser" (D-41)
+    (ล็อกอินเปิดใน browser ของมือถือ จึงใช้ passkey/Face ID ได้ — D-42)
 20. ☐ มีนโยบายบริษัทเรื่องการแสดงข้อมูลลูกค้า/ดีลใน LINE ไหม? (Q-L7)
 
 ### ⚪ ทำทีหลังได้ (เฟสถัดไป)

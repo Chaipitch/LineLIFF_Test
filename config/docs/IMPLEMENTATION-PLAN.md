@@ -8,7 +8,7 @@ Work one milestone at a time. Keep `FILE-INVENTORY.md` up to date in the same co
 Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason given).
 
 **Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched off (setting *Attachments Enabled*) · L5c built
-with the proposed defaults, switched off for now · login inside LINE (D-40) done on iOS · L6 later (user) · L7 done ·
+with the proposed defaults, switched off for now · login in the phone's browser, straight back to the form (D-42) done on iOS · L6 later (user) · L7 done ·
 L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
 
 ---
@@ -79,7 +79,7 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
 - [x] C · `POST /salesreport/v1/link/start`: verify token, create code (256 random bits, store SHA-256 only), TTL from settings (5 min), return link URL.
 - [x] C · VF page `SalesReport_Link` (login required): shows the LINE account, links only after **Connect** (POST, CSRF-protected);
       rejects expired/used codes; one active link per LINE user and per User; requires custom permission `SalesReport_Access` (D-27).
-- [x] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-checks `/connection` when the rep returns. (Replaced 2026-11-02 by the login inside LINE, D-40.)
+- [x] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-checks `/connection` when the rep returns. (Changed 2026-11-02: opened right away, no screen first, back to the form — D-42.)
 - [x] H · Setup → Certificate and Key Management → create self-signed cert `SalesReport_JWT_Signing` (L3-2).
 - [x] H · Setup → External Client App Manager → new ECA `SalesReport_App`: OAuth on, JWT bearer flow on, cert uploaded,
       scopes `api` + `id` + `refresh_token` (required by Salesforce for JWT bearer), Permitted Users = "Admin approved users are pre-authorized", permission set `SalesReport_User`
@@ -171,7 +171,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 
 **Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form; photos attached to the Task (when attachments are on).
 
-### Change after L5 — login inside LINE (BA, 2026-11-02, D-40)
+### Change after L5 — first-time login flow (2026-11-02, D-40 → D-41 → D-42)
 
 - [x] C · No "Connect Salesforce" screen first: unlinked → `/link/start` → same LIFF window opens the link page (Salesforce
       login inside LINE); form carried in the link; Connect redirects straight to the form (no done page); Connect
@@ -180,8 +180,11 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       LINE (not the Salesforce app) → Connect → back on the form.
 - [x] C · Passkey fallback (D-41): Connect screen (after Back / reopening within 2 min) offers "Open in your phone's
       browser" + hint; return re-checks on visibility. Checked headless; 137 tests pass.
-- [ ] H+C · Device test the passkey route: stuck on Verify → Back → Open in your phone's browser → verify → Connect → LINE.
-- [ ] H+C · Same check on Android.
+- [x] H+C · Device test iOS (2026-11-02): browser login with passkey → Connect → back in LINE on the form.
+- [x] C · Final (D-42, user): login **only** in the phone's browser, opened right away; LINE shows "finish in your
+      browser" with a reopen button; Connect → back in LINE on the form; in-LINE login and passkey-hint labels removed.
+      Checked headless; 137 tests pass.
+- [ ] H+C · Same check on Android (Chrome).
 
 ## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)
 

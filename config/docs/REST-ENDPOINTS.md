@@ -75,8 +75,8 @@ LIFF page ──(X-Line-Id-Token: <LINE ID token>)──▶ Controller
    page's **Open Sales Report in LINE** button returns to `https://liff.line.me/<LIFF ID>?form=…` (only those two values
    are accepted).
 
-**Returns:** `{ linkUrl }`. The app opens it in the same LIFF window right away (D-40), so the Salesforce login
-appears inside LINE.
+**Returns:** `{ linkUrl }`. The app opens it in the phone's browser right away (D-42), where passkeys work; after
+**Connect** the link page redirects to `liff.line.me`, which opens LINE on the form.
 
 **Not a REST endpoint, but part of the same flow:** the Visualforce page `SalesReport_Link`, which requires a Salesforce
 login and the custom permission `SalesReport_Access`. It shows the LINE name, and on **Connect** (a CSRF-protected POST)

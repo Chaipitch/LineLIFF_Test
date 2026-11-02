@@ -11,7 +11,7 @@ field-level security, validation rules and "Created By" are Salesforce's own. No
 public Salesforce Site → Apex REST → LINE ID-token verify + the org's REST API as the rep.
 
 Status, 2026-11-02: L0–L5c and L7 built in sandbox `dev5`; Update Opportunity and attachments switched off for now;
-the one-time Salesforce login opens inside LINE. L6 and L8 to come (`config/docs/IMPLEMENTATION-PLAN.md`).
+the one-time Salesforce login opens in the phone's browser and returns to the form in LINE. L6 and L8 to come (`config/docs/IMPLEMENTATION-PLAN.md`).
 
 ## Folders
 

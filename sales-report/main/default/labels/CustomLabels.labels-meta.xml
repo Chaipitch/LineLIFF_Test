@@ -112,16 +112,7 @@
         <protected>false</protected>
         <shortDescription>SalesReport_Connect_Body</shortDescription>
         <value
-    >To use Sales Report, log in to Salesforce once. After that you will not need to log in again.</value>
-    </labels>
-    <labels>
-        <fullName>SalesReport_Connect_Browser_Hint</fullName>
-        <categories>SalesReport</categories>
-        <language>en_US</language>
-        <protected>false</protected>
-        <shortDescription>SalesReport_Connect_Browser_Hint</shortDescription>
-        <value
-    >Stuck on “Verify Your Identity” (passkey or Face ID)? LINE can’t do that step — log in with your phone’s browser instead. You will come back to LINE afterwards.</value>
+    >To use Sales Report, log in to Salesforce once in your phone’s browser. You will come back to LINE afterwards, and you will not need to log in again.</value>
     </labels>
     <labels>
         <fullName>SalesReport_Connect_Button</fullName>
@@ -130,22 +121,6 @@
         <protected>false</protected>
         <shortDescription>SalesReport_Connect_Button</shortDescription>
         <value>Log in to Salesforce</value>
-    </labels>
-    <labels>
-        <fullName>SalesReport_Connect_Check</fullName>
-        <categories>SalesReport</categories>
-        <language>en_US</language>
-        <protected>false</protected>
-        <shortDescription>SalesReport_Connect_Check</shortDescription>
-        <value>I've finished</value>
-    </labels>
-    <labels>
-        <fullName>SalesReport_Connect_In_Browser</fullName>
-        <categories>SalesReport</categories>
-        <language>en_US</language>
-        <protected>false</protected>
-        <shortDescription>SalesReport_Connect_In_Browser</shortDescription>
-        <value>Open in your phone’s browser</value>
     </labels>
     <labels>
         <fullName>SalesReport_Connect_Title</fullName>
