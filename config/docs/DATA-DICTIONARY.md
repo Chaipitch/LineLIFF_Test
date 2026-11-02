@@ -186,7 +186,7 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Link_Confirm_Note` | Only continue if you opened this page yourself from the Sales Report menu in LINE. | Link page | L3 |
 | `SalesReport_Link_Confirm_Button` | Connect | Link page | L3 |
 | `SalesReport_Link_Done` | Done. Your LINE account is connected. You can go back to LINE. | Link page | L3 |
-| `SalesReport_Link_Return` | Open Sales Report in LINE | Link page — fallback button; the page also returns to the form automatically (D-40) | L3 |
+| `SalesReport_Link_Return` | Open Sales Report in LINE | Link page — only if no LIFF ID is set; normally Connect redirects straight to the form (D-40) | L3 |
 | `SalesReport_Link_Invalid` | This link has expired or was already used. Open the form in LINE and try again. | Link page | L3 |
 | `SalesReport_Account_Label` | Account | LIFF | L4 |
 | `SalesReport_Account_Search_Placeholder` | Type at least {0} characters | LIFF | L4 |

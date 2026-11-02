@@ -58,17 +58,6 @@
               rendered="{!NOT(ISBLANK(returnUrl))}"
               >{!$Label.SalesReport_Link_Return}</apex:outputLink
             >
-            <apex:outputPanel
-              layout="none"
-              rendered="{!NOT(ISBLANK(returnUrl))}"
-            >
-              <!-- Back to the LIFF form automatically (D-40); the button above stays as a fallback. -->
-              <script>
-                setTimeout(function () {
-                  window.location.replace("{!JSENCODE(returnUrl)}");
-                }, 1200);
-              </script>
-            </apex:outputPanel>
           </apex:outputPanel>
 
           <apex:outputPanel layout="none" rendered="{!state == 'INVALID'}">

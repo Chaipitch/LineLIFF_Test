@@ -328,7 +328,7 @@ allow LINE's permission the first time → the page shows **Log activity** and "
 1. Tap **Log Activity** (not connected yet) → the Salesforce login opens **right inside LINE** (D-40).
 2. Log in (MFA if asked).
 3. **Connect LINE to Salesforce** — "Connect the LINE account "<LINE name>" to your Salesforce user <name>?" →
-   **Connect** → after a moment you are taken back to the form automatically (or tap **Open Sales Report in LINE**).
+   **Connect** → you are taken straight back to the form.
 4. Back in LINE you are on the form you tapped in the rich menu, with your LINE name
    and "Salesforce: <your name>" at the top. Reopening never asks to log in again. (Opened without a form, the app
    shows a small menu instead.)

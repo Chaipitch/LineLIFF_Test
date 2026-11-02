@@ -48,7 +48,9 @@ public with sharing class SalesReportLinkPageController {
     state = STATE_CONFIRM;
   }
 
+  /** Links the rep, then goes straight back to the LIFF form (no "done" page in between) when the LIFF ID is set. */
   public PageReference confirm() {
+    PageReference next = null;
     try {
       if (!isAllowed()) {
         state = STATE_NOT_ALLOWED;
@@ -57,6 +59,10 @@ public with sharing class SalesReportLinkPageController {
       new SalesReportLinkService().consume(code, UserInfo.getUserId());
       state = STATE_DONE;
       SalesReportLogService.info(SOURCE + '.confirm', 'LINE account linked.');
+      if (returnUrl != null) {
+        next = new PageReference(returnUrl);
+        next.setRedirect(true);
+      }
     } catch (SalesReportException e) {
       state = STATE_INVALID;
       SalesReportLogService.warn(
@@ -69,7 +75,7 @@ public with sharing class SalesReportLinkPageController {
     } finally {
       SalesReportLogService.flush();
     }
-    return null;
+    return next;
   }
 
   /** Codes are base64url (letters, digits, '-', '_'), so HTML-escaping never changes a valid one; anything else is dropped. Never rendered. */

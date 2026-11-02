@@ -91,7 +91,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | Page | Purpose | Access | Milestone | Status |
 |---|---|---|---|---|
 | `SalesReport_Liff` | Serves the LIFF app (static resource) on the Site | Site guest | L2 | Done |
-| `SalesReport_Link` | One-time link page: Salesforce login (inside LINE since D-40) → Connect → back to the chosen form (`?form=`, automatic) | Logged-in reps with `SalesReport_User` (not on the Site) | L3, D-40 | Done |
+| `SalesReport_Link` | One-time link page: Salesforce login (inside LINE since D-40) → Connect → redirect straight back to the chosen form (`?form=`) | Logged-in reps with `SalesReport_User` (not on the Site) | L3, D-40 | Done |
 
 ## 5. Static resources and LIFF front-end source
 

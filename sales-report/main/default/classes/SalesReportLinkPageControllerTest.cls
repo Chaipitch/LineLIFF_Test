@@ -38,7 +38,13 @@ private class SalesReportLinkPageControllerTest {
         'Opening alone changes nothing'
       );
 
-      controller.confirm();
+      PageReference next = controller.confirm();
+      Assert.areEqual(
+        'https://liff.line.me/' + SalesReportTestFactory.LIFF_ID,
+        next.getUrl(),
+        'Straight back to the LIFF form'
+      );
+      Assert.isTrue(next.getRedirect(), 'Redirect, no done page');
 
       Assert.areEqual(
         SalesReportLinkPageController.STATE_DONE,
