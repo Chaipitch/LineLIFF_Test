@@ -220,4 +220,48 @@ private class SalesReportOrgApiCalloutServiceTest {
       'Endpoint'
     );
   }
+
+  @IsTest
+  static void updateRecordUsesThePatchOverride() {
+    SalesReportHttpMock mock = new SalesReportHttpMock(204, '');
+    Test.setMock(HttpCalloutMock.class, mock);
+
+    new SalesReportOrgApiCalloutService('session-token')
+      .updateRecord(
+        'Opportunity',
+        Id.valueOf('006000000000001AAA'),
+        new Map<String, Object>{ 'NextStep' => null }
+      );
+
+    Assert.areEqual('POST', mock.lastRequest.getMethod(), 'POST');
+    Assert.isTrue(
+      mock.lastRequest.getEndpoint()
+        .endsWith('/sobjects/Opportunity/006000000000001AAA?_HttpMethod=PATCH'),
+      'PATCH override'
+    );
+    Assert.isTrue(
+      mock.lastRequest.getBody().contains('"NextStep":null'),
+      'Null sent to clear'
+    );
+  }
+
+  @IsTest
+  static void noAccessIsRecognised() {
+    Assert.isTrue(SalesReportOrgApiCalloutService.noAccess(403, ''), '403');
+    Assert.isTrue(
+      SalesReportOrgApiCalloutService.noAccess(
+        400,
+        '[{"errorCode":"INVALID_FIELD","message":"No such column"}]'
+      ),
+      'Hidden field'
+    );
+    Assert.isFalse(
+      SalesReportOrgApiCalloutService.noAccess(
+        400,
+        '[{"errorCode":"MALFORMED_QUERY"}]'
+      ),
+      'Other 400'
+    );
+    Assert.isFalse(SalesReportOrgApiCalloutService.noAccess(500, ''), '500');
+  }
 }

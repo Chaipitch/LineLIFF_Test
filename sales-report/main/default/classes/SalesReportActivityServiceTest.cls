@@ -67,12 +67,11 @@ private class SalesReportActivityServiceTest {
     );
 
     Test.startTest();
-    SalesReportActivityFormData form = new SalesReportActivityService()
-      .form(api());
+    SalesReportFormData form = new SalesReportActivityService().form(api());
     Test.stopTest();
 
-    Map<String, SalesReportActivityFormData.Field> byName = new Map<String, SalesReportActivityFormData.Field>();
-    for (SalesReportActivityFormData.Field field : form.fields) {
+    Map<String, SalesReportFormData.Field> byName = new Map<String, SalesReportFormData.Field>();
+    for (SalesReportFormData.Field field : form.fields) {
       byName.put(field.name, field);
     }
     Assert.areEqual(
@@ -109,8 +108,7 @@ private class SalesReportActivityServiceTest {
     Test.setMock(HttpCalloutMock.class, mock);
 
     Test.startTest();
-    SalesReportActivityFormData form = new SalesReportActivityService()
-      .form(api());
+    SalesReportFormData form = new SalesReportActivityService().form(api());
     Test.stopTest();
 
     Assert.areEqual(1, form.fields.size(), 'Only the date is left');
@@ -341,32 +339,32 @@ private class SalesReportActivityServiceTest {
   @IsTest
   static void coercesEachInputType() {
     Map<String, String> errors = new Map<String, String>();
-    SalesReportActivityFormData.Field field = new SalesReportActivityFormData.Field();
+    SalesReportFormData.Field field = new SalesReportFormData.Field();
     field.name = 'F';
 
     field.type = 'number';
     Assert.areEqual(
       12.5,
-      SalesReportActivityService.coerced(field, '12.5', errors),
+      SalesReportFormService.coerced(field, '12.5', errors),
       'Number'
     );
     field.type = 'boolean';
     Assert.areEqual(
       true,
-      SalesReportActivityService.coerced(field, true, errors),
+      SalesReportFormService.coerced(field, true, errors),
       'Boolean'
     );
     field.type = 'multipicklist';
-    field.options = new List<SalesReportActivityFormData.Option>();
+    field.options = new List<SalesReportFormData.Option>();
     for (String value : new List<String>{ 'A', 'B' }) {
-      SalesReportActivityFormData.Option option = new SalesReportActivityFormData.Option();
+      SalesReportFormData.Option option = new SalesReportFormData.Option();
       option.value = value;
       option.label = value;
       field.options.add(option);
     }
     Assert.areEqual(
       'A;B',
-      SalesReportActivityService.coerced(
+      SalesReportFormService.coerced(
         field,
         new List<Object>{ 'A', 'B' },
         errors
@@ -376,17 +374,17 @@ private class SalesReportActivityServiceTest {
     Assert.isTrue(errors.isEmpty(), 'No errors so far');
 
     Assert.isNull(
-      SalesReportActivityService.coerced(field, 'C', errors),
+      SalesReportFormService.coerced(field, 'C', errors),
       'Unknown option'
     );
     field.type = 'number';
     Assert.isNull(
-      SalesReportActivityService.coerced(field, 'abc', errors),
+      SalesReportFormService.coerced(field, 'abc', errors),
       'Not a number'
     );
     field.type = 'boolean';
     Assert.isNull(
-      SalesReportActivityService.coerced(field, 'yes', errors),
+      SalesReportFormService.coerced(field, 'yes', errors),
       'Not a boolean'
     );
     Assert.areEqual(1, errors.size(), 'One field, last error wins');

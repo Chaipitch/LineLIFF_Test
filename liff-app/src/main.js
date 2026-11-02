@@ -1,12 +1,13 @@
 // Sales Report LIFF app.
 // Initialises LIFF and sends the LINE ID token to /connection. Not linked yet: "Connect Salesforce" opens the one-time link
 // page in the browser (D-15) and /connection is checked again when the rep comes back. Linked: greets the rep and shows the
-// form named by ?form= (activity = Log Activity, L5a; opportunity is still coming soon).
+// form named by ?form= (activity = Log Activity, L5a; opportunity = Update Opportunity, L5c).
 // All text is rendered with textContent; no data is ever inserted as HTML.
 import liff from "@line/liff";
 import { createApi, ApiError } from "./api.js";
 import { createAccountPicker } from "./accountPicker.js";
 import { createActivityForm } from "./activityForm.js";
+import { createOpportunityForm } from "./opportunityForm.js";
 import { uploadFiles } from "./attachments.js";
 
 const RELOAD_FLAG = "salesReport.reloadedForToken";
@@ -62,6 +63,7 @@ function errorText(code) {
     return labels.errorUnavailable;
   if (code === "NOT_AUTHORIZED") return labels.errorNotAuthorized;
   if (code === "RATE_LIMITED") return labels.errorRateLimited;
+  if (code === "NO_ACCESS") return labels.errorNoAccess;
   return labels.errorGeneric;
 }
 
@@ -104,9 +106,17 @@ function showHome(me, formKey) {
       onError: handleApiError
     });
     card.append(form.element);
+  } else if (formKey === "opportunity") {
+    const form = createOpportunityForm({
+      api: apiClient,
+      labels,
+      createPicker: newPicker,
+      onSaved: (result) => showOpportunitySaved(me, result),
+      onError: handleApiError
+    });
+    card.append(form.element);
   } else {
-    card.append(newPicker().element);
-    card.append(el("p", "sr-message", labels.comingSoon));
+    card.append(el("p", "sr-message", labels.menuTitle));
   }
   render(identityBar(me), card);
 }
@@ -129,6 +139,18 @@ function identityBar(me) {
   );
   bar.append(who);
   return bar;
+}
+
+function showOpportunitySaved(me, result) {
+  const card = el("section", "sr-card");
+  card.append(el("h1", "sr-title", labels.opportunityTitle));
+  card.append(
+    el("p", "sr-message", format(labels.opportunitySaved, result.name || ""))
+  );
+  card.append(button(labels.updateAnother, () => showHome(me, "opportunity")));
+  if (liff.isInClient())
+    card.append(button(labels.close, () => liff.closeWindow(), true));
+  render(identityBar(me), card);
 }
 
 function showActivitySaved(me, result, failed) {

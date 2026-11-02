@@ -1,7 +1,8 @@
 # Spec — LINE Sales Reporting (LIFF → Salesforce)
 
-**Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, **switched off** for now) and L7 (hardening)
-done. L5c (Update Opportunity) waits on the BA (`BA-QUESTIONS.md`); L6 (languages, UI states) and L8 (QA, go-live) later.
+**Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, **switched off** for now), L5c (Update
+Opportunity — built with the proposed defaults, D-39) and L7 (hardening) done. L6 (languages, UI states) and L8 (QA,
+go-live) later. Open BA questions: `BA-QUESTIONS.md`.
 Written in L0, kept up to date since.
 **Background:** `HANDOFF.md` (original brief). **Decisions:** `DECISIONS.md` (D-xx). **Progress:** `IMPLEMENTATION-PLAN.md`.
 **Plain-language overview for non-technical readers:** `SETUP-GUIDE.md` §0 and `BA-FAQ.md`.
@@ -73,18 +74,19 @@ Step-by-step walkthrough of each endpoint: **`REST-ENDPOINTS.md`**.
 All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count towards the per-LINE-user rate limit (D-36). Responses are JSON, never cached; errors use
 `{ "error": { "code": "...", "message": "<plain-language>", "fields": { … } } }` (`fields` only on form errors). Error codes: `TOKEN_MISSING`,
 `TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
-(403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `RATE_LIMITED` (429; L7), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
+(403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `RATE_LIMITED` (429; L7), `NO_ACCESS` (403 — the rep can't read that object/field, e.g. Opportunity on a Platform licence; L5c), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
 
 | Method & path | Purpose | Rep must be linked | Status | Notes |
 |---|---|---|---|---|
 | `GET /connection` | Verify token; return `{ linked, lineDisplayName, salesforceUserName }` | no | Done (L2–L3) | First call on every page load. When linked, the Salesforce name is read **as the rep** (proves the JWT session). Was `/me` until 2026-11-02 (D-38). |
 | `POST /link/start` | Create one-time link code; return link-page URL | no | Done (L3) | 256 random bits, base64url; SHA-256 stored only; 5-min expiry; single use. |
 | `GET /accounts?q=` | Account auto-complete | yes | Done (L4) | Min 2 chars, max 10 (settings). Runs as the rep → only visible Accounts. Name + field set `SalesReport_Account_Search` (D-29); prefix matches first. |
-| `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5c (BA) | `IsClosed = false`, ordered by CloseDate. |
+| `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | Done (L5c) | `IsClosed = false`, ordered by CloseDate, ≤ 50. Returns `{ opportunities: [{ id, name, stage, closeDate, ownerName }] }`. |
+| `GET /opportunities?id=` | Update form for one open Opportunity, filled with current values | yes | Done (L5c) | Field set `SalesReport_Opportunity_Form` via `SalesReportFormService` (Edit layout, D-31); Stage = open stages (+ current). Returns `{ id, name, accountId, fields }`. |
 | `GET /activity` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | Done (L5a) | Field set `SalesReport_Activity_Form` + UI API object-info, layout, picklist-values read **as the rep** (D-31, D-35). |
 | `POST /activity` | Create the **Task** (D-11): body `{ accountId, values: { <field>: <value> } }` | yes | Done (L5a) | Only field-set fields accepted; `WhatId` = Account ID only (D-33), checked visible to the rep; `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
 | `POST /activity/files?taskId=&name=` | Attach one file (raw bytes, `application/octet-stream`) to a Task the rep just created | yes | Done (L5b) | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). Only the rep's own Task, within 60 min; count/size/type limits from settings. Returns `{ id, name, size }`. **Off** while setting *Attachments Enabled* is unticked (403 `NOT_AUTHORIZED`). |
-| `POST /opportunity` | Update one Opportunity | yes | L5c (BA) | Only field-set fields (D-21); `Id` must belong to the chosen Account. |
+| `POST /opportunities` | Update one Opportunity: body `{ id, accountId, values }` | yes | Done (L5c) | Only form fields; open Opportunity of the chosen Account; empty optional fields cleared; PATCH as the rep. Returns `{ id, name, accountId }`. (D-39) |
 
 Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` —
 needs custom permission `SalesReport_Access`; shows the LINE account; links only after **Connect** (POST, CSRF-protected);
@@ -123,13 +125,14 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | Controller | ✓ `SalesReportLinkController` | `@RestResource` `POST /salesreport/v1/link/start` | L3 |
 | Controller | ✓ `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
 | Controller | ✓ `SalesReportAccountController` | `@RestResource` `GET /salesreport/v1/accounts` | L4 |
-| Controller | `SalesReportOpportunityController` | `@RestResource` `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5c |
+| Controller | ✓ `SalesReportOpportunityController` | `@RestResource` `GET` (list / form) / `POST` (update) `/salesreport/v1/opportunities` | L5c |
 | Controller | ✓ `SalesReportActivityController` | `@RestResource` `GET` (form) / `POST` (create) `/salesreport/v1/activity` | L5a |
 | Controller | ✓ `SalesReportActivityFileController` | `@RestResource` `POST /salesreport/v1/activity/files` | L5b |
 | Service | ✓ `SalesReportIdentityService` | Verify request token (via callout service), resolve LINE user → linked User | L2–L3 |
 | Service | ✓ `SalesReportLinkService` | Create/consume link codes, link/unlink, deactivated-user cleanup | L3 |
 | Service | ✓ `SalesReportAccountService` | Account search rules (min chars, limit, fields) | L4 |
-| Service | `SalesReportOpportunityService` | Field whitelist, Account ownership check, error mapping | L5c |
+| Service | ✓ `SalesReportOpportunityService` | Open list, prefilled form, stage limits, update as the rep (D-39) | L5c |
+| Service | ✓ `SalesReportFormService` | Shared form engine: field set + UI API as the rep, required flags, value checks (D-31, D-35) | L5a/L5c |
 | Service | ✓ `SalesReportActivityService` | Form definition from field set + UI API, Task create as the rep (D-11, D-31–D-35) | L5a |
 | Service | ✓ `SalesReportActivityFileService` | Attach a file to the rep's own recent Task as the rep (D-34) | L5b |
 | Service | ✓ `SalesReportSettingsService` | Single reader of `SalesReport_Settings__c` | L2 |
@@ -140,7 +143,7 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | CalloutService | ✓ `SalesReportSessionCalloutService` | JWT bearer exchange for the rep (Option B) | L3 |
 | CalloutService | ✓ `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (userinfo, SOQL, UI API, create, file upload) | L3–L5 |
 | Data | ✓ `SalesReportLineVerifyData` | LINE verify response (`sub`, `aud`, `exp`, `name`, …) | L2 |
-| Data | ✓ `SalesReportConnectionData`, ✓ `SalesReportLinkStartData`, ✓ `SalesReportAccountData`, ✓ `SalesReportErrorData`, ✓ `SalesReportActivityFormData`, ✓ `SalesReportActivityData`, ✓ `SalesReportActivityFileData`, `SalesReportOpportunityData` | Request/response DTOs | L2–L5 |
+| Data | ✓ `SalesReportConnectionData`, ✓ `SalesReportLinkStartData`, ✓ `SalesReportAccountData`, ✓ `SalesReportErrorData`, ✓ `SalesReportFormData`, ✓ `SalesReportActivityData`, ✓ `SalesReportActivityFileData`, ✓ `SalesReportOpportunityData`, ✓ `SalesReportOpportunityFormData` | Request/response DTOs | L2–L5 |
 | Controller | ✓ `SalesReportLiffPageController` | VF `SalesReport_Liff`: LIFF ID, API base path (P6), labels, search limits | L2 |
 | Service | ✓ `SalesReportRestService` | Shared JSON responses and error mapping | L2 |
 | Service | ✓ `SalesReportNamespaceService` | Namespace-safe REST/page paths (P6) | L3 |
@@ -187,12 +190,19 @@ Field lists below are the **initial members of the field sets** (D-21); admins c
 the field set; validation rules are checked on save (D-31). In `dev5` (2026-10-30) the Task layout requires only Subject,
 Assigned To, Priority and Status, so Type, Date and Comments are optional unless an admin changes the layout.
 
-**Update Opportunity — waiting on the BA (Q-O1–Q-O7, D-12).** Draft kept below.
+**Update Opportunity — built 2026-11-02 with the proposed defaults (D-39); BA may change it in Setup (Q-O1–Q-O7).**
 
-**Update Opportunity**: Opportunity (from Account's open list) · `StageName` (open stages only, `01`–`03`) ·
-`Your_Win_Confidence__c` · `CloseDate` · `Amount` ("Target TCV") · Next Step (`NextStep` or `Next_Step_Custom__c`, D-12) ·
-`Next_Step_Due_Date__c`. Read-only header: name, current stage, owner. Moving to Stage 02/03 requires
-`PreSales_Engineer__c` — either show the error from the org or add the field to the form (BA).
+| Shown on the form | Field (`dev5` label) | Required? | Notes |
+|---|---|---|---|
+| Account, Opportunity | `AccountId`, `Id` | always | Account search (L4) → its open Opportunities the rep can see. |
+| Stage | `StageName` (Stage) | as Salesforce says (required) | Active open stages only (01–03 in `dev5`) + the current one; setting `Opportunity_Stages__c` narrows them. |
+| Amount | `Amount` (Target TCV) | as Salesforce says (required on the edit layout) | |
+| Next Step | `NextStep` (Next Step) | as Salesforce says | Standard field (D-12 default); swap for `Next_Step_Custom__c` in the field set if the BA says so. |
+| Close Date | `CloseDate` (Target Close Date) | as Salesforce says (required) | |
+
+Not in the repo field set (org fields, P3) — add in Setup if the BA wants them: `Your_Win_Confidence__c`,
+`Next_Step_Due_Date__c`, `Next_Step_Custom__c`. `PreSales_Engineer__c` is a lookup, which the form can't show yet: the
+active validation rule (Stage ≥ 02 needs it) shows its message on the form instead (Q-O4).
 
 ## 8. Security outline
 
@@ -217,6 +227,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 2. Rep types "ter" → within ~1 s sees ≤ 10 Accounts they can see; cannot find an Account outside their sharing.
 3. Rep logs a visit → a Task appears on the Account, Created By = the rep (with photos under Files once attachments are switched on).
 4. Rep moves an Opportunity to Stage 02 without PreSales Engineer → sees the org's validation message, nothing saved.
+   Rep changes Next Step and Close Date → the Opportunity shows the new values, Last Modified By = the rep.
 5. Admin deactivates/unlinks the rep → next LIFF open shows "Connect Salesforce" again.
 
 ## 10. Where we are
@@ -228,7 +239,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/connection` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity waiting on the BA (Q-O1–Q-O7, D-12, D-13) |
+| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant and device test pending; BA answers = Setup changes |
 | L6 Languages + UI states | Later (user, 2026-11-02) |
 | L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
 | L8 QA, UAT, go-live | Not started |

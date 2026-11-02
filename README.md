@@ -4,13 +4,13 @@ Sales reps open a small form from a LINE Official Account's rich menu and record
 leaving LINE:
 
 - **Log Activity** — a Task on the chosen Account (photos/files supported, switched off for now).
-- **Update Opportunity** — waiting on the BA (L5c).
+- **Update Opportunity** — pick one of the Account's open Opportunities and update its fields (L5c, proposed defaults).
 
 Reps log in to Salesforce once; after that every save runs **as the rep** (JWT bearer, "Option B"), so sharing,
 field-level security, validation rules and "Created By" are Salesforce's own. No middleware: LINE app → LIFF page on a
 public Salesforce Site → Apex REST → LINE ID-token verify + the org's REST API as the rep.
 
-Status, 2026-11-02: L0–L5b and L7 done in sandbox `dev5`; L5c, L6 and L8 to come (`config/docs/IMPLEMENTATION-PLAN.md`).
+Status, 2026-11-02: L0–L5c and L7 built in sandbox `dev5` (L5c device test pending); L6 and L8 to come (`config/docs/IMPLEMENTATION-PLAN.md`).
 
 ## Folders
 

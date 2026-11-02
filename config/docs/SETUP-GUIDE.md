@@ -113,6 +113,7 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **Edit** 
 | Account Search Min Chars / Max Results | How many letters before search starts / how many results | Blank = 2 / 10 |
 | Attachments Enabled | Lets reps attach photos/files to Log Activity | **Unticked** (off since 2026-11-02) |
 | Attachment Max Files / Max Size MB / File Types | Limits when attachments are on | Blank = 5 / 4 / `jpg,jpeg,png,pdf` |
+| Opportunity Stages | Which stages reps may choose on Update Opportunity | Blank = all open stages (closing stays in Salesforce) |
 | Rate Limit per Minute | Most requests one LINE user may make per minute | Blank = 60 |
 | Log Level | How much the program writes to the log | `WARN` (`INFO`/`DEBUG` only while investigating) |
 | Log Retention (days) | How long logs are kept before the nightly cleanup deletes them | Blank = 30 |
@@ -173,7 +174,7 @@ Save. Then on the Site detail page:
      - `SalesReportAccountController` — "search Accounts" (L4)
      - `SalesReportActivityController` — "show the Log Activity form and save it" (L5a)
      - `SalesReportActivityFileController` — "attach a photo or file to the activity just saved" (L5b)
-     - later `SalesReportOpportunityController` (L5c)
+     - `SalesReportOpportunityController` — "list, show and update Opportunities" (L5c)
    - **Enabled Visualforce Page Access** → `SalesReport_Liff` (often added automatically).
    - Object Settings: leave **all objects without access**. Don't assign `LINE_Webhook_Guest` or any other permission set.
 3. Do **not** change the existing `LineWebhook` Site (that belongs to LINE Connect).
@@ -304,6 +305,10 @@ Create, then:
   deletes used-up one-time codes, logs older than *Log Retention (days)* (blank = 30) and old rate-limit counters.
   *Why:* keeps temporary data from piling up. In a new org (e.g. production) schedule it once:
   `sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex` (run it as an admin in the Bangkok time zone).
+- **Fields on the Update Opportunity form (L5c).** Object Manager → Opportunity → **Field Sets** → *Sales Report
+  Opportunity Form* — same idea as the Log Activity form. Starts with Stage, Amount, Next Step, Close Date; add e.g.
+  *Your Win Confidence* or the custom *Next Step* when the BA decides (Q-O1, Q-O2). Lookup fields (e.g. *PreSales
+  Engineer*) can't be shown on the form yet. *Opportunity Stages* (Part C) limits the stage list.
 - **Activity Type values.** The Type list is Salesforce's Task *Type* picklist (BA Q-A2): Object Manager → Activity →
   Fields → Type → add values such as *Customer Visit*. They also appear for normal Task entry in Salesforce.
 - **Switch off for everyone.** Part C: untick *Enabled*.
@@ -338,6 +343,12 @@ today or earlier → Completed, a future date → Open.
 **L5b — Attachments (done on iOS 2026-10-30; currently switched off).** With *Attachments Enabled* ticked: **Add photo or
 file** → take or pick a photo → **Save** → "Uploading 1 of 1…" → the photo is under Files on the Task. If an upload
 fails, the saved screen offers **Try again** (within an hour).
+
+**L5c — Update Opportunity (built 2026-11-02; device test pending).** Use a **test** Opportunity — saving runs the
+org's Opportunity automation (e.g. Slack alerts). Tap **Update Opportunity** → choose an Account → its open Opportunities
+appear (stage · close date) → tap one → the form shows its current Stage, Target TCV, Next Step, Target Close Date →
+change something → **Save** → "Opportunity updated: <name>". Moving to Stage 02 without a PreSales Engineer shows the
+org's validation message instead.
 
 **Re-test the first-time login.** Set your link to *Unlinked* (Day-to-day tasks below), reopen the form → **Connect
 Salesforce** appears again → repeat L3-6. Reconnecting reuses the same link record.

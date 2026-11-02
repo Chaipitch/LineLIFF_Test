@@ -82,6 +82,14 @@
         <value>Choose an Account first.</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Choose_Opportunity</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Choose_Opportunity</shortDescription>
+        <value>Choose an opportunity first.</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Close</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -146,6 +154,15 @@
         <protected>false</protected>
         <shortDescription>SalesReport_Error_Generic</shortDescription>
         <value>Something went wrong. Please try again.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Error_No_Access</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Error_No_Access</shortDescription>
+        <value
+    >Your Salesforce user can’t open this data. Please ask your administrator.</value>
     </labels>
     <labels>
         <fullName>SalesReport_Error_Not_Authorized</fullName>
@@ -305,6 +322,14 @@
         <value>Sales Report</value>
     </labels>
     <labels>
+        <fullName>SalesReport_No_Open_Opportunities</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_No_Open_Opportunities</shortDescription>
+        <value>No open opportunities for this account.</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_No_Results</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -320,6 +345,22 @@
         <shortDescription>SalesReport_Open_In_Line</shortDescription>
         <value
     >Please open this page from the Sales Reporting menu in LINE.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Opportunity_Label</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Opportunity_Label</shortDescription>
+        <value>Opportunity</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Opportunity_Saved</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Opportunity_Saved</shortDescription>
+        <value>Opportunity updated: {0}</value>
     </labels>
     <labels>
         <fullName>SalesReport_Opportunity_Title</fullName>
@@ -384,6 +425,14 @@
         <protected>false</protected>
         <shortDescription>SalesReport_Select_Placeholder</shortDescription>
         <value>— Select —</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Update_Another</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Update_Another</shortDescription>
+        <value>Update another opportunity</value>
     </labels>
     <labels>
         <fullName>SalesReport_Upload_Failed</fullName>

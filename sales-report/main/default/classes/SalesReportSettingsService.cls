@@ -142,6 +142,20 @@ public with sharing class SalesReportSettingsService {
     );
   }
 
+  /** Stage API names reps may choose on Update Opportunity; empty = all open stages. */
+  public static Set<String> opportunityStages() {
+    Set<String> stages = new Set<String>();
+    String raw = trimToNull(settings().Opportunity_Stages__c);
+    if (raw != null) {
+      for (String part : raw.split(',')) {
+        if (String.isNotBlank(part)) {
+          stages.add(part.trim());
+        }
+      }
+    }
+    return stages;
+  }
+
   public static String logLevel() {
     String level = trimToNull(settings().Log_Level__c);
     return level == null ? DEFAULT_LOG_LEVEL : level.toUpperCase();

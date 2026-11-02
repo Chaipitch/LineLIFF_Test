@@ -1,9 +1,9 @@
 /**
- * Response of GET /salesreport/v1/activity — the Log Activity form for this rep: the field-set fields they can
- * create, with Salesforce's labels (in the rep's language), types, picklist values, defaults and required flags
+ * A LINE form for this rep (Log Activity, Update Opportunity): the field-set fields they can create or edit, with
+ * Salesforce's labels (in the rep's language), types, picklist values, defaults or current values, and required flags
  * (D-31). The LIFF page builds the form from this; the server checks the same rules again on save.
  */
-public with sharing class SalesReportActivityFormData {
+public with sharing class SalesReportFormData {
   public List<Field> fields = new List<Field>();
 
   public class Field {
@@ -13,6 +13,7 @@ public with sharing class SalesReportActivityFormData {
     /** text | textarea | picklist | multipicklist | date | boolean | number | email | phone | url */
     public String type;
     public Boolean required = false;
+    /** Default for a new record, or the current value when editing. */
     public Object defaultValue;
     public Integer maxLength;
     public List<Option> options;

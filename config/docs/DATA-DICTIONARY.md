@@ -2,8 +2,8 @@
 
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
-**State (2026-11-02): everything below is built and deployed to sandbox `dev5`** (L2–L5b, L7), except the Opportunity
-parts of §3/§3a (L5c — BA: Q-O1–Q-O7, D-12). Attachments (L5b) are built but switched off (`Attachments_Enabled__c`).
+**State (2026-11-02): everything below is built and deployed to sandbox `dev5`** (L2–L5c, L7). Update Opportunity (L5c)
+uses the proposed defaults (D-39) until the BA answers Q-O1–Q-O7. Attachments (L5b) are switched off (`Attachments_Enabled__c`).
 Update this file in the same commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.
@@ -109,6 +109,7 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Attachment_Max_Files__c` | Attachment Max Files | Number(2,0) | 5 | L5b | Files per activity; capped at 10 in code. |
 | `Attachment_Max_Size_Mb__c` | Attachment Max Size MB | Number(1,0) | 4 | L5b | Per file, after photos are shrunk; 4 is also the hard cap (Apex heap, D-34). |
 | `Attachment_File_Types__c` | Attachment File Types | Text(255) | jpg,jpeg,png,pdf | L5b | Comma-separated extensions. Photos become .jpg on the phone, so keep jpg in the list. |
+| `Opportunity_Stages__c` | Opportunity Stages | Text(255) | — (all active open stages) | L5c | Comma-separated stage API names reps may choose; closed stages are never offered; the current stage stays selectable (D-39). |
 | `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 | Per verified LINE user per calendar minute; over it → `RATE_LIMITED` (429). Capped at 1000. |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
 | `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 | Used by the nightly cleanup; capped at 365. |
@@ -123,12 +124,13 @@ feature does not grant standard-object access.
 |---|---|---|---|---|
 | User | `Id`, `Name`, `Username`, `IsActive`, `TimeZoneSidKey` | ✓ (system) | — | `Username` = JWT `sub`; `IsActive` checked before exchange; time zone gives the rep's "today" (D-32). |
 | Account | `Id`, `Name` + text fields in field set `SalesReport_Account_Search` | ✓ | — | Built in L4 (D-29); which extra fields: BA Q-C1. |
-| Opportunity | `Id`, `Name`, `AccountId`, `OwnerId`, `IsClosed` | ✓ | — | List filter: `AccountId = :id AND IsClosed = false`. |
-| Opportunity | `StageName` | ✓ | ✓ | Open stages only (`01.`–`03.`) in this phase. |
+| Opportunity | `Id`, `Name`, `AccountId`, `Owner.Name`, `IsClosed`, `CloseDate` | ✓ | — | List filter: `AccountId = :id AND IsClosed = false` (L5c). Update only when open and on the chosen Account. |
+| Opportunity | `StageName` | ✓ | ✓ | Active open stages (`01.`–`03.` in `dev5`) + the current one (D-39). |
+| OpportunityStage | `ApiName`, `IsActive`, `IsClosed` | ✓ (system) | — | Which stages are open (setup data, read in system mode). |
 | Opportunity | `Your_Win_Confidence__c` | ✓ | ✓ | Field-level required picklist. |
 | Opportunity | `CloseDate` | ✓ | ✓ | |
 | Opportunity | `Amount` (label "Target TCV") | ✓ | ✓ | |
-| Opportunity | `NextStep` **or** `Next_Step_Custom__c` | ✓ | ✓ | D-12 open. |
+| Opportunity | `NextStep` (default) **or** `Next_Step_Custom__c` | ✓ | ✓ | D-12: standard `NextStep` in the field set until the BA decides. |
 | Opportunity | `Next_Step_Due_Date__c` | ✓ | ✓ | |
 | Opportunity | `PreSales_Engineer__c` | ✓ | (BA) | Needed by active VR for Stage ≥ 02. |
 | Task (D-11) | `WhatId` (Account only, D-33), `Subject` (built), `Type`, `ActivityPurpose__c` (only if an admin adds it to the field set), `ActivityDate`, `Status` (from date, D-32), `Priority` (layout default), `Description` | — | ✓ | `OwnerId` = the rep. Required flags follow Salesforce (D-31). |
@@ -147,7 +149,7 @@ is only an extra: a field is also required when the rep's layout or the database
 
 | Field set | Object | Initial members (BA to confirm) | Required in set |
 |---|---|---|---|
-| `SalesReport_Opportunity_Form` | Opportunity | `StageName`, `Your_Win_Confidence__c`, `CloseDate`, `Amount`, `NextStep` or `Next_Step_Custom__c` (D-12), `Next_Step_Due_Date__c` | `StageName`, `CloseDate`, `Your_Win_Confidence__c` |
+| `SalesReport_Opportunity_Form` | Opportunity | `StageName`, `Amount`, `NextStep`, `CloseDate` (built, L5c, D-39). Admins may add org fields such as `Your_Win_Confidence__c`, `Next_Step_Custom__c`, `Next_Step_Due_Date__c` in Setup (P3); lookups such as `PreSales_Engineer__c` can't be shown | none (follow the edit layout, D-31) |
 | `SalesReport_Activity_Form` | Task (D-11) | `Type`, `ActivityDate`, `Description` (built, L5a). Admins may add `ActivityPurpose__c` in Setup (org field, kept out of the repo, P3) | none (follow the layout, D-31) |
 
 Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`;
@@ -165,7 +167,7 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Opportunity_Title` | Update opportunity | LIFF | L2 |
 | `SalesReport_Hello` | Hello, {0} | LIFF | L2 |
 | `SalesReport_Loading` | Loading… | LIFF | L2 |
-| `SalesReport_Coming_Soon` | This form is coming soon. | LIFF — Update Opportunity until L5c | L2 |
+| `SalesReport_Coming_Soon` | This form is coming soon. | Not used since L5c (kept for future forms) | L2 |
 | `SalesReport_Close` | Close | LIFF | L2 |
 | `SalesReport_Open_In_Line` | Please open this page from the Sales Reporting menu in LINE. | LIFF | L2 |
 | `SalesReport_Error_Generic` | Something went wrong. Please try again. | LIFF | L2 |
@@ -209,8 +211,14 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Upload_Failed` | The activity was saved, but {0} file(s) could not be attached. | LIFF | L5b |
 | `SalesReport_Retry` | Try again | LIFF | L5b |
 | `SalesReport_Error_Rate_Limited` | Too many requests. Please wait a minute and try again. | LIFF | L7 |
+| `SalesReport_Opportunity_Label` | Opportunity | LIFF | L5c |
+| `SalesReport_No_Open_Opportunities` | No open opportunities for this account. | LIFF | L5c |
+| `SalesReport_Choose_Opportunity` | Choose an opportunity first. | LIFF | L5c |
+| `SalesReport_Opportunity_Saved` | Opportunity updated: {0} | LIFF ({0} = Opportunity name) | L5c |
+| `SalesReport_Update_Another` | Update another opportunity | LIFF | L5c |
+| `SalesReport_Error_No_Access` | Your Salesforce user can’t open this data. Please ask your administrator. | LIFF (`NO_ACCESS`) | L5c |
 
-Planned: Update Opportunity texts (L5c). Note: the Subject label is
+Note: the Subject label is
 read in the Site guest user's language (en_US), not the rep's.
 
 Validation-rule messages from the org are shown as returned (they are already in the org's language).
@@ -260,7 +268,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 
 | Area | Grant |
 |---|---|
-| Apex classes | `SalesReportConnectionController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a), `SalesReportActivityFileController` (L5b); later `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
+| Apex classes | `SalesReportConnectionController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a), `SalesReportActivityFileController` (L5b), `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
 | Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages: error pages, `SiteLogin`, `SiteRegister`, `ForgotPassword` … — optional tidy-up: remove the login/register/password pages, the Site has no login) |
 | Objects | **none** (audit 2026-10-30: 0 object permissions; the 440 field-permission rows are Salesforce defaults on standard/org objects — ineffective without object access, none on `SalesReport_*`) |
 | Other | Leave all "View …"/API permissions off (audit 2026-10-30: API Enabled, View All Data, Modify All Data, View Setup, Run Reports all off; no permission sets assigned to the guest user) |

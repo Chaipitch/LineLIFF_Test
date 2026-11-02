@@ -18,6 +18,7 @@ public with sharing class SalesReportException extends Exception {
   public static final String INVALID_INPUT = 'INVALID_INPUT';
   public static final String SAVE_FAILED = 'SAVE_FAILED';
   public static final String RATE_LIMITED = 'RATE_LIMITED';
+  public static final String NO_ACCESS = 'NO_ACCESS';
 
   public String code { get; private set; }
   public Integer statusCode { get; private set; }

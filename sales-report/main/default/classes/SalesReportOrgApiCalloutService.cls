@@ -112,6 +112,28 @@ public with sharing class SalesReportOrgApiCalloutService {
     return (String) result.get('id');
   }
 
+  /**
+   * Updates one record as the rep (PATCH sobjects/<type>/<id>, sent as POST with _HttpMethod=PATCH because Apex
+   * can't send PATCH). Fields set to null are cleared. Save errors come back as SAVE_FAILED like create().
+   */
+  public void updateRecord(
+    String sObjectType,
+    Id recordId,
+    Map<String, Object> fields
+  ) {
+    send(
+      'POST',
+      '/services/data/' +
+        API_VERSION +
+        '/sobjects/' +
+        sObjectType +
+        '/' +
+        recordId +
+        '?_HttpMethod=PATCH',
+      JSON.serialize(fields)
+    );
+  }
+
   /** GET a path on the org's own domain and parse the JSON response. */
   public Object getJson(String path) {
     return send('GET', path, null);
@@ -153,12 +175,26 @@ public with sharing class SalesReportOrgApiCalloutService {
         throw rejected;
       }
     }
+    if (method == 'GET' && noAccess(status, res.getBody())) {
+      throw SalesReportException.of(
+        SalesReportException.NO_ACCESS,
+        403,
+        'Your Salesforce user has no access to this data (HTTP ' +
+          status +
+          ' for ' +
+          path +
+          ').'
+      );
+    }
     if (status < 200 || status > 299) {
       throw SalesReportException.of(
         SalesReportException.SESSION_ERROR,
         502,
         'The Salesforce API answered HTTP ' + status + ' for ' + path
       );
+    }
+    if (String.isBlank(res.getBody())) {
+      return null; // e.g. 204 No Content after an update
     }
     try {
       return JSON.deserializeUntyped(res.getBody());
@@ -176,6 +212,21 @@ public with sharing class SalesReportOrgApiCalloutService {
    * language (their session). Errors naming fields are shown next to those fields; the rest above the form.
    * Returns null when the body isn't an error list.
    */
+  /**
+   * The rep may not read this: 403, or 400 with INVALID_TYPE (object not available, e.g. Opportunity for a Platform
+   * licence) or INVALID_FIELD (a field hidden by field-level security).
+   */
+  @TestVisible
+  static Boolean noAccess(Integer status, String body) {
+    if (status == 403) {
+      return true;
+    }
+    if (status != 400 || String.isBlank(body)) {
+      return false;
+    }
+    return body.contains('"INVALID_TYPE"') || body.contains('"INVALID_FIELD"');
+  }
+
   @TestVisible
   static SalesReportException saveErrors(String body) {
     Object parsed;

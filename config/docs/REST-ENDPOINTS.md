@@ -2,12 +2,12 @@
 
 How the Apex REST endpoints of LINE Sales Reporting handle a request, step by step. Contract summary (paths, request
 and response shapes, error codes): `L0-SPEC.md` §4. Classes: `L0-SPEC.md` §5a. Decisions: `DECISIONS.md` (D-xx).
-Last updated 2026-11-02.
+Last updated 2026-11-02 (L5c added).
 
 Base URL (sandbox `dev5`):
 `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/services/apexrest/salesreport/v1/…`
 
-All five endpoints are `@RestResource` classes on the public Site `SalesReport_Site`, run as the Site guest user, and
+All six endpoints are `@RestResource` classes on the public Site `SalesReport_Site`, run as the Site guest user, and
 follow the same pattern.
 
 ---
@@ -39,6 +39,7 @@ LIFF page ──(X-Line-Id-Token: <LINE ID token>)──▶ Controller
 | `NOT_AUTHORIZED` | 403 | Not allowed (e.g. someone else's Task, attachments switched off) |
 | `RATE_LIMITED` | 429 | Over the per-minute limit for this LINE user |
 | `QUERY_TOO_SHORT` / `INVALID_INPUT` / `SAVE_FAILED` | 400 | Bad input or a Salesforce save error, usually with `fields` (field API name → message) |
+| `NO_ACCESS` | 403 | The rep's Salesforce user can't read that object or field (e.g. Opportunity on a Platform licence) |
 | `UNAVAILABLE` / `CONFIG_MISSING` | 503 | Switched off in settings, or settings incomplete |
 | `LINE_ERROR` / `SESSION_ERROR` | 502 | LINE or the Salesforce API could not be reached or refused the session |
 | `INTERNAL` | 500 | Unexpected error (logged in full, answered with a generic message) |
@@ -145,6 +146,45 @@ Body: `{ accountId, values: { Type, ActivityDate, Description } }`
    Task's Files.
 
 **Returns:** `{ id, name, size }`.
+
+## 6. `/opportunities` — Update Opportunity
+
+`SalesReportOpportunityController` → `SalesReportOpportunityService` (D-39). One class for the whole form, so the guest
+profile needs one grant.
+
+### `GET /opportunities?accountId=…` — the Account's open Opportunities
+
+1. Verify the token and get the rep's session.
+2. Run `SELECT Id, Name, toLabel(StageName), CloseDate, Owner.Name FROM Opportunity WHERE AccountId = … AND IsClosed =
+   false ORDER BY CloseDate LIMIT 50` **as the rep**, so only Opportunities they can see appear.
+
+**Returns:** `{ opportunities: [{ id, name, stage, closeDate, ownerName }] }` (stage label in the rep's language).
+
+### `GET /opportunities?id=…` — the update form
+
+1. Verify the token and get the rep's session.
+2. Build the form from field set `SalesReport_Opportunity_Form` with the same three UI API reads as Log Activity, but
+   for **editing**: fields the rep can update, required flags from the rep's Opportunity *edit* layout (D-31).
+3. Read the Opportunity as the rep with those fields; refuse it if it is closed or not visible.
+4. Stage choices: active **open** stages (optionally narrowed by setting *Opportunity Stages*), plus the record's current
+   stage even if that stage is no longer active, so an unchanged stage can still be saved.
+
+**Returns:** `{ id, name, accountId, fields }` — each field's `defaultValue` is the current value.
+
+### `POST /opportunities` — save
+
+Body: `{ id, accountId, values: { StageName, Amount, NextStep, CloseDate } }`
+
+1. Verify the token, get the rep's session.
+2. Read the Opportunity as the rep: it must be open and belong to the chosen Account.
+3. Check the values like Log Activity (only form fields, picklist values, types, required). Optional fields sent empty
+   are **cleared** (set to null).
+4. Update as the rep (`POST /sobjects/Opportunity/<id>?_HttpMethod=PATCH`, because Apex can't send PATCH). Validation-rule
+   errors (e.g. Stage 02 without PreSales Engineer) come back as `SAVE_FAILED`.
+
+**Returns:** `{ id, name, accountId }`.
+
+A rep who can't read Opportunities at all (Platform licence, D-13) gets `NO_ACCESS` (403) and a plain message in LINE.
 
 ---
 

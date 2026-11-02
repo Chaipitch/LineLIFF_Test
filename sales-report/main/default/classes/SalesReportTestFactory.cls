@@ -306,4 +306,129 @@ public with sharing class SalesReportTestFactory {
         '{"id":"068000000000001AAA","success":true,"errors":[]}'
       );
   }
+
+  public static final String OPPORTUNITY_ID = '006000000000001AAA';
+  public static final String ACCOUNT_ID = '001000000000001AAA';
+
+  /** Active open stages of this org plus one closed one — tests don't depend on the org's stage names. */
+  public static List<String> openStages() {
+    List<String> stages = new List<String>();
+    for (OpportunityStage stage : [
+      SELECT ApiName
+      FROM OpportunityStage
+      WHERE IsActive = TRUE AND IsClosed = FALSE
+      WITH SYSTEM_MODE
+      ORDER BY SortOrder
+    ]) {
+      stages.add(stage.ApiName);
+    }
+    return stages;
+  }
+
+  /** Body of GET ui-api/object-info/Opportunity (Stage, Amount, Next Step, Close Date; Amount optional). */
+  public static String opportunityObjectInfoBody() {
+    Map<String, Object> infos = new Map<String, Object>{
+      'StageName' => fieldInfo('Picklist', 'Stage', true, 255),
+      'Amount' => fieldInfo('Currency', 'Target TCV', false, 0),
+      'NextStep' => fieldInfo('String', 'Next Step', false, 255),
+      'CloseDate' => fieldInfo('Date', 'Target Close Date', true, 0)
+    };
+    for (String name : infos.keySet()) {
+      ((Map<String, Object>) infos.get(name)).put('updateable', true);
+    }
+    return JSON.serialize(
+      new Map<String, Object>{
+        'apiName' => 'Opportunity',
+        'label' => 'Opportunity',
+        'defaultRecordTypeId' => '012000000000000AAA',
+        'fields' => infos
+      }
+    );
+  }
+
+  /** Stage picklist: the org's open stages plus a closed one. */
+  public static String opportunityPicklistsBody() {
+    List<Object> values = new List<Object>();
+    for (String stage : openStages()) {
+      values.add(new Map<String, Object>{ 'value' => stage, 'label' => stage });
+    }
+    values.add(
+      new Map<String, Object>{
+        'value' => 'Closed Test',
+        'label' => 'Closed Test'
+      }
+    );
+    return JSON.serialize(
+      new Map<String, Object>{
+        'picklistFieldValues' => new Map<String, Object>{
+          'StageName' => new Map<String, Object>{
+            'defaultValue' => null,
+            'values' => values
+          }
+        }
+      }
+    );
+  }
+
+  /** One Opportunity row as the REST query returns it. */
+  public static String opportunityRecordBody(
+    String accountId,
+    Boolean isClosed,
+    String stage
+  ) {
+    return JSON.serialize(
+      new Map<String, Object>{
+        'totalSize' => 1,
+        'done' => true,
+        'records' => new List<Object>{
+          new Map<String, Object>{
+            'Id' => OPPORTUNITY_ID,
+            'Name' => 'Toyota – CRM renewal',
+            'AccountId' => accountId,
+            'IsClosed' => isClosed,
+            'StageName' => stage,
+            'Amount' => 1200000,
+            'NextStep' => 'Send quote',
+            'CloseDate' => '2026-12-15'
+          }
+        }
+      }
+    );
+  }
+
+  /** Mock answering the rep-session Opportunity calls: UI API, list, record, update. */
+  public static SalesReportHttpMock opportunityApiMock(String recordBody) {
+    return new SalesReportHttpMock(500, '{}')
+      .route('api.line.me', 200, verifyBody())
+      .route(
+        '/ui-api/object-info/Opportunity',
+        200,
+        opportunityObjectInfoBody()
+      )
+      .route(
+        '/ui-api/layout/Opportunity',
+        200,
+        taskLayoutBody(new Set<String>{ 'Amount' })
+      )
+      .route(
+        '/ui-api/object-info/Opportunity/picklist-values/',
+        200,
+        opportunityPicklistsBody()
+      )
+      .route(
+        'FROM+Opportunity+WHERE+AccountId',
+        200,
+        '{"totalSize":1,"done":true,"records":[{"Id":"' +
+          OPPORTUNITY_ID +
+          '","Name":"Toyota – CRM renewal","StageName":"Early Stage","CloseDate":"2026-12-15","Owner":{"Name":"Rep One"}}]}'
+      )
+      .route('FROM+Opportunity+WHERE+Id', 200, recordBody)
+      .route('/sobjects/Opportunity/', 204, '');
+  }
+
+  public static SalesReportHttpMock opportunityApiMock() {
+    return opportunityApiMock(
+      opportunityRecordBody(ACCOUNT_ID, false, openStages()[0])
+    );
+  }
 }

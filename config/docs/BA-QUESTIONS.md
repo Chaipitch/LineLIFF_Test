@@ -107,7 +107,11 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 **Update Opportunity** และค่าบางอย่างที่เราใส่ค่าเริ่มต้นไว้ก่อน ช่วยติ๊ก ☐ หรือเขียนคำตอบต่อท้ายแต่ละข้อได้เลย
 (รหัสในวงเล็บอ้างอิงตารางภาษาอังกฤษด้านบน)
 
-### 🔴 ต้องตอบก่อนทำ Update Opportunity
+### 🔴 Update Opportunity — สร้างแล้วตามค่าที่เสนอ (2 พ.ย.) ข้อ 1–7 เปลี่ยนได้ใน Setup โดยไม่ต้องแก้โค้ด
+
+> ตอนนี้ฟอร์มใช้: Stage, Amount (Target TCV), Next Step (`NextStep` มาตรฐาน), Close Date — เลือก Stage ได้เฉพาะ 01–03
+> แสดงดีลที่ยังเปิดอยู่ของ Account ที่ Rep มองเห็น — PreSales Engineer เป็นฟิลด์ lookup ยังแสดงในฟอร์มไม่ได้
+> ถ้าไม่กรอก ระบบจะแสดงข้อความ validation rule แทน
 
 1. ☐ **Rep คนไหนบ้างที่จะใช้?** ขอรายชื่อ — ⚠️ การดู/แก้ Opportunity ต้องใช้ license **Salesforce เต็ม**
    ซึ่งตอนนี้ใช้ครบทั้ง 9 license แล้ว คนที่เป็น **Salesforce Platform** บันทึกกิจกรรมได้ แต่**มองไม่เห็น Opportunity** (Q-S1, D-13)

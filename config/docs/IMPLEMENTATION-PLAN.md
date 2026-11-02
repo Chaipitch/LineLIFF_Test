@@ -7,8 +7,8 @@ Work one milestone at a time. Keep `FILE-INVENTORY.md` up to date in the same co
 
 Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason given).
 
-**Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched off (setting *Attachments Enabled*) · L5c waits
-on the BA · L6 later (user) · L7 done · L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
+**Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched off (setting *Attachments Enabled*) · L5c built
+with the proposed defaults (device test pending) · L6 later (user) · L7 done · L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
 
 ---
 
@@ -150,13 +150,20 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] H · Switched off 2026-11-02 at the user's request: setting `Attachments_Enabled__c` (default off) hides the section and the endpoint refuses uploads; tick it to switch on.
 - [ ] H+C · Device test Android (camera and gallery) — when attachments are switched on again. Keep test files small (sandbox file storage: 59 MB free).
 
-### L5c — Update Opportunity (waiting on BA: Q-O1–Q-O7, D-12; D-13 licences)
+### L5c — Update Opportunity — built 2026-11-02 with the proposed defaults (D-39)
 
-- [ ] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities visible to the rep.
-- [ ] C · Field set `SalesReport_Opportunity_Form`; required flags per D-31.
-- [ ] C · `POST /salesreport/v1/opportunity` → field-set fields only; Opportunity must belong to the chosen Account.
-- [ ] C · Tests: validation-rule failure (e.g. Stage 02 without PreSales Engineer), update denied outside sharing, success.
-- [ ] H · Confirm org automation (Next Step date stamps, Opp meeting counter) behaves as expected for LINE updates.
+- [x] C · Shared form engine `SalesReportFormService` (field set + UI API as the rep, D-31/D-35) used by Log Activity and Update Opportunity.
+- [x] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities on the Account visible to the rep (≤ 50, by close date).
+- [x] C · Field set `SalesReport_Opportunity_Form` (Stage, Amount, Next Step, Close Date); `GET /salesreport/v1/opportunities?id=` → form with current values; required flags per D-31.
+- [x] C · Stage choices = active open stages, setting `Opportunity_Stages__c` to narrow them; current (even inactive) stage kept selectable.
+- [x] C · `POST /salesreport/v1/opportunities` → form fields only; open Opportunity of the chosen Account; empty optional fields cleared; PATCH override.
+- [x] C · `NO_ACCESS` (403) for reps who can't read Opportunities (Platform licence, D-13), own message in LINE.
+- [x] C · LIFF: Account → open Opportunities (stage · close date) → prefilled form → Save → "Opportunity updated" (checked headless 2026-11-02; Log Activity re-checked).
+- [x] C · Tests: list, form prefill, stage limits, inactive current stage, update body (cleared field), other Account, closed Opportunity, VR message, bad ids, no access — 135 tests, 96.6%; Code Analyzer 0 Critical/High.
+- [x] C · Live read-only check through the real JWT session: 19 open Opportunities in 144 ms; form ~1.3 s with Stage (01–03), Target TCV (required), Next Step, Target Close Date (required). No live save (Opportunity flows post Slack alerts on update).
+- [ ] H · Guest profile: add Apex class `SalesReportOpportunityController` (public `/opportunities` answers 403 until then).
+- [ ] H+C · Device test: update a **test** Opportunity from the phone; check the record and that its automation (Next Step date stamps, Slack alert) behaves as expected.
+- [ ] BA · Q-O1–Q-O7, D-12, D-13 — answers become field-set / setting changes (D-39).
 
 **Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form; photos attached to the Task (when attachments are on).
 
@@ -204,7 +211,8 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 | L3 Option B | H: certificate + ECA consumer key |
 | L5a | — (Task `Type` values from admin are nice to have) |
 | L5b switch-on | User: tick *Attachments Enabled*; BA: attachment limits (Q-A6a) |
-| L5c | BA: Opportunity fields (Q-O1–Q-O7, D-12); D-13 licences |
+| L5c device test | H: guest-profile class access; a test Opportunity |
+| L5c final fields | BA: Q-O1–Q-O7, D-12 (Setup changes only); D-13 licences |
 | L7 rate limiting | — (custom-object fallback, D-36) |
 | L6 | User: start; BA/user: check the Thai and Japanese wording |
 | L8 | H: test users and LINE accounts; BA: go-live date, UAT owner |

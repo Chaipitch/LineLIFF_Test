@@ -83,7 +83,13 @@ public with sharing class SalesReportLiffPageController {
       'loading' => System.Label.SalesReport_Loading,
       'menuTitle' => System.Label.SalesReport_Menu_Title,
       'openInLine' => System.Label.SalesReport_Open_In_Line,
-      'opportunityTitle' => System.Label.SalesReport_Opportunity_Title
+      'opportunityTitle' => System.Label.SalesReport_Opportunity_Title,
+      'opportunityLabel' => System.Label.SalesReport_Opportunity_Label,
+      'noOpenOpportunities' => System.Label.SalesReport_No_Open_Opportunities,
+      'chooseOpportunity' => System.Label.SalesReport_Choose_Opportunity,
+      'opportunitySaved' => System.Label.SalesReport_Opportunity_Saved,
+      'updateAnother' => System.Label.SalesReport_Update_Another,
+      'errorNoAccess' => System.Label.SalesReport_Error_No_Access
     };
   }
 }
