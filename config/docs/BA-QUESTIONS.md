@@ -6,7 +6,7 @@ must be answered before the forms are built; the rest can follow. Where we have 
 can simply confirm. Context: `L0-SPEC.md`, `DECISIONS.md` (D-xx), `MOCKUP-REVIEW.md` (G-x, with the two mockup images).
 
 Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-10-28.
-**ภาษาไทย:** a Thai summary of all open questions, in priority order, is at the end of this file.
+**ภาษาไทย:** a Thai checklist of the open questions, in priority order, is at the end of this file (updated 2026-11-02).
 
 ---
 
@@ -101,82 +101,58 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 ---
 
-## ภาษาไทย — รายการที่ต้องยืนยันกับ BA (อัปเดต 2026-10-29)
+## ภาษาไทย — Checklist สำหรับ BA (อัปเดต 2026-11-02)
 
-สรุปคำถามที่ยังเปิดอยู่ เรียงตามความสำคัญ (ข้อที่ตอบแล้วตัดออก) พร้อมคำแนะนำของเรา BA ยืนยันได้เลย
-ข้อ 1–14 ต้องตอบก่อนเริ่มทำฟอร์ม (L5)
+**สถานะตอนนี้:** Log Activity ใช้งานได้แล้วบนมือถือ (บันทึก Task + แนบรูป/ไฟล์) ส่วนที่ยังรอคำตอบคือ
+**Update Opportunity** และค่าบางอย่างที่เราใส่ค่าเริ่มต้นไว้ก่อน ช่วยติ๊ก ☐ หรือเขียนคำตอบต่อท้ายแต่ละข้อได้เลย
+(รหัสในวงเล็บอ้างอิงตารางภาษาอังกฤษด้านบน)
 
-### 🔴 ต้องตอบก่อนเริ่มทำฟอร์ม (L5)
+### 🔴 ต้องตอบก่อนทำ Update Opportunity
 
-**ผู้ใช้งาน**
+1. ☐ **Rep คนไหนบ้างที่จะใช้?** ขอรายชื่อ — ⚠️ การดู/แก้ Opportunity ต้องใช้ license **Salesforce เต็ม**
+   ซึ่งตอนนี้ใช้ครบทั้ง 9 license แล้ว คนที่เป็น **Salesforce Platform** บันทึกกิจกรรมได้ แต่**มองไม่เห็น Opportunity** (Q-S1, D-13)
+2. ☐ **Rep แก้ไขฟิลด์ไหนได้บ้าง?** เสนอ: Stage, Amount (Target TCV), Next Step, Close Date
+   / ตัวเลือกเพิ่ม: Your Win Confidence, Next Step Due Date (Q-O1)
+3. ☐ **ใช้ฟิลด์ "Next Step" ตัวไหน?** ใน org มี 2 ตัวชื่อเหมือนกัน: `NextStep` (มาตรฐาน) หรือ `Next_Step_Custom__c` (Q-O2)
+4. ☐ **ให้เลือก Stage ได้ถึงไหน?** เสนอ: เฉพาะ 01–03 ส่วนปิดดีล (Won/Lost) ทำใน Salesforce
+   เพราะการปิดดีลต้องกรอกเอกสารสัญญา/เหตุผลเพิ่มตาม validation rule (Q-O3)
+5. ☐ **เพิ่มฟิลด์ PreSales Engineer ในฟอร์มไหม?** Stage 02 ขึ้นไประบบบังคับกรอก ถ้าไม่มีในฟอร์ม Rep จะบันทึกไม่ผ่าน
+   → เสนอ: เพิ่ม (Q-O4)
+6. ☐ **แสดง Opportunity ไหนบ้าง?** เสนอ: ดีลที่ยังเปิดอยู่ของ Account ที่เลือก และ Rep มีสิทธิ์มองเห็น (Q-O6)
+7. ☐ **แสดงชื่อฟิลด์ตาม Salesforce ได้ไหม?** เช่น Amount แสดงเป็น "Target TCV", Stage มีเลขนำหน้า → เสนอ: ได้ (Q-O5)
 
-1. Rep คนไหนบ้างที่จะใช้ระบบ? (ต้องมี Salesforce user ทุกคน)
-   ⚠️ การ Update Opportunity ต้องใช้ license แบบ **Salesforce เต็ม** — ตอนนี้ใน org มี 9 คน ส่วนอีก 18 คนเป็น
-   **Salesforce Platform** ซึ่ง**มองไม่เห็น Opportunity** (Q-S1, D-13)
+### 🟠 ต้องการเร็ว ๆ นี้ (กระทบสิ่งที่ใช้งานอยู่)
 
-**Log Activity (บันทึกกิจกรรม)**
+8. ☐ **Activity Type ให้เลือกค่าอะไรบ้าง?** ตอนนี้มีแต่ผลการโทร (เช่น "Connected - Busy / Call Back")
+   ทำให้หัวเรื่อง Task ออกมาเป็น "Connected - Busy / Call Back – ชื่อลูกค้า"
+   → เสนอ: Customer Visit, Online Meeting, Phone Call, Demo, Other — admin เพิ่มค่าใน Salesforce (Q-A2)
+9. ☐ **แนบไฟล์:** ตอนนี้ตั้งไว้ **ไม่เกิน 5 ไฟล์ ไฟล์ละไม่เกิน 4 MB** (รูปถูกย่อบนมือถือก่อนส่ง) รองรับ jpg / png / pdf
+   → ใช้ตามนี้ได้ไหม? (เปลี่ยนได้ใน Settings ไม่ต้องแก้โค้ด; 4 MB คือค่าสูงสุดที่ระบบรองรับ) (Q-A6a)
+10. ☐ **ชื่อฟิลด์ในฟอร์ม:** ตอนนี้แสดงตาม Salesforce คือ "Due Date Only" และ "Description"
+    → ให้ admin เปลี่ยนชื่อเป็น "Date" / "Comments" ไหม? และ**เพิ่มฟิลด์ Activity Purpose** (มีอยู่แล้วใน org) ในฟอร์มไหม?
+11. ☐ **ฟิลด์ไหนบังคับกรอก?** ตอนนี้ฟอร์มบังคับตาม Salesforce (page layout ของ Task) ซึ่งยังไม่บังคับ Type / Date / Comments
+    → ต้องการให้บังคับฟิลด์ไหน admin ตั้งที่ page layout ได้เลย (Q-A3)
+12. ☐ **Go-live วันไหน ใครเซ็นรับ และใครทำ UAT เมื่อไร?** (Q-S2, Q-T2)
 
-2. ✅ ตอบแล้ว (30 ต.ค.): บันทึกเป็น **Task** (Q-A1, D-11)
-3. Activity Type ให้ Rep เลือกได้มีค่าอะไรบ้าง? ตอนนี้ Task Type มีแต่ค่าผลการโทร ยังไม่มี "Customer Visit" → admin
-   ต้องเพิ่มค่าใหม่ → เสนอ: Customer Visit, Online Meeting, Phone Call, Demo, Other (Q-A2)
-4. ✅ ตอบแล้ว (30 ต.ค.): ฟิลด์บังคับกรอกให้ **ตาม Salesforce** (page layout ของ Rep / ฐานข้อมูล / field set)
-   validation rule ทำงานตอนกดบันทึก (Q-A3, D-31)
-5. ✅ ตอบแล้ว (30 ต.ค.): วันที่ **ไม่จำกัด** (ย้อนหลัง/วันนี้/อนาคต) — วันในอนาคตจะเป็นสถานะ Open (Q-A4, D-32)
-6. ✅ ตอบแล้ว (30 ต.ค.): ผูกกับ **Account อย่างเดียว** (Q-A5, D-33)
-7. ✅ ตอบแล้ว (30 ต.ค.): **ทำ** แนบไฟล์ได้ (Q-A6, D-34) — เหลือยืนยัน: แนบได้กี่ไฟล์ ขนาดเท่าไร ประเภทอะไร?
-   → แนะนำ: 5 ไฟล์ ไฟล์ละไม่เกิน 4 MB (ย่อรูปบนมือถือก่อนส่ง) รูปถ่าย/รูปในเครื่อง + PDF (Q-A6a)
+### 🟡 ยืนยันค่าที่เราตั้งไว้ (ถ้าโอเคตอบ "ได้" ได้เลย)
 
-**Update Opportunity (อัปเดตดีล)**
+13. ☐ การเข้าสู่ระบบ Salesforce ครั้งแรก**เปิดใน browser ของมือถือ** (mockup แสดงในแอป LINE) — ทดสอบแล้วใช้งานได้ ใช้แบบนี้ได้ไหม? (Q-L3)
+14. ☐ ผูกบัญชีแล้ว**ไม่หมดอายุ** Rep ไม่ต้องล็อกอินซ้ำ จนกว่า admin จะยกเลิกการผูก หรือ user ถูก deactivate — โอเคไหม? (Q-L1, Q-L4)
+15. ☐ ถ้า Rep ผูก LINE บัญชีที่สองกับ user เดิม → **บัญชีล่าสุดใช้ได้ บัญชีเก่าถูกยกเลิกอัตโนมัติ** หรือให้ปฏิเสธจนกว่า admin จะยกเลิก? (Q-L8)
+16. ☐ **ใครเป็นคนยกเลิกการผูก** เมื่อ Rep ลาออก/เปลี่ยนมือถือ? → เสนอ: admin ทำผ่านแท็บ Line Link (Q-L2)
+17. ☐ ค้นหา Account ด้วย**ชื่อเท่านั้น** และแสดงทุก Account ที่ Rep มีสิทธิ์เห็น — ต้องค้นด้วยชื่อภาษาไทย/รหัสลูกค้าด้วยไหม? (Q-C1, Q-C2)
+18. ☐ ภาษาหน้าจอ: ไทย / อังกฤษ / ญี่ปุ่น — ต้องครบทั้งสามไหม? (Q-S3)
 
-8. Rep แก้ไขฟิลด์ไหนได้บ้าง? mockup มี: Stage, Amount, Next Step / ตัวเลือกเพิ่ม: Close Date, Your Win Confidence,
-   Next Step Due Date → แนะนำ: Stage, Amount, Next Step, Close Date (Q-O1)
-   ⏳ BA จะยืนยันฟิลด์ของ Update Opportunity ทีหลัง (30 ต.ค.)
-9. ใช้ฟิลด์ "Next Step" ตัวไหน? ใน org มี 2 ตัวชื่อเหมือนกัน: `NextStep` (มาตรฐาน) และ `Next_Step_Custom__c`
-   → ใช้ตัวที่ทีม sales ใช้ใน report (Q-O2, D-12)
-10. ให้เลือก Stage ได้ถึงไหน? Stage ที่มี: 01. Before 1st MTG / 02. Early Stage / 03. Final Proposal / 08. Closed Won /
-    08. Closed Lost (ปิดดีลต้องกรอกเอกสารสัญญา/เหตุผลเพิ่มตาม validation rule) → แนะนำ: เปิดให้เลือกแค่ 01–03
-    ส่วนการปิดดีลทำใน Salesforce (Q-O3)
-11. Stage 02 ขึ้นไป ระบบบังคับกรอก **PreSales Engineer** (validation rule) → เพิ่มฟิลด์นี้ในฟอร์มไหม?
-    → แนะนำ: เพิ่ม ไม่งั้น Rep จะบันทึกไม่ผ่าน (Q-O4)
-12. ใน org ฟิลด์ Amount ใช้ชื่อว่า "Target TCV" และ Stage มีเลขนำหน้า → แสดงตามชื่อใน Salesforce ได้ไหม?
-    → แนะนำ: ได้ (Q-O5)
-13. แสดง Opportunity ไหนบ้าง: ของตัวเอง / ที่ยังเปิดอยู่ทั้งหมดของ Account / ทั้งหมดที่มองเห็น?
-    → แนะนำ: ดีลที่ยังเปิดอยู่ของ Account ที่ Rep มองเห็น (Q-O6)
-14. ต้องสร้าง Opportunity ใหม่จาก LINE ได้ไหม? → แนะนำ: ไม่ทำในเฟสแรก (Q-O7)
+### 🔵 Security / นโยบาย (ตอบก่อนขึ้น production)
 
-### 🟡 ตอบได้ระหว่างทำ
+19. ☐ Production บังคับ **MFA** สำหรับ Rep ไหม? มีแผนใช้ **SSO** ไหม? (Q-L6)
+20. ☐ มีนโยบายบริษัทเรื่องการแสดงข้อมูลลูกค้า/ดีลใน LINE ไหม? (Q-L7)
 
-**การค้นหา Account** (ใช้งานได้แล้ว ค้นจากชื่อ Account)
+### ⚪ ทำทีหลังได้ (เฟสถัดไป)
 
-15. ต้องค้นจากฟิลด์อื่นด้วยไหม เช่น Account Name (TH), Account No.? (admin เพิ่มเองได้โดยไม่ต้องแก้โค้ด)
-    ⚠️ ใน sandbox มีชื่อ Account ซ้ำกัน (เช่น "mo7 company" 4 รายการ) → ถ้าแสดง Account No. ใต้ชื่อ จะช่วยแยกได้ (Q-C1)
-16. ค้นเฉพาะ Account ของตัวเอง หรือทั้งหมดที่มีสิทธิ์เห็น? → แนะนำ: ทั้งหมดที่มีสิทธิ์เห็น (Q-C2)
-17. จำนวน Account ใน production ประมาณเท่าไร? (Q-C3)
-18. ต้องสร้าง Account ใหม่จาก LINE ไหม? → แนะนำ: ไม่ทำในเฟสแรก (Q-C4)
+21. ☐ ส่งข้อความยืนยันใน LINE หลังบันทึก / แจ้งเตือนรายวัน? (Q-M1, Q-M2)
+22. ☐ สร้าง Opportunity หรือ Account ใหม่จาก LINE? (Q-O7, Q-C4)
+23. ☐ ชื่อ OA, รูป rich menu, ข้อความต้อนรับ, blue badge (Q-N1, Q-N3–N5)
 
-**การเชื่อม LINE กับ Salesforce** (รายละเอียด: `BA-FAQ.md`)
-
-19. ถ้ามี LINE อีกบัญชีมา login เป็น user เดียวกัน → ใช้แบบ **latest wins** (บัญชีเก่าถูก unlink อัตโนมัติ) หรือ
-    **first wins** (ต้องให้ admin unlink ก่อน)? → แนะนำ: latest wins (คุยเบื้องต้นแล้ว รอทดสอบ) (Q-L8)
-20. ต้องแจ้งเตือนเมื่อบัญชีเก่าถูกแทนที่ไหม? → แนะนำ: ไม่ทำในเฟสแรก (Q-L8)
-21. การเชื่อมต่อมีอายุไหม หรือใช้ได้จนกว่าจะ unlink/ปิด user? → แนะนำ: จนกว่าจะ unlink หรือปิด user (Q-L1)
-22. ใครเป็นคน unlink เวลา Rep ลาออกหรือเปลี่ยนมือถือ? → แนะนำ: Salesforce admin (Q-L2)
-23. production บังคับ **MFA** สำหรับ Rep ไหม? มีแผนใช้ SSO ไหม? (Q-L6)
-24. ตอน login ครั้งแรก ตอนนี้เปิดใน **browser ของมือถือ** (ทดสอบแล้วใช้ได้ดี) → OK ไหม หรืออยากให้เปิดใน LINE
-    แบบใน mockup? (Q-L3)
-25. นโยบายบริษัทเรื่องแสดงข้อมูลธุรกิจ (ชื่อลูกค้า, ยอดเงิน) ใน LINE มีข้อจำกัดไหม? (Q-L7)
-
-**ภาษาและ LINE OA**
-
-26. ภาษาที่ใช้ในฟอร์ม: ไทย / อังกฤษ / ญี่ปุ่น? → แนะนำ: ทั้ง 3 ภาษา ตามภาษาของ LINE ในมือถือ (Q-S3)
-27. ชื่อ OA: "Sales Reporting" หรือ "Salesforce Reporting" (ตาม mockup)? ⚠️ การใช้คำว่า "Salesforce" อาจต้องเช็คเรื่อง
-    trademark (Q-N1)
-28. ข้อความต้อนรับ (Greeting) ใช้ตาม mockup ได้ไหม? (Q-N5)
-29. ใครออกแบบรูป Rich menu? (Q-N3)
-30. ต้องส่งข้อความยืนยันใน LINE หลังบันทึกสำเร็จไหม? → แนะนำ: ไม่ทำในเฟสแรก (หน้าจอแสดงผลสำเร็จพอแล้ว) (Q-M1)
-
-**ทดสอบและ Go-live**
-
-31. ขอ **test user ที่ไม่ใช่ admin** อย่างน้อย 1 คน (มี Salesforce license เต็ม) สำหรับทดสอบว่ามองเห็นเฉพาะข้อมูลที่มีสิทธิ์
-    → แนะนำ: 2 คน (iOS 1, Android 1) (Q-T1)
-32. ใครทำ UAT และวันไหน? Go-live เมื่อไร และใครเป็นคน sign-off? (Q-T2, Q-S2)
+**ปิดแล้ว (ไม่ต้องตอบ):** บันทึกเป็น Task ✓ · วันที่ไม่จำกัด ✓ · ผูกกับ Account อย่างเดียว ✓ · แนบไฟล์ได้ ✓ ·
+เจ้าของ Task = Rep ที่บันทึก ✓ · ใช้ภายในบริษัทเท่านั้น ✓
