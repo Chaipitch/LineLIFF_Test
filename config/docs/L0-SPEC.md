@@ -68,6 +68,8 @@ First-time login (flow B): LIFF "Connect Salesforce" → `POST /link/start` → 
 
 ## 4. API (Apex REST on the Site, `/services/apexrest/salesreport/v1/...`)
 
+Step-by-step walkthrough of each endpoint: **`REST-ENDPOINTS.md`**.
+
 All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count towards the per-LINE-user rate limit (D-36). Responses are JSON, never cached; errors use
 `{ "error": { "code": "...", "message": "<plain-language>", "fields": { … } } }` (`fields` only on form errors). Error codes: `TOKEN_MISSING`,
 `TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
