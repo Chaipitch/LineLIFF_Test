@@ -145,7 +145,7 @@ feature does not grant standard-object access.
 | `SalesReport_Account_Search` | Account | Extra text fields searched by the Account picker; first non-empty one shown under the name | Name only (admins add e.g. `Account_Name_TH__c`, `Account_No__c`) |
 
 Form field sets — the forms and the server-side whitelist read these by describe, so no org-specific field is referenced
-in code. Activity form built 2026-10-30 (L5a); Opportunity form waits on the BA (L5c, D-12, Q-O1). The "Required in set" column
+in code. Activity form built 2026-10-30 (L5a); Opportunity form built 2026-11-02 with the proposed defaults (L5c, D-39). The "Required in set" column
 is only an extra: a field is also required when the rep's layout or the database requires it (D-31).
 
 | Field set | Object | Initial members (BA to confirm) | Required in set |
@@ -163,7 +163,7 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 
 | Label | English value | Used on | Milestone |
 |---|---|---|---|
-| `SalesReport_Menu_Title` | Sales Report | LIFF | L2 |
+| `SalesReport_Menu_Title` | Sales Report | LIFF — title of the form menu shown when opened without `?form=` | L2 |
 | `SalesReport_Activity_Title` | Log activity | LIFF | L2 |
 | `SalesReport_Opportunity_Title` | Update opportunity | LIFF | L2 |
 | `SalesReport_Hello` | Hello, {0} | LIFF | L2 |
@@ -174,11 +174,11 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Error_Generic` | Something went wrong. Please try again. | LIFF | L2 |
 | `SalesReport_Error_Session_Expired` | Your session expired. Reopening… | LIFF | L2 |
 | `SalesReport_Error_Unavailable` | The service is temporarily unavailable. | LIFF | L2 |
-| `SalesReport_Connect_Title` | Connect Salesforce | LIFF | L3 |
-| `SalesReport_Connect_Body` | To use Sales Report, log in to Salesforce once. After that you will not need to log in again. | LIFF | L3 |
-| `SalesReport_Connect_Button` | Log in to Salesforce | LIFF | L3 |
-| `SalesReport_Connect_Waiting` | Finish logging in to Salesforce in your browser, then come back here. | LIFF | L3 |
-| `SalesReport_Connect_Check` | I've finished | LIFF | L3 |
+| `SalesReport_Connect_Title` | Connect Salesforce | LIFF — fallback only since D-40 (rep came back from the login without connecting) | L3 |
+| `SalesReport_Connect_Body` | To use Sales Report, log in to Salesforce once. After that you will not need to log in again. | LIFF — fallback only (D-40) | L3 |
+| `SalesReport_Connect_Button` | Log in to Salesforce | LIFF — fallback only (D-40) | L3 |
+| `SalesReport_Connect_Waiting` | Finish logging in to Salesforce in your browser, then come back here. | Not used since D-40 (no external browser); kept for now | L3 |
+| `SalesReport_Connect_Check` | I've finished | Not used since D-40; kept for now | L3 |
 | `SalesReport_Linked_As` | Salesforce: {0} | LIFF | L3 |
 | `SalesReport_Error_Not_Authorized` | Your Salesforce user is not set up for Sales Report. Please ask your administrator. | LIFF, link page | L3 |
 | `SalesReport_Link_Title` | Connect LINE to Salesforce | Link page | L3 |
@@ -186,7 +186,7 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Link_Confirm_Note` | Only continue if you opened this page yourself from the Sales Report menu in LINE. | Link page | L3 |
 | `SalesReport_Link_Confirm_Button` | Connect | Link page | L3 |
 | `SalesReport_Link_Done` | Done. Your LINE account is connected. You can go back to LINE. | Link page | L3 |
-| `SalesReport_Link_Return` | Open Sales Report in LINE | Link page | L3 |
+| `SalesReport_Link_Return` | Open Sales Report in LINE | Link page — fallback button; the page also returns to the form automatically (D-40) | L3 |
 | `SalesReport_Link_Invalid` | This link has expired or was already used. Open the form in LINE and try again. | Link page | L3 |
 | `SalesReport_Account_Label` | Account | LIFF | L4 |
 | `SalesReport_Account_Search_Placeholder` | Type at least {0} characters | LIFF | L4 |

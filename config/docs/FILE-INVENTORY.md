@@ -44,7 +44,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportConnectionController` | Controller | `GET /salesreport/v1/connection` | L2 | Done |
 | `SalesReportMeController`, `SalesReportMeData` | — | Renamed to `SalesReportConnectionController` / `SalesReportConnectionData`, endpoint `/me` → `/connection` (D-38); deleted from `dev5` 2026-11-02 | L2 | Removed (renamed) |
 | `SalesReportLinkController` | Controller | `POST /salesreport/v1/link/start` | L3 | Done |
-| `SalesReportLinkPageController` | Controller | VF page `SalesReport_Link`: confirm, then link the logged-in rep | L3 | Done |
+| `SalesReportLinkPageController` | Controller | VF page `SalesReport_Link`: confirm, then link the logged-in rep; return URL to the chosen form | L3 | Done |
 | `SalesReportAccountController` | Controller | `GET /salesreport/v1/accounts` | L4 | Done |
 | `SalesReportOpportunityController` | Controller | `GET` (list / form) and `POST` (update) `/salesreport/v1/opportunities` (D-39) | L5c | Done |
 | `SalesReportActivityController` | Controller | `GET` (form) / `POST` (create Task) `/salesreport/v1/activity` | L5a | Done |
@@ -91,7 +91,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | Page | Purpose | Access | Milestone | Status |
 |---|---|---|---|---|
 | `SalesReport_Liff` | Serves the LIFF app (static resource) on the Site | Site guest | L2 | Done |
-| `SalesReport_Link` | One-time link page (confirm button) | Logged-in reps with `SalesReport_User` (not on the Site) | L3 | Done |
+| `SalesReport_Link` | One-time link page: Salesforce login (inside LINE since D-40) → Connect → back to the chosen form (`?form=`, automatic) | Logged-in reps with `SalesReport_User` (not on the Site) | L3, D-40 | Done |
 
 ## 5. Static resources and LIFF front-end source
 

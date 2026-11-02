@@ -1,7 +1,7 @@
 # BA FAQ — LINE Sales Reporting
 
 Plain-language answers to questions from the BA. Technical detail: `DATA-DICTIONARY.md` (objects and fields),
-`DECISIONS.md` (D-xx). Last updated 2026-11-02.
+`DECISIONS.md` (D-xx). Last updated 2026-11-02 (login inside LINE, D-40).
 
 ---
 
@@ -73,7 +73,7 @@ complexity and risk. Common login designs keep the short-lived "login attempt" a
 |---|---|
 | Phone A links to Roj | Link A is active |
 | Phone B logs in **as Roj** and taps **Connect** | Link B becomes active; Link A is set to **Unlinked**, reason "Replaced by new LINE account" |
-| Phone A opens the form again | Sees **Connect Salesforce** again — it can no longer act as Roj |
+| Phone A opens the form again | Is asked to log in to Salesforce again (inside LINE) — it can no longer act as Roj |
 
 - **At the same moment** — the database allows only one active link per user, so one goes first and the other replaces
   it. There are never two active links for one user.
@@ -127,7 +127,7 @@ that shows the LINE name being connected (with the note "Only continue if you op
 | | Effect |
 |---|---|
 | The wrong LINE account | Can submit reports **as the rep** until fixed — this is the real risk |
-| The rep's own phone | Is unlinked immediately and shows **Connect Salesforce** next time, so the rep notices quickly |
+| The rep's own phone | Is unlinked immediately and asks the rep to log in to Salesforce next time, so the rep notices quickly |
 | Fix | The rep taps Connect on their own phone (latest wins → the wrong link is ended), or an admin sets the wrong link to **Unlinked** |
 
 **Finding what was entered during the wrong period** — the LINE Link history shows when the wrong account was linked and
@@ -141,14 +141,18 @@ The form already shows "Salesforce: <name>" on every open, so a rep on the wrong
 ## 7. How do we disconnect a rep, or test the first-time login again?
 
 Open the **Sales Report LINE Links** tab, open the rep's link and set **Status = Unlinked**. The next time the rep opens
-the form in LINE it shows **Connect Salesforce** again, and they log in once more. Reconnecting reuses the same link
+the form in LINE it shows the Salesforce login again (inside LINE), and they log in once more. Reconnecting reuses the same link
 record, so its history (who, when, why it ended) stays in one place.
 
 Deactivating a Salesforce user has the same effect automatically: the link ends the next time that LINE account is used.
 
+**Testing it again on your own phone:** after unlinking, LINE's built-in browser may still be logged in to Salesforce,
+so you go straight to the **Connect** step. To see the password screen again, open
+`https://<My Domain>/secur/logout.jsp` from a LINE chat (e.g. send it to yourself in Keep memo) and tap it.
+
 ## 8. What happens if we delete a LINE Link record instead?
 
-For the rep it looks the same as unlinking: next time they see **Connect Salesforce**. Nothing else is affected — Tasks
+For the rep it looks the same as unlinking: next time they are asked to log in to Salesforce again. Nothing else is affected — Tasks
 and files they logged belong to their Salesforce user, not to the link. But the history is gone, reconnecting creates a
 new record, and restoring the old one from the Recycle Bin fails once the rep has reconnected (one link record per LINE
 account). So: **Unlinked** for normal work (leavers, new phones, tests); delete only for test data you don't need. Only

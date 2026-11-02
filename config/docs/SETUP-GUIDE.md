@@ -30,14 +30,14 @@ appears in Salesforce under the rep's own name.
 | Part | What it is (plain language) | Why it is needed | Who | Status in `dev5` |
 |---|---|---|---|---|
 | **A. LINE accounts** | The "Sales Reporting" chat account and LINE's login service | Gives reps the chat and buttons, and lets us know which LINE user is using the form | Admin (LINE consoles) | Done |
-| **B. Deploy** | Installing the Sales Report program into Salesforce | The program itself | Claude | Done (L2–L5b, L7) |
+| **B. Deploy** | Installing the Sales Report program into Salesforce | The program itself | Claude | Done (L2–L5c, L7) |
 | **C. Settings** | A small settings page for Sales Report | Tells the program which LINE app to trust and how to behave, without code changes | Admin / Claude | Done |
 | **D. Permission sets** | Two "access badges": one for admins, one for reps | Controls who may manage links/logs and who may use the forms | Admin | Done for the test user |
 | **E. Site** | A public web address in Salesforce | The form must be reachable from LINE without a Salesforce login screen every time | Admin | Done |
 | **F. LIFF app & rich menu** | Registering the form with LINE and adding the two menu buttons | Makes the buttons open our form inside LINE | Admin (LINE consoles) | Done |
 | **G. Certificate & External Client App** | A digital stamp and an "app pass" in Salesforce | Lets the system safely act **as the rep** after the one-time login, so data is saved under the rep's name with the rep's permissions | Admin | Done |
 | **H. Optional tuning** | Form fields, search fields, attachments switch, limits, nightly cleanup | Lets admins adjust the forms without a developer | Admin | Cleanup scheduled; attachments off |
-| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2–L5b done (iOS); L5c in progress |
+| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2–L5c built; login inside LINE tested on iOS (2026-11-02) |
 | **J. Editing the LINE screens** | Changing texts, fields, colours or layout of the forms | Most changes need no developer; the rest are a quick rebuild | Admin / developer | Reference |
 
 ### Words used in this guide
@@ -93,7 +93,7 @@ Production: validate first with `--test-level RunLocalTests` (`sf project deploy
 On a brand-new org, deploy `sales-report/main/default/objects` first: Apex tests can't see brand-new fields during the
 same check-only validation. After the first deploy to a new org, schedule the nightly cleanup once (Part H).
 
-**Status:** deployed to `dev5` (L2–L5b, L7; latest 2026-11-02, 112 tests).
+**Status:** deployed to `dev5` (L2–L5c, L7; latest 2026-11-02, 137 tests).
 
 ---
 
