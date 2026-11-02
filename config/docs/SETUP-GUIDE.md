@@ -329,8 +329,9 @@ allow LINE's permission the first time → the page shows **Log activity** and "
 2. The phone's browser opens the Salesforce login → log in (MFA if asked).
 3. **Connect LINE to Salesforce** — "Connect the LINE account "<LINE name>" to your Salesforce user <name>?" →
    **Connect** → **Open Sales Report in LINE**.
-4. Back in LINE: your LINE name and "Salesforce: <your name>". Coming back through **Open Sales Report in LINE** shows a
-   small menu (**Log activity**, plus **Update opportunity** when it is switched on). Reopening never asks to log in again.
+4. Back in LINE: **Open Sales Report in LINE** goes straight to the form you tapped in the rich menu, with your LINE name
+   and "Salesforce: <your name>" at the top. Reopening never asks to log in again. (Opened without a form, the app
+   shows a small menu instead.)
 
 **L4-4 — Account search (done 2026-10-29).**
 1. Tap **Log Activity**. Under **Account**, type one letter: nothing happens. Type a second: after a short pause the

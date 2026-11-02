@@ -71,7 +71,9 @@ LIFF page ──(X-Line-Id-Token: <LINE ID token>)──▶ Controller
 1. Verify the LINE token.
 2. Create a random 256-bit code. Only its SHA-256 hash is stored in `SalesReport_Link_Code__c`, with the LINE user ID,
    display name and a 5-minute expiry.
-3. Build the URL `<My Domain>/apex/SalesReport_Link?code=…`.
+3. Build the URL `<My Domain>/apex/SalesReport_Link?code=…`. The app adds `&form=activity|opportunity`, so the link
+   page's **Open Sales Report in LINE** button returns to `https://liff.line.me/<LIFF ID>?form=…` (only those two values
+   are accepted).
 
 **Returns:** `{ linkUrl }`. The app opens it in the phone's browser (D-15).
 

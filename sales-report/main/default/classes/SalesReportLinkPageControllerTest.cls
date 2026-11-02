@@ -133,4 +133,26 @@ private class SalesReportLinkPageControllerTest {
       'base64url kept'
     );
   }
+
+  @IsTest
+  static void returnsToTheFormTheRepStartedFrom() {
+    SalesReportTestFactory.settings();
+    PageReference page = Page.SalesReport_Link;
+    page.getParameters().put('form', 'opportunity');
+    Test.setCurrentPage(page);
+    Assert.areEqual(
+      'https://liff.line.me/' +
+        SalesReportTestFactory.LIFF_ID +
+        '?form=opportunity',
+      new SalesReportLinkPageController().returnUrl,
+      'Back to the chosen form'
+    );
+
+    page.getParameters().put('form', 'evil"><script>');
+    Assert.areEqual(
+      'https://liff.line.me/' + SalesReportTestFactory.LIFF_ID,
+      new SalesReportLinkPageController().returnUrl,
+      'Unknown form ignored'
+    );
+  }
 }

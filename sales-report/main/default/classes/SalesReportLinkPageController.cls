@@ -11,6 +11,9 @@ public with sharing class SalesReportLinkPageController {
   public static final String ACCESS_PERMISSION = 'SalesReport_Access';
   @TestVisible
   static final String SOURCE = 'SalesReportLinkPageController';
+  /** Forms the LIFF app can open (?form=); anything else is ignored. */
+  @TestVisible
+  static final Set<String> FORMS = new Set<String>{ 'activity', 'opportunity' };
 
   public String state { get; private set; }
   public String lineDisplayName { get; private set; }
@@ -25,6 +28,11 @@ public with sharing class SalesReportLinkPageController {
     userName = UserInfo.getName();
     String liffId = SalesReportSettingsService.liffId();
     returnUrl = liffId == null ? null : 'https://liff.line.me/' + liffId;
+    // Back to the form the rep tapped in the rich menu before logging in (passed through the link by the LIFF app).
+    String form = ApexPages.currentPage().getParameters().get('form');
+    if (returnUrl != null && form != null && FORMS.contains(form)) {
+      returnUrl += '?form=' + form;
+    }
 
     if (!isAllowed()) {
       state = STATE_NOT_ALLOWED;

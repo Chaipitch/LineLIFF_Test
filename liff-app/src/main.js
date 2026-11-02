@@ -215,7 +215,12 @@ function showConnect(api) {
     try {
       const result = await api.post("/link/start", {});
       waitingForLink = true;
-      liff.openWindow({ url: result.linkUrl, external: true });
+      // Pass on the form the rep came for, so "Open Sales Report in LINE" on the link page goes straight back to it.
+      const form = requestedForm();
+      const url = form
+        ? result.linkUrl + "&form=" + encodeURIComponent(form)
+        : result.linkUrl;
+      liff.openWindow({ url, external: true });
       showWaiting(api);
     } catch (error) {
       connect.disabled = false;
