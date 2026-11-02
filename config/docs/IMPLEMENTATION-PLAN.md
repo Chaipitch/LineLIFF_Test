@@ -161,7 +161,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · LIFF: Account → open Opportunities (stage · close date) → prefilled form → Save → "Opportunity updated" (checked headless 2026-11-02; Log Activity re-checked).
 - [x] C · Tests: list, form prefill, stage limits, inactive current stage, update body (cleared field), other Account, closed Opportunity, VR message, bad ids, no access — 135 tests, 96.6%; Code Analyzer 0 Critical/High.
 - [x] C · Live read-only check through the real JWT session: 19 open Opportunities in 144 ms; form ~1.3 s with Stage (01–03), Target TCV (required), Next Step, Target Close Date (required). No live save (Opportunity flows post Slack alerts on update).
-- [ ] H · Guest profile: add Apex class `SalesReportOpportunityController` (public `/opportunities` answers 403 until then).
+- [x] H · Guest profile: add Apex class `SalesReportOpportunityController` — done 2026-11-02; public `/opportunities` answers 401 for a fake token.
 - [ ] H+C · Device test: update a **test** Opportunity from the phone; check the record and that its automation (Next Step date stamps, Slack alert) behaves as expected.
 - [ ] BA · Q-O1–Q-O7, D-12, D-13 — answers become field-set / setting changes (D-39).
 

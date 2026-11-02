@@ -132,7 +132,7 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | `fa/cachePartitions/SalesReportCache.cachePartition-meta.xml` | Platform Cache partition | For the link-code comparison (D-30; the object stays). Deployed to `dev5` with **0 MB** — the org has no free capacity; not used (rate limit uses a custom object, D-36) | L3/L7 | Done (0 MB, unused) |
 | `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 55 English labels (L2 shell, L3 connect / link page, L4 Account picker, L5a activity form, L5b attachments, L7 rate-limit message, L5c Update Opportunity), translations JA / TH in L6 | L2–L7, L6 | Done (English); translations in L6 |
 | `fa/customPermissions/SalesReport_Access.customPermission-meta.xml` | Custom permission | Checked by the link page; granted by `SalesReport_User` | L3 | Done |
-| Site guest profile settings | Profile (org-generated) | Apex `SalesReportConnectionController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done), `SalesReportActivityController` (L5a, done), `SalesReportActivityFileController` (L5b, done), `SalesReportOpportunityController` (L5c, to add) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — done for L2–L5b, L5c pending |
+| Site guest profile settings | Profile (org-generated) | Apex `SalesReportConnectionController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done), `SalesReportActivityController` (L5a, done), `SalesReportActivityFileController` (L5b, done), `SalesReportOpportunityController` (L5c, done) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — done for L2–L5c |
 
 ## 8. Components created in Setup ([HUMAN], not in the repo)
 
