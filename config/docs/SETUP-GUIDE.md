@@ -354,8 +354,11 @@ appear (stage · close date) → tap one → the form shows its current Stage, T
 change something → **Save** → "Opportunity updated: <name>". Moving to Stage 02 without a PreSales Engineer shows the
 org's validation message instead.
 
-**Re-test the first-time login.** Set your link to *Unlinked* (Day-to-day tasks below), reopen the form → **Connect
-Salesforce** appears again → repeat L3-6. Reconnecting reuses the same link record.
+**Re-test the first-time login.** (1) Set your link to *Unlinked* (Day-to-day tasks below). (2) To see the Salesforce
+password screen again, also log out of Salesforce **inside LINE**: send yourself
+`https://<My Domain>/secur/logout.jsp` in a LINE chat (e.g. Keep memo) and tap it — otherwise LINE's browser still has
+your Salesforce session and goes straight to **Connect**. (3) Reopen the form from the rich menu → login inside LINE →
+**Connect** → back on the form. Reconnecting reuses the same link record.
 
 If anything else appears: Setup → **Sales Report Logs** tab → "Errors today" / "All", and send Claude a screenshot.
 

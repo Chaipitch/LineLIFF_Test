@@ -175,8 +175,9 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · No "Connect Salesforce" screen first: unlinked → `/link/start` → same LIFF window opens the link page (Salesforce
       login inside LINE); form carried in the link; link page returns to the form automatically after Connect; Connect
       screen only as a fallback after Back/cancel (no loop). Checked headless; 137 tests pass.
-- [ ] H+C · Device test on iOS and Android: login page opens inside LINE (not the Salesforce app), MFA if asked,
-      Connect → back on the form.
+- [x] H+C · Device test iOS (2026-11-02): unlinked + logged out of Salesforce → the Salesforce login page opens inside
+      LINE (not the Salesforce app) → Connect → back on the form.
+- [ ] H+C · Same check on Android.
 
 ## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)
 
