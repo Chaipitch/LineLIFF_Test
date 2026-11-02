@@ -7,6 +7,9 @@ Work one milestone at a time. Keep `FILE-INVENTORY.md` up to date in the same co
 
 Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason given).
 
+**Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched off (setting *Attachments Enabled*) · L5c waits
+on the BA · L6 later (user) · L7 done · L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
+
 ---
 
 ## L0 — Spec + decisions log (2 d) — **done 2026-10-28**
@@ -17,7 +20,7 @@ Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason gi
 - [x] C · Check [VERIFY] items against LINE / Salesforce docs (`L0-SPEC.md` §6).
 - [x] C · Write `L0-SPEC.md`, `DECISIONS.md`, this plan, `FILE-INVENTORY.md`.
 - [x] C · Review concept mockups (`MOCKUP-REVIEW.md`) and collect all BA questions (`BA-QUESTIONS.md`).
-- [ ] BA · Answer `BA-QUESTIONS.md` — Log Activity answered 2026-10-30 (D-11, D-31–D-34); still open: Task Type values (Q-A2), attachment limits (Q-A6a), Opportunity fields (Q-O1–Q-O7, D-12), licences (D-13).
+- [ ] BA · Answer `BA-QUESTIONS.md` — Log Activity answered 2026-10-30 (D-11, D-31–D-34); still open (Thai checklist 2026-11-02): Opportunity fields (Q-O1–Q-O7, D-12), licences (D-13), Task Type values (Q-A2), attachment limits (Q-A6a), go-live/UAT, linking and security confirmations.
 - [x] H · Confirm or change the Proposed decisions — all confirmed 2026-10-29.
 
 **Exit:** decisions blocking L2 signed off (D-06, D-07, D-09, D-20, D-21 decided).
@@ -115,7 +118,7 @@ Human steps: `SETUP-GUIDE.md` L4-2 … L4-4.
 BA answers 2026-10-30: Task (D-11), required fields follow Salesforce (D-31), any date (D-32), Account only (D-33),
 attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5 is split.
 
-### L5a — Log Activity (ready to build)
+### L5a — Log Activity — done 2026-10-30
 
 - [ ] H · Admin adds the agreed Task `Type` values in `dev5` (Q-A2) — the form works without them, using whatever values exist.
 - [x] C · Field set `SalesReport_Activity_Form` on Task: Type, ActivityDate, Description (D-21). Standard fields only in the repo (P3); admins add org fields such as `ActivityPurpose__c` in Setup.
@@ -125,7 +128,8 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       only field-set fields accepted; Account must be visible to the rep.
 - [x] C · Map org errors (validation rules, required fields, FLS) to plain-language messages with field highlights; nothing silently dropped.
 - [x] C · LIFF form: dynamic fields from `GET /activity`, client-side required check, errors cleared on change, success screen with "Log another" / Close (checked headless 2026-10-30).
-- [x] C · Tests: success, required field missing, validation-rule error (mocked), field outside field set rejected, not linked — 92 tests, 95.8% coverage; Code Analyzer 0 Critical/High.
+- [x] C · Tests: success, required field missing, validation-rule error (mocked), field outside field set rejected, not linked — 92 tests at the time, 95.8% coverage; Code Analyzer 0 Critical/High.
+- [x] C · UI polish after the first device test (2026-10-30): compact identity bar, date defaults to today, iOS date/select overflow fixed, Save pinned to the bottom.
 - [x] C · Live check through the real JWT session: form (Type 4 values, Due Date Only, Description; none required in `dev5`) ~1.0 s; past date → `Completed`, future → `Open`, Priority `Normal`, owner = rep; test Tasks deleted.
 - [x] H · Guest profile: add Apex class `SalesReportActivityController` — done 2026-10-30; public `/activity` answers 401 for a fake token.
 - [x] H+C · Device test (2026-10-30): Task logged from the phone on *Mock Customer 030 Co., Ltd.* — Created By / Assigned To = the rep, Subject "<Type> – <Account>", Status `Completed`, Priority `Normal`, Subtype `Task`.
@@ -143,7 +147,8 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · Tests: size/type/count limits, Task not the rep's, old Task, upload as the rep, name cleaning — 102 tests, 96.2%; Code Analyzer 0 Critical/High.
 - [x] H · Guest profile: add Apex class `SalesReportActivityFileController` — done 2026-10-30; a 4 MB body through the Site reaches the token check (401 for a fake token).
 - [x] H+C · Device test iOS (2026-10-30): first upload failed (class not yet on the guest profile), Task kept; after adding the class, **Try again** attached IMG_8787.jpg (198 KB, shrunk on the phone) to the Task, Created By = the rep.
-- [ ] H+C · Device test Android (camera and gallery). Keep test files small (sandbox file storage: 59 MB free).
+- [x] H · Switched off 2026-11-02 at the user's request: setting `Attachments_Enabled__c` (default off) hides the section and the endpoint refuses uploads; tick it to switch on.
+- [ ] H+C · Device test Android (camera and gallery) — when attachments are switched on again. Keep test files small (sandbox file storage: 59 MB free).
 
 ### L5c — Update Opportunity (waiting on BA: Q-O1–Q-O7, D-12; D-13 licences)
 
@@ -153,12 +158,12 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [ ] C · Tests: validation-rule failure (e.g. Stage 02 without PreSales Engineer), update denied outside sharing, success.
 - [ ] H · Confirm org automation (Next Step date stamps, Opp meeting counter) behaves as expected for LINE updates.
 
-**Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form; photos attached to the Task.
+**Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form; photos attached to the Task (when attachments are on).
 
-## L6 — Mobile UI polish + i18n (2–3 d)
+## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)
 
 - [ ] C · Labels via Custom Labels `SalesReport_*` in the agreed languages (JA / EN / TH — BA), picked from LINE/browser language.
-- [ ] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states; success screen with "close" (`liff.closeWindow`).
+- [~] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states — loading, token-expired reload, rate-limit and error messages and the success screen with Close exist; offline/empty states still to do.
 - [ ] C · Accessibility basics (tap targets, contrast, font scaling).
 
 ## L7 — Hardening (3 d) — done 2026-10-30
@@ -179,11 +184,12 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 
 ## L8 — QA, UAT, guides (2–3 d)
 
-- [ ] H · Provide test rep user(s) (full Salesforce licence — D-13) and test LINE accounts.
+- [~] H · Provide test rep user(s) (full Salesforce licence — D-13) and test LINE accounts. Candidate found 2026-10-30: Earth-Kanin (`lkanin@terrasky.co.th.dev5`, active, Platform licence, no `SalesReport_User` yet — on hold); all 9 full licences are in use.
+- [ ] H · Production: schedule the nightly cleanup once (`scripts/apex/schedule-cleanup.apex`, D-37) and decide the Attachments Enabled setting.
 - [ ] H+C · Device QA on iOS and Android LINE: link, search, both forms, expiry, unlink.
 - [ ] BA · UAT against the acceptance scenarios (`L0-SPEC.md` §9).
 - [ ] H · Switch the LINE Login channel from Developing to **Published** (LINE-SETUP.md §6).
-- [ ] C · `docs/SETUP-GUIDE.md` (admin: Site, ECA, cert, permission sets, LINE console) and `docs/USER-GUIDE.md` (rep).
+- [~] C · `config/docs/SETUP-GUIDE.md` (admin; written and kept up to date since L2) and `config/docs/USER-GUIDE.md` (rep; to do).
 - [ ] C · Re-run `COEXISTENCE.md` §4 against production (LINE Connect version may differ).
 - [ ] C · Production deploy plan: `sf project deploy start --test-level RunLocalTests` (validate first); re-check production MFA/SSO.
 
@@ -197,7 +203,8 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 | L2 exit | H: Site created, LIFF app + rich menu |
 | L3 Option B | H: certificate + ECA consumer key |
 | L5a | — (Task `Type` values from admin are nice to have) |
-| L5b | BA: attachment limits (Q-A6a) — proposed defaults used until then |
+| L5b switch-on | User: tick *Attachments Enabled*; BA: attachment limits (Q-A6a) |
 | L5c | BA: Opportunity fields (Q-O1–Q-O7, D-12); D-13 licences |
 | L7 rate limiting | — (custom-object fallback, D-36) |
-| L8 | H: test users and LINE accounts |
+| L6 | User: start; BA/user: check the Thai and Japanese wording |
+| L8 | H: test users and LINE accounts; BA: go-live date, UAT owner |

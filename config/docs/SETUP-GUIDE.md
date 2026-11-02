@@ -30,14 +30,14 @@ appears in Salesforce under the rep's own name.
 | Part | What it is (plain language) | Why it is needed | Who | Status in `dev5` |
 |---|---|---|---|---|
 | **A. LINE accounts** | The "Sales Reporting" chat account and LINE's login service | Gives reps the chat and buttons, and lets us know which LINE user is using the form | Admin (LINE consoles) | Done |
-| **B. Deploy** | Installing the Sales Report program into Salesforce | The program itself | Claude | Done (L2–L4) |
+| **B. Deploy** | Installing the Sales Report program into Salesforce | The program itself | Claude | Done (L2–L5b, L7) |
 | **C. Settings** | A small settings page for Sales Report | Tells the program which LINE app to trust and how to behave, without code changes | Admin / Claude | Done |
 | **D. Permission sets** | Two "access badges": one for admins, one for reps | Controls who may manage links/logs and who may use the forms | Admin | Done for the test user |
 | **E. Site** | A public web address in Salesforce | The form must be reachable from LINE without a Salesforce login screen every time | Admin | Done |
 | **F. LIFF app & rich menu** | Registering the form with LINE and adding the two menu buttons | Makes the buttons open our form inside LINE | Admin (LINE consoles) | Done |
 | **G. Certificate & External Client App** | A digital stamp and an "app pass" in Salesforce | Lets the system safely act **as the rep** after the one-time login, so data is saved under the rep's name with the rep's permissions | Admin | Done |
-| **H. Optional tuning** | Extra search fields and limits | Lets admins adjust the forms without a developer | Admin | Optional |
-| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2, L3, L4 done |
+| **H. Optional tuning** | Form fields, search fields, attachments switch, limits, nightly cleanup | Lets admins adjust the forms without a developer | Admin | Cleanup scheduled; attachments off |
+| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2–L5b done (iOS) |
 
 ### Words used in this guide
 
@@ -72,27 +72,27 @@ container in LINE), so the same person has the same LINE ID in both.
 
 ---
 
-## Part B — Deploy the program (L2-1, L3-1, L4-1)
+## Part B — Deploy the program (L2-1, L3-1, L4-1, L5, L7)
 
 **What it is for.** Installs everything that is code or configuration in the repo: the form page, the "doors"
-(endpoints), the LINE Link / Link Code / Log objects, labels, permission sets, the LINE remote site, settings fields and
-the Account search field set. Done by Claude; an admin only needs this when moving to another org (e.g. production).
+(endpoints), the LINE Link / Link Code / Log / Rate Limit objects, labels, permission sets, the LINE remote site, settings
+fields and the Account search and Log Activity field sets. Done by Claude; an admin only needs this when moving to another org (e.g. production).
 
 ```bash
 npm run build:liff
 ```
 
-Sandbox (only this feature's tests):
+Sandbox (only this feature's tests — every `SalesReport*Test` class; regenerate the list when tests are added):
 
 ```bash
-sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityServiceTest --tests SalesReportActivityFileControllerTest --tests SalesReportActivityFileServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportConnectionControllerTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
+sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityFileControllerTest --tests SalesReportActivityFileServiceTest --tests SalesReportActivityServiceTest --tests SalesReportCleanupServiceTest --tests SalesReportConnectionControllerTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportRateLimitServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
 ```
 
 Production: validate first with `--test-level RunLocalTests` (`sf project deploy validate`), then quick-deploy.
 On a brand-new org, deploy `sales-report/main/default/objects` first: Apex tests can't see brand-new fields during the
-same check-only validation.
+same check-only validation. After the first deploy to a new org, schedule the nightly cleanup once (Part H).
 
-**Status:** deployed to `dev5` (L2, L3, L4).
+**Status:** deployed to `dev5` (L2–L5b, L7; latest 2026-11-02, 112 tests).
 
 ---
 
@@ -111,10 +111,14 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **Edit** 
 | JWT Certificate Name | Which digital stamp to sign with | Blank = `SalesReport_JWT_Signing` |
 | Link Code TTL (min) | How long a first-login link stays valid | Blank = 5 |
 | Account Search Min Chars / Max Results | How many letters before search starts / how many results | Blank = 2 / 10 |
+| Attachments Enabled | Lets reps attach photos/files to Log Activity | **Unticked** (off since 2026-11-02) |
+| Attachment Max Files / Max Size MB / File Types | Limits when attachments are on | Blank = 5 / 4 / `jpg,jpeg,png,pdf` |
+| Rate Limit per Minute | Most requests one LINE user may make per minute | Blank = 60 |
 | Log Level | How much the program writes to the log | `WARN` (`INFO`/`DEBUG` only while investigating) |
+| Log Retention (days) | How long logs are kept before the nightly cleanup deletes them | Blank = 30 |
 | Enabled | Emergency off switch for everyone | ✓ |
 
-**Status:** all set in `dev5` (2026-10-29).
+**Status:** all set in `dev5` (2026-10-29; Attachments Enabled unticked 2026-11-02).
 
 ---
 
@@ -270,7 +274,7 @@ Create, then:
 
 ---
 
-## Part H — Optional tuning (L4-3)
+## Part H — Optional tuning and housekeeping (L4-3, L5, L7)
 
 **What it is for.** Admin changes without a developer.
 
@@ -327,6 +331,17 @@ allow LINE's permission the first time → the page shows **Log activity** and "
 3. Tap an Account: it shows as selected with **Change**.
 4. Type something that matches nothing: "No matching accounts".
 
+**L5a — Log Activity (done 2026-10-30).** Tap **Log Activity** → choose an Account → pick Type, Date, Comments → **Save**
+→ "Activity saved: <Type> – <Account>". In Salesforce the Task is on the Account, Created By and Assigned To = you;
+today or earlier → Completed, a future date → Open.
+
+**L5b — Attachments (done on iOS 2026-10-30; currently switched off).** With *Attachments Enabled* ticked: **Add photo or
+file** → take or pick a photo → **Save** → "Uploading 1 of 1…" → the photo is under Files on the Task. If an upload
+fails, the saved screen offers **Try again** (within an hour).
+
+**Re-test the first-time login.** Set your link to *Unlinked* (Day-to-day tasks below), reopen the form → **Connect
+Salesforce** appears again → repeat L3-6. Reconnecting reuses the same link record.
+
 If anything else appears: Setup → **Sales Report Logs** tab → "Errors today" / "All", and send Claude a screenshot.
 
 ---
@@ -336,8 +351,11 @@ If anything else appears: Setup → **Sales Report Logs** tab → "Errors today"
 | Task | How |
 |---|---|
 | Give a new rep access | Assign **Sales Report User** (part D). The rep links on first use. |
-| Disconnect a rep / lost phone | *Sales Report LINE Links* tab → the rep's link → Status = **Unlinked** (or delete). Next time the form asks to connect again. |
+| Disconnect a rep / lost phone | *Sales Report LINE Links* tab → the rep's link → Status = **Unlinked**. Next time the form asks to connect again. Prefer Unlinked over delete: it keeps the history and reconnecting reuses the record. |
 | Rep left the company | Deactivate the user as usual — the link ends automatically on the next attempt. |
 | Something went wrong | *Sales Report Logs* tab → "Errors today". |
 | Switch the forms off | Sales Report Settings → untick *Enabled*. |
+| Switch attachments on/off | Sales Report Settings → *Attachments Enabled*. |
+| "Too many requests" for a rep | Wait a minute; if it happens in normal use, raise *Rate Limit per Minute*. |
+| Check the nightly cleanup ran | Setup → Scheduled Jobs → "Sales Report cleanup"; the *Sales Report Logs* tab shows an INFO line when Log Level is INFO. |
 | Yearly | Renew the certificate before it expires (part G) and upload it to the app. |

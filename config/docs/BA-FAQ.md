@@ -1,7 +1,7 @@
 # BA FAQ — LINE Sales Reporting
 
 Plain-language answers to questions from the BA. Technical detail: `DATA-DICTIONARY.md` (objects and fields),
-`DECISIONS.md` (D-xx). Last updated 2026-10-29.
+`DECISIONS.md` (D-xx). Last updated 2026-11-02.
 
 ---
 
@@ -34,8 +34,10 @@ to the User page layout — no data change needed.
 | **Sales Report LINE Link** | The **contact book**: "this LINE account belongs to this Salesforce user". Created once, the first time a rep logs in to Salesforce from LINE; checked every time the rep opens the form, so they never log in again. | System every request; admins to see or disconnect reps |
 | **Sales Report Link Code** | The **one-time ticket** used during that first login to connect it to the rep's LINE account. Works once, expires after 5 minutes, stored only as a scrambled fingerprint. Old ones are cleaned up automatically. | System only, in the background |
 | **Sales Report Log** | The **logbook** of errors and warnings, for when something goes wrong. Never stores passwords, tokens or full LINE IDs. Old entries are deleted after 30 days. | Admins when investigating a problem |
+| **Sales Report Rate Limit** | A **tally counter**: how many requests each LINE user made this minute, so one stuck phone or a misuse can't flood Salesforce (limit 60 a minute). Stores only a scrambled fingerprint of the LINE ID; old counters are deleted every night. | System only, in the background |
 
-In one line: the **Link Code** proves who you are once, the **LINE Link** remembers you, the **Log** records problems.
+In one line: the **Link Code** proves who you are once, the **LINE Link** remembers you, the **Log** records problems,
+the **Rate Limit** stops floods.
 
 ## 3. Why can't we combine the LINE Link and the Link Code?
 
@@ -135,3 +137,20 @@ records each link and unlink.
 **Possible extra safeguards (extra scope, BA to decide)**: send a LINE message to the old account when it is replaced
 (needs the Messaging API); or "first wins" (a second account is refused until an admin unlinks the first).
 The form already shows "Salesforce: <name>" on every open, so a rep on the wrong account sees whose name it is.
+
+## 7. How do we disconnect a rep, or test the first-time login again?
+
+Open the **Sales Report LINE Links** tab, open the rep's link and set **Status = Unlinked**. The next time the rep opens
+the form in LINE it shows **Connect Salesforce** again, and they log in once more. Reconnecting reuses the same link
+record, so its history (who, when, why it ended) stays in one place.
+
+Deactivating a Salesforce user has the same effect automatically: the link ends the next time that LINE account is used.
+
+## 8. What happens if we delete a LINE Link record instead?
+
+For the rep it looks the same as unlinking: next time they see **Connect Salesforce**. Nothing else is affected — Tasks
+and files they logged belong to their Salesforce user, not to the link. But the history is gone, reconnecting creates a
+new record, and restoring the old one from the Recycle Bin fails once the rep has reconnected (one link record per LINE
+account). So: **Unlinked** for normal work (leavers, new phones, tests); delete only for test data you don't need. Only
+admins with the *Sales Report Admin* permission set can do either — reps have no access to these records.
+

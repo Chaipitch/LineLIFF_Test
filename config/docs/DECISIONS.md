@@ -46,15 +46,15 @@ See `HANDOFF.md` for background and `L0-SPEC.md` for the spec these decisions fe
 | D-37 | 2026-10-30 | Housekeeping | Nightly `SalesReportCleanupService` (Schedulable, 02:00 scheduler's time zone): deletes link codes 24 h after expiry, logs older than `Log_Retention_Days__c` (30), counters older than a day; up to 3000 rows of each per run, purged from the Recycle Bin. Link records (`SalesReport_Line_Link__c`) are kept for audit. Scheduled in `dev5` 2026-10-30; production needs the same one-time script (L8). | Decided | Built in L7 |
 | D-38 | 2026-11-02 | Rename `/me` | `SalesReportMeController` / `SalesReportMeData` → **`SalesReportConnectionController` / `SalesReportConnectionData`**, endpoint `GET /salesreport/v1/me` → **`GET /salesreport/v1/connection`**: the call answers "is this LINE user connected to Salesforce, and as whom", matching the UI words ("Connect Salesforce") and the other resource-named endpoints. Guest profile class access moved to the new class ([HUMAN]); old classes deleted from `dev5`. | Decided | User 2026-11-02 |
 
-## Pending review (2026-10-29)
+## Still open (2026-11-02)
 
-Mockups reviewed in `MOCKUP-REVIEW.md`. They suggest **D-11 → Task** (G1) and **D-15 → in-app browser first** (G4);
-D-11 was settled as Task on 2026-10-30. D-15 is still held until the BA answers Q-L3, and stays Decided until then.
+| # | Waiting on | Where |
+|---|---|---|
+| D-12 Next Step field, all Update Opportunity fields (Q-O1–Q-O7) | BA | Thai checklist items 1–7 in `BA-QUESTIONS.md` |
+| D-13 rep licences (all 9 full licences in use; Platform users can't see Opportunities) | BA / user | Thai checklist item 1 |
+| D-15 link page browser — mockup suggests in-app first (G4); built and device-tested with the phone browser | BA (Q-L3) | Thai checklist item 13 |
+| D-34 attachment limits; attachments switched off since 2026-11-02 | BA (Q-A6a) / user | Thai checklist item 9 |
+| Task Type values (Q-A2), go-live date / UAT (Q-S2, Q-T2), linking and security confirmations (Q-L*) | BA | Thai checklist items 8–20 |
 
-## Still open (from HANDOFF §8 — BA session)
-
-All open questions are collected in **`BA-QUESTIONS.md`**.
-
-Scope (number of reps, languages JA/EN/TH, target date, acceptance scenarios) · activity fields · which Opportunities are
-listed and which fields are editable · Account search fields (name only vs phone/code/kana) and own vs all visible ·
-link lifetime and offboarding owner · OA confirmation messages · LINE provider ownership and who creates the OA/channels.
+All open questions, with recommendations, are in **`BA-QUESTIONS.md`**. Decisions taken by Claude while building
+(D-35–D-37) can be vetoed by the user; D-38 was the user's.

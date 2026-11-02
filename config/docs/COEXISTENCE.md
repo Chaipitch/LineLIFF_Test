@@ -2,7 +2,7 @@
 
 **Purpose:** prove this feature does not clash with the LINE Connect managed package (`tsthlineoa`) in the target org, and
 keep it ready to be packaged later without rework. Checked 2026-10-28 against sandbox `dev5` (LINE Connect 0.1.0.10)
-and the LINE Connect source (`Chaipitch/lineOA`, read-only). Re-run §4 before every production deploy and after any
+(component list brought up to date 2026-11-02: Task instead of Event, rate-limit object, cleanup job) and the LINE Connect source (`Chaipitch/lineOA`, read-only). Re-run §4 before every production deploy and after any
 LINE Connect upgrade.
 
 ---
@@ -15,23 +15,23 @@ the things a namespace does **not** separate (URLs, Sites, shared standard objec
 
 | Area | LINE Connect (`tsthlineoa`) in the org | This feature | Clash? |
 |---|---|---|---|
-| Custom objects | `LINE_Conversation__c`, `LINE_Message__c`, `LINE_OA_Configuration__c`, `LINE_Error_Log__c`, `LINE_Settings__c`, `LINE_Webhook_Event__e` | `SalesReport_Line_Link__c`, `SalesReport_Link_Code__c`, `SalesReport_Log__c`, `SalesReport_Settings__c` | No — different names and labels; we never read or write theirs. |
-| Fields on standard objects | Contact: `LINE_User_Id__c`, `LINE_OA_Configuration__c`, `LINE_Invite_*`, `LINE_Auto_Created__c`. Event/Task: `LINE_Conversation__c`, `LINE_Sync_Key__c` | **None** added. We write standard Event/Task fields only. | No |
+| Custom objects | `LINE_Conversation__c`, `LINE_Message__c`, `LINE_OA_Configuration__c`, `LINE_Error_Log__c`, `LINE_Settings__c`, `LINE_Webhook_Event__e` | `SalesReport_Line_Link__c`, `SalesReport_Link_Code__c`, `SalesReport_Log__c`, `SalesReport_Rate_Limit__c`, `SalesReport_Settings__c` | No — different names and labels; we never read or write theirs. |
+| Fields on standard objects | Contact: `LINE_User_Id__c`, `LINE_OA_Configuration__c`, `LINE_Invite_*`, `LINE_Auto_Created__c`. Event/Task: `LINE_Conversation__c`, `LINE_Sync_Key__c` | **None** added. We write standard Task fields only (D-11), plus Salesforce Files on the Task (when attachments are on). | No |
 | Apex classes | 47 `Line*` classes (e.g. `LineLinkService`, `LineLogger`) | `SalesReport*` only | No — and no unpackaged `SalesReport*`/`Line*` classes exist in the org. |
 | Apex REST URL | `LineWebhookResource` → `/services/apexrest/tsthlineoa/line/webhook` | `/services/apexrest/salesreport/v1/...` (D-20) | No. Unpackaged URL mappings in the org: `/lic-check/*`, `/WebFormLead/*` — no overlap. |
 | Triggers | Only on its own `LINE_OA_Configuration__c` and `LINE_Webhook_Event__e` | None (no trigger on User either — deactivated users are unlinked on their next request) | No — package has no trigger on User, Event, Task, Account or Opportunity. |
-| Flows | none packaged | none | No |
-| Event records | `LineDailyEventSyncBatch` creates one Event per conversation per day (Who = Contact, What = Account) and only finds/rebuilds Events by its own `LINE_Sync_Key__c` | Our Events (if D-11 = Event) leave `tsthlineoa__LINE_Sync_Key__c` and `tsthlineoa__LINE_Conversation__c` blank | No — the batch never touches Events without its sync key. Both kinds appear in the Account's activity timeline; ours are told apart by `Type` (e.g. "On-site / Visit") and the blank LINE Conversation field. |
+| Flows / scheduled jobs | none packaged; batch `LineDailyEventSyncBatch` | No flows; scheduled job "Sales Report cleanup" (D-37), touches only `SalesReport_*` objects | No |
+| Event records | `LineDailyEventSyncBatch` creates one Event per conversation per day (Who = Contact, What = Account) and only finds/rebuilds Events by its own `LINE_Sync_Key__c` | We create **Tasks**, not Events (D-11), and never set `tsthlineoa__*` fields on them | No — the batch only creates/finds Events by its own sync key. Both appear in the Account's activity timeline; LINE Connect's are Events with a LINE Conversation, ours are Tasks with Subject "<Type> – <Account>". |
 | Sites | `LineWebhook` (path `/linewebhook`), guest permission set `LINE_Webhook_Guest` | Own Site `SalesReport_Site` (path `salesreport`), own guest profile settings | No — separate Site and guest user; we never assign `LINE_Webhook_Guest` or grant anything to their guest. |
 | Permission sets | `LINE_Admin`, `LINE_Chat_User`, `LINE_Webhook_Guest` | `SalesReport_User`, `SalesReport_Admin` | No |
 | Tabs / app | `LINE Admin`, `LINE Conversations`, `LINE OA Configurations` | `Sales Report LINE Links`, `Sales Report Logs` | No — distinct labels so admins can't confuse them. |
 | Remote sites | `tsthlineoa__LINE_API`, `tsthlineoa__LINE_API_DATA` (+ an unpackaged `LINE_Messaging_API`) | `SalesReport_LINE_API` | No — two remote sites for the same URL are allowed; we depend on none of theirs (D-10). |
 | Custom settings / labels | `tsthlineoa__LINE_Settings__c`, `tsthlineoa__LINE_*` labels | `SalesReport_Settings__c`, `SalesReport_*` labels | No |
 | Static resources | `tsthlineoa__qrcode` | `SalesReport_LiffApp` | No |
-| Platform Cache | none | `SalesReportCache` (L7) | No |
+| Platform Cache | none | `SalesReportCache` (0 MB, unused — D-36) | No |
 | LINE OA / channels | Each rep's own OA, registered as `LINE_OA_Configuration__c`, with LINE Connect's webhook | Separate "Sales Reporting" OA, **not** registered in LINE Connect, no webhook (`LINE-SETUP.md` §2) | No, as long as nobody registers our OA in LINE Connect. |
 | LINE API quotas | Per channel (their OAs' channels) | Our own channels; ID-token verify only | No shared LINE quota. |
-| Shared org limits | Uses Apex callouts, async jobs, API requests, Site bandwidth of `LineWebhook` | Uses API requests, callouts, our own Site's bandwidth | **Shared pool**: daily API requests (5M in sandbox) and per-org async limits are common to both. Low volume expected; measured in L2 (§6 of `L0-SPEC.md`). |
+| Shared org limits | Uses Apex callouts, async jobs, API requests, Site bandwidth of `LineWebhook` | Uses API requests, callouts, our own Site's bandwidth, one scheduled job | **Shared pool**: daily API requests (5M in sandbox) and per-org async limits are common to both. Low volume expected; measured in L2 (§6 of `L0-SPEC.md`). |
 | Data | Stores **customers'** LINE user IDs on Contact | Stores **reps'** LINE user IDs in `SalesReport_Line_Link__c` | No — separate stores; even under the same LINE provider, a rep's ID in our table never mixes with Contact data. |
 
 ## 2. Rules that keep it clash-free
@@ -41,7 +41,7 @@ the things a namespace does **not** separate (URLs, Sites, shared standard objec
 3. Never add fields to standard objects with a `LINE_` prefix; any standard-object field we need uses `SalesReport_`.
 4. Apex REST URLs always start with `/salesreport/`.
 5. The Sales Reporting OA is never added as a `LINE_OA_Configuration__c` record.
-6. Event/Task we create never set `tsthlineoa__*` fields.
+6. Tasks (and Events, if ever added) we create never set `tsthlineoa__*` fields.
 
 ## 3. Packaging readiness (not packaged now — D-06)
 
@@ -53,7 +53,7 @@ Connect namespace or Dev Hub).
 |---|---|---|
 | P1 | All feature metadata lives in its own package directory **`sales-report/`** (added to `sfdx-project.json` in L2), not mixed into `force-app/` | `sf package create --path sales-report` works as-is; org-specific config stays out. |
 | P2 | No hardcoded IDs, profile names, user names, org URLs or record type names; URLs from `URL.getOrgDomainUrl()` / `Site.getBaseSecureUrl()` | Subscriber orgs differ. |
-| P3 | **No static references to org-specific custom fields** (`Your_Win_Confidence__c`, `Next_Step_Due_Date__c`, `PreSales_Engineer__c`, …). Editable/visible form fields come from **field sets** `SalesReport_Opportunity_Form` (Opportunity) and `SalesReport_Activity_Form` (Event/Task) (D-21) | A package can't contain references to fields that exist only in one org; field sets let each org choose its fields. |
+| P3 | **No static references to org-specific custom fields** (`Your_Win_Confidence__c`, `Next_Step_Due_Date__c`, `PreSales_Engineer__c`, …). Editable/visible form fields come from **field sets** `SalesReport_Opportunity_Form` (Opportunity) and `SalesReport_Activity_Form` (Task) (D-21) | A package can't contain references to fields that exist only in one org; field sets let each org choose its fields. |
 | P4 | Field and object names in REST paths, JSON and dynamic SOQL are built from schema tokens / describe (`Schema.SObjectField.getDescribe().getName()`), never string literals | A namespace changes `Foo__c` to `ns__Foo__c`; describe returns the right name. |
 | P5 | JSON between LIFF and Apex uses `…Data` DTOs with our own property names, never raw sObject field names | Front end stays the same with or without a namespace. |
 | P6 | Front end builds the Apex REST base path from one value provided by the VF page (`/services/apexrest/` + optional namespace + `salesreport/v1`) | Namespaced Apex REST URLs gain `/<ns>/`. |

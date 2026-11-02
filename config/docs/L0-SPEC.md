@@ -1,7 +1,8 @@
 # Spec — LINE Sales Reporting (LIFF → Salesforce)
 
-**Status (2026-10-29):** L0–L4 done (Account search works on the phone). L5 waits on the BA.
-Written in L0, kept up to date since. Open: Update Opportunity fields (§7), waiting on the BA (`BA-QUESTIONS.md`).
+**Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, **switched off** for now) and L7 (hardening)
+done. L5c (Update Opportunity) waits on the BA (`BA-QUESTIONS.md`); L6 (languages, UI states) and L8 (QA, go-live) later.
+Written in L0, kept up to date since.
 **Background:** `HANDOFF.md` (original brief). **Decisions:** `DECISIONS.md` (D-xx). **Progress:** `IMPLEMENTATION-PLAN.md`.
 **Plain-language overview for non-technical readers:** `SETUP-GUIDE.md` §0 and `BA-FAQ.md`.
 
@@ -10,14 +11,14 @@ Written in L0, kept up to date since. Open: Update Opportunity fields (§7), wai
 ## 1. Goal and scope (this phase)
 
 Sales reps open a LIFF form from the rich menu of a dedicated "Sales Reporting" LINE OA and:
-1. **Log Activity** — record a customer activity on an Account (object: D-11 open — the mockup shows **Task**, see `MOCKUP-REVIEW.md` G1).
+1. **Log Activity** — record a customer activity on an Account as a **Task** (D-11), optionally with photos/files (D-34, switched off for now).
 2. **Update Opportunity** — update one of the Account's open Opportunities.
 
 Constraints: no middleware (browser → Salesforce Site → `api.line.me` only), one-time Salesforce login per rep,
 Account selected by ID via debounced auto-complete, everything runs **as the rep** (Option B, D-02).
 
-Out of scope for this phase (adds scope if requested): photos/attachments, creating Accounts or Opportunities,
-OA push messages/reminders, packaging/AppExchange.
+Out of scope for this phase (adds scope if requested): creating Accounts or Opportunities, OA push messages/reminders,
+packaging/AppExchange. (Photos/attachments were added in L5b and are switched off by a setting until the BA confirms them.)
 
 ## 2. Target org — findings (read-only checks, 2026-10-28)
 
@@ -67,22 +68,21 @@ First-time login (flow B): LIFF "Connect Salesforce" → `POST /link/start` → 
 
 ## 4. API (Apex REST on the Site, `/services/apexrest/salesreport/v1/...`)
 
-All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses are JSON, never cached; errors use
+All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count towards the per-LINE-user rate limit (D-36). Responses are JSON, never cached; errors use
 `{ "error": { "code": "...", "message": "<plain-language>", "fields": { … } } }` (`fields` only on form errors). Error codes: `TOKEN_MISSING`,
 `TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
 (403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `RATE_LIMITED` (429; L7), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
 
 | Method & path | Purpose | Rep must be linked | Status | Notes |
 |---|---|---|---|---|
-
-| `GET /connection` | Verify token; return `{ linked, lineDisplayName, salesforceUserName }` | no | Done (L2–L3) | First call on every page load. When linked, the Salesforce name is read **as the rep** (proves the JWT session). |
+| `GET /connection` | Verify token; return `{ linked, lineDisplayName, salesforceUserName }` | no | Done (L2–L3) | First call on every page load. When linked, the Salesforce name is read **as the rep** (proves the JWT session). Was `/me` until 2026-11-02 (D-38). |
 | `POST /link/start` | Create one-time link code; return link-page URL | no | Done (L3) | 256 random bits, base64url; SHA-256 stored only; 5-min expiry; single use. |
 | `GET /accounts?q=` | Account auto-complete | yes | Done (L4) | Min 2 chars, max 10 (settings). Runs as the rep → only visible Accounts. Name + field set `SalesReport_Account_Search` (D-29); prefix matches first. |
-| `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5 | `IsClosed = false`, ordered by CloseDate. |
+| `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5c (BA) | `IsClosed = false`, ordered by CloseDate. |
 | `GET /activity` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | Done (L5a) | Field set `SalesReport_Activity_Form` + UI API object-info, layout, picklist-values read **as the rep** (D-31, D-35). |
 | `POST /activity` | Create the **Task** (D-11): body `{ accountId, values: { <field>: <value> } }` | yes | Done (L5a) | Only field-set fields accepted; `WhatId` = Account ID only (D-33), checked visible to the rep; `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
-| `POST /activity/files?taskId=&name=` | Attach one file (raw bytes, `application/octet-stream`) to a Task the rep just created | yes | Done (L5b) | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). Only the rep's own Task, within 60 min; count/size/type limits from settings. Returns `{ id, name, size }`. |
-| `POST /opportunity` | Update one Opportunity | yes | L5 | Only field-set fields (D-21); `Id` must belong to the chosen Account. |
+| `POST /activity/files?taskId=&name=` | Attach one file (raw bytes, `application/octet-stream`) to a Task the rep just created | yes | Done (L5b) | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). Only the rep's own Task, within 60 min; count/size/type limits from settings. Returns `{ id, name, size }`. **Off** while setting *Attachments Enabled* is unticked (403 `NOT_AUTHORIZED`). |
+| `POST /opportunity` | Update one Opportunity | yes | L5c (BA) | Only field-set fields (D-21); `Id` must belong to the chosen Account. |
 
 Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` —
 needs custom permission `SalesReport_Access`; shows the LINE account; links only after **Connect** (POST, CSRF-protected);
@@ -98,13 +98,12 @@ linked/unlinked audit fields; field history on User and Status. Latest confirmed
 **`SalesReport_Link_Code__c`** — `Code_Hash__c` (SHA-256, unique), `Line_User_Id__c`, `Line_Display_Name__c`, `Expires_At__c`,
 `Used_At__c`, `Used_By__c`.
 **`SalesReport_Log__c`** — application log (D-18).
-**Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, link-code TTL, Account
-search limits, log level, kill switch.
-**Field set `SalesReport_Account_Search`** (Account) — extra searched fields (D-29).
-No secrets are stored in it (unpackaged "Protected" visibility has no effect); the JWT private key stays in the certificate store.
-Reps get **no** access to these objects; only the services write them (justifications in `DATA-DICTIONARY.md` §5.3).
-
 **`SalesReport_Rate_Limit__c`** — per-LINE-user request counter for the rate limit (L7, D-36); key = SHA-256 of the LINE user ID.
+**Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, link-code TTL, Account
+search limits, attachments switch and limits, rate limit, log level and retention, kill switch. No secrets are stored in
+it (unpackaged "Protected" visibility has no effect); the JWT private key stays in the certificate store.
+**Field sets** `SalesReport_Account_Search` (Account, D-29) and `SalesReport_Activity_Form` (Task, D-21/D-31).
+Reps get **no** access to our objects; only the services write them (justifications in `DATA-DICTIONARY.md` §5.3).
 
 Full field lists, types, defaults, permissions and Site/ECA settings: **`DATA-DICTIONARY.md`**.
 
@@ -122,22 +121,24 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | Controller | ✓ `SalesReportLinkController` | `@RestResource` `POST /salesreport/v1/link/start` | L3 |
 | Controller | ✓ `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
 | Controller | ✓ `SalesReportAccountController` | `@RestResource` `GET /salesreport/v1/accounts` | L4 |
-| Controller | `SalesReportOpportunityController` | `@RestResource` `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 |
+| Controller | `SalesReportOpportunityController` | `@RestResource` `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5c |
 | Controller | ✓ `SalesReportActivityController` | `@RestResource` `GET` (form) / `POST` (create) `/salesreport/v1/activity` | L5a |
+| Controller | ✓ `SalesReportActivityFileController` | `@RestResource` `POST /salesreport/v1/activity/files` | L5b |
 | Service | ✓ `SalesReportIdentityService` | Verify request token (via callout service), resolve LINE user → linked User | L2–L3 |
 | Service | ✓ `SalesReportLinkService` | Create/consume link codes, link/unlink, deactivated-user cleanup | L3 |
 | Service | ✓ `SalesReportAccountService` | Account search rules (min chars, limit, fields) | L4 |
-| Service | `SalesReportOpportunityService` | Field whitelist, Account ownership check, error mapping | L5 |
+| Service | `SalesReportOpportunityService` | Field whitelist, Account ownership check, error mapping | L5c |
 | Service | ✓ `SalesReportActivityService` | Form definition from field set + UI API, Task create as the rep (D-11, D-31–D-35) | L5a |
+| Service | ✓ `SalesReportActivityFileService` | Attach a file to the rep's own recent Task as the rep (D-34) | L5b |
 | Service | ✓ `SalesReportSettingsService` | Single reader of `SalesReport_Settings__c` | L2 |
 | Service | ✓ `SalesReportLogService` | Buffered logging, `flush()`, never throws | L2 |
 | Service | ✓ `SalesReportRateLimitService` | Per-LINE-user counter, custom object (D-36) | L7 |
 | Service | ✓ `SalesReportCleanupService` | Nightly cleanup of codes, logs, counters (D-37) | L7 |
 | CalloutService | ✓ `SalesReportLineCalloutService` | `POST api.line.me/oauth2/v2.1/verify` | L2 |
 | CalloutService | ✓ `SalesReportSessionCalloutService` | JWT bearer exchange for the rep (Option B) | L3 |
-| CalloutService | ✓ `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (query, create, update) | L3–L5 |
+| CalloutService | ✓ `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (userinfo, SOQL, UI API, create, file upload) | L3–L5 |
 | Data | ✓ `SalesReportLineVerifyData` | LINE verify response (`sub`, `aud`, `exp`, `name`, …) | L2 |
-| Data | ✓ `SalesReportConnectionData`, ✓ `SalesReportLinkStartData`, ✓ `SalesReportAccountData`, ✓ `SalesReportErrorData`, `SalesReportOpportunityData`, `SalesReportActivityData` | Request/response DTOs | L2–L5 |
+| Data | ✓ `SalesReportConnectionData`, ✓ `SalesReportLinkStartData`, ✓ `SalesReportAccountData`, ✓ `SalesReportErrorData`, ✓ `SalesReportActivityFormData`, ✓ `SalesReportActivityData`, ✓ `SalesReportActivityFileData`, `SalesReportOpportunityData` | Request/response DTOs | L2–L5 |
 | Controller | ✓ `SalesReportLiffPageController` | VF `SalesReport_Liff`: LIFF ID, API base path (P6), labels, search limits | L2 |
 | Service | ✓ `SalesReportRestService` | Shared JSON responses and error mapping | L2 |
 | Service | ✓ `SalesReportNamespaceService` | Namespace-safe REST/page paths (P6) | L3 |
@@ -174,8 +175,8 @@ Field lists below are the **initial members of the field sets** (D-21); admins c
 | Activity Purpose | `ActivityPurpose__c` | as Salesforce says | Existing org picklist (1. Initial Meeting … 6. Other). Not in the repo field set (org field, P3): an admin adds it in Setup if the BA wants it. |
 | Date | `ActivityDate` | as Salesforce says | Any date (D-32). |
 | Comments | `Description` | as Salesforce says | Long text. |
-| Attachments | Salesforce Files | no | After save; limits Q-A6a (D-34). |
-| — (server) | `Subject` | layout | "<Type> – <Account name>" (or "Activity – <Account name>" without a Type). |
+| Attachments | Salesforce Files | no | After save; limits Q-A6a (D-34). **Switched off** (setting *Attachments Enabled*) since 2026-11-02. |
+| — (server) | `Subject` | layout | "<Type label> – <Account name>" (or "Task – <Account name>" without a Type; format in label `SalesReport_Activity_Subject`). |
 | — (server) | `OwnerId` | layout | The rep. |
 | — (server) | `Status` | layout | Date ≤ today → `Completed`, future → layout default (`Open`) (D-32). |
 | — (server) | `Priority` | layout | Layout default (`Normal`). |
@@ -195,22 +196,24 @@ Assigned To, Priority and Status, so Type, Date and Comments are optional unless
 
 Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 
-- Every class declares sharing. Controllers and most services are `with sharing`; only `SalesReportLinkService` and
-  `SalesReportLogService` are `without sharing` and state system mode explicitly (D-25), with written justifications
-  (`DATA-DICTIONARY.md` §5.3). All business-data reads/writes go through the rep's own session (Option B).
-- Guest profile: our Apex REST controllers + LIFF VF page only, **no object permissions** (checked by query).
+- Every class declares sharing. Controllers and most services are `with sharing`; only `SalesReportLinkService`,
+  `SalesReportLogService`, `SalesReportRateLimitService` and `SalesReportCleanupService` are `without sharing` and state
+  system mode explicitly (D-25), with written justifications (`DATA-DICTIONARY.md` §5.3). All business-data reads/writes
+  go through the rep's own session (Option B).
+- Guest profile: our 5 Apex REST controllers + LIFF VF page only, **no object permissions** (audited 2026-10-30, L7).
 - Link page: custom permission required, explicit Connect, single-use 5-min codes stored as hashes (D-27).
 - Code Analyzer (Recommended rules): 0 Critical/High after each milestone; one documented suppression (named-credential
   suggestion for the per-request rep session).
 - No secrets in code, JS, logs or docs. LINE channel ID and ECA consumer key are configuration, not secrets; the JWT
   private key stays in the certificate store.
-- Rate limit per LINE user (D-14). Never trust a LINE user ID sent as data.
+- Rate limit per verified LINE user, 60/min by default (D-36); nightly cleanup of codes, logs and counters (D-37).
+  Never trust a LINE user ID sent as data.
 
 ## 9. Draft acceptance scenarios (for BA to confirm)
 
 1. New rep taps **Log Activity** → sees "Connect Salesforce" → logs in once → returns to LINE → form shows their name.
 2. Rep types "ter" → within ~1 s sees ≤ 10 Accounts they can see; cannot find an Account outside their sharing.
-3. Rep logs a visit with a photo → a Task appears on the Account with the photo under Files, Created By = the rep.
+3. Rep logs a visit → a Task appears on the Account, Created By = the rep (with photos under Files once attachments are switched on).
 4. Rep moves an Opportunity to Stage 02 without PreSales Engineer → sees the org's validation message, nothing saved.
 5. Admin deactivates/unlinks the rep → next LIFF open shows "Connect Salesforce" again.
 
@@ -223,6 +226,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/connection` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS (Android check pending); L5c Update Opportunity waiting on the BA (D-12, Q-O1) |
+| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity waiting on the BA (Q-O1–Q-O7, D-12, D-13) |
+| L6 Languages + UI states | Later (user, 2026-11-02) |
 | L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
-| L6, L8 | Not started |
+| L8 QA, UAT, go-live | Not started |

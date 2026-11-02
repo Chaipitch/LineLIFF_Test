@@ -28,7 +28,7 @@ Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own p
 | `ENVIRONMENTS.md` | Non-secret configuration values per environment (channel IDs, OA ID, LIFF ID, URLs) | L1 | Done (living) |
 | `MOCKUP-REVIEW.md` | Concept mockups vs plan: aligned items and gaps G1–G8 | L0 | Done |
 | `BA-FAQ.md` | Plain-language answers to BA questions (mapping storage, objects, linking rules, link code) | L3 | Done (living) |
-| `BA-QUESTIONS.md` | Questions for the BA session, with recommendations and answer column | L0 | Done (answers pending) |
+| `BA-QUESTIONS.md` | Questions for the BA session, with recommendations and answer column; Thai checklist at the end (2026-11-02) | L0 | Done (living; answers pending) |
 | `images/mockup-1-overview.webp`, `images/mockup-2-login-mapping.webp` | Concept mockups supplied by the user | L0 | Done |
 | `DATA-DICTIONARY.md` | Objects, fields, settings, labels, permissions, Site/ECA configuration | L0 | Done (living) |
 | `SETUP-GUIDE.md` | Admin guide: Site, settings, LIFF app, rich menu (L2); ECA, certificate (L3); … | L2–L8 | Done (living) |
@@ -41,15 +41,16 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | Class | Layer | Purpose | Milestone | Status |
 |---|---|---|---|---|
 | `SalesReportConnectionController` | Controller | `GET /salesreport/v1/connection` | L2 | Done |
+| `SalesReportMeController`, `SalesReportMeData` | — | Renamed to `SalesReportConnectionController` / `SalesReportConnectionData`, endpoint `/me` → `/connection` (D-38); deleted from `dev5` 2026-11-02 | L2 | Removed (renamed) |
 | `SalesReportLinkController` | Controller | `POST /salesreport/v1/link/start` | L3 | Done |
 | `SalesReportLinkPageController` | Controller | VF page `SalesReport_Link`: confirm, then link the logged-in rep | L3 | Done |
 | `SalesReportAccountController` | Controller | `GET /salesreport/v1/accounts` | L4 | Done |
-| `SalesReportOpportunityController` | Controller | `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5 | Planned |
+| `SalesReportOpportunityController` | Controller | `GET /salesreport/v1/opportunities`, `POST /salesreport/v1/opportunity` | L5c | Planned (BA) |
 | `SalesReportActivityController` | Controller | `GET` (form) / `POST` (create Task) `/salesreport/v1/activity` | L5a | Done |
 | `SalesReportIdentityService` | Service | Token → verified LINE user (linked User via `SalesReportLinkService`) | L2–L3 | Done |
 | `SalesReportLinkService` | Service | Link codes, consume/link, one active link per User, lazy unlink of deactivated users | L3 | Done |
 | `SalesReportAccountService` | Service | Account search: min chars, field-set fields, escaping, ranking, cap | L4 | Done |
-| `SalesReportOpportunityService` | Service | Field whitelist, ownership check, error mapping | L5 | Planned |
+| `SalesReportOpportunityService` | Service | Field whitelist, ownership check, error mapping | L5c | Planned (BA) |
 | `SalesReportActivityFileController` | Controller | `POST /salesreport/v1/activity/files` (one file, raw bytes) | L5b | Done |
 | `SalesReportActivityFileService` | Service | Attach a file to the rep's own recent Task as the rep; count/size/type limits, name cleaning | L5b | Done |
 | `SalesReportActivityService` | Service | Form from field set + UI API as the rep; Task create, Subject/Status rules, input checks | L5a | Done |
@@ -63,7 +64,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportLineVerifyData` | Data | LINE verify response | L2 | Done |
 | `SalesReportConnectionData` | Data | `/connection` response | L2 | Done |
 | `SalesReportAccountData` | Data | Account search result (`id`, `name`, `detail`) | L4 | Done |
-| `SalesReportOpportunityData` | Data | Opportunity list item / update request | L5 | Planned |
+| `SalesReportOpportunityData` | Data | Opportunity list item / update request | L5c | Planned (BA) |
 | `SalesReportActivityData` | Data | `POST /activity` response (`id`, `subject`, `status`) | L5a | Done |
 | `SalesReportActivityFileData` | Data | `POST /activity/files` response (`id`, `name`, `size`) | L5b | Done |
 | `SalesReportActivityFormData` | Data | `GET /activity` response (fields with label, type, required, default, options) | L5a | Done |
@@ -107,26 +108,26 @@ One folder per object: `<Object>.object-meta.xml`, `fields/<Field>.field-meta.xm
 | `SalesReport_Link_Code__c` | `Code_Hash__c`, `Line_User_Id__c`, `Line_Display_Name__c`, `Expires_At__c`, `Used_At__c`, `Used_By__c` | No tab (layout auto-generated) | L3 | Done |
 | `SalesReport_Log__c` | `Level__c`, `Source__c`, `Message__c`, `Request_Id__c`, `User__c`, `Line_User_Ref__c` | Tab + list views "All", "Errors today" (layout auto-generated) | L2 | Done |
 | `SalesReport_Rate_Limit__c` | `Key__c` (SHA-256 of the LINE user ID), `Window_Start__c`, `Request_Count__c` | No tab, no layout changes; admin read via `SalesReport_Admin` (D-36) | L7 | Done |
-| `SalesReport_Settings__c` (hierarchy custom setting) | `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Eca_Consumer_Key__c`, `Jwt_Certificate_Name__c`, `Link_Code_Ttl_Minutes__c`, `Account_Search_Min_Chars__c`, `Account_Search_Max_Results__c`, `Attachments_Enabled__c`, `Attachment_Max_Files__c`, `Attachment_Max_Size_Mb__c`, `Attachment_File_Types__c`, `Rate_Limit_Per_Minute__c`, `Log_Level__c`, `Log_Retention_Days__c`, `Enabled__c` | — | All done: L2 `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Log_Level__c`, `Enabled__c`; L3 `Eca_Consumer_Key__c`, `Jwt_Certificate_Name__c`, `Link_Code_Ttl_Minutes__c`; L4 `Account_Search_Min_Chars__c`, `Account_Search_Max_Results__c`; L5b `Attachment_*`; L7 `Rate_Limit_Per_Minute__c`, `Log_Retention_Days__c` | Done |
+| `SalesReport_Settings__c` (hierarchy custom setting) | `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Eca_Consumer_Key__c`, `Jwt_Certificate_Name__c`, `Link_Code_Ttl_Minutes__c`, `Account_Search_Min_Chars__c`, `Account_Search_Max_Results__c`, `Attachments_Enabled__c`, `Attachment_Max_Files__c`, `Attachment_Max_Size_Mb__c`, `Attachment_File_Types__c`, `Rate_Limit_Per_Minute__c`, `Log_Level__c`, `Log_Retention_Days__c`, `Enabled__c` | — | All done: L2 `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Log_Level__c`, `Enabled__c`; L3 `Eca_Consumer_Key__c`, `Jwt_Certificate_Name__c`, `Link_Code_Ttl_Minutes__c`; L4 `Account_Search_Min_Chars__c`, `Account_Search_Max_Results__c`; L5b `Attachments_Enabled__c`, `Attachment_*`; L7 `Rate_Limit_Per_Minute__c`, `Log_Retention_Days__c` | Done |
 
 No fields are added to standard objects. Standard fields read/written as the rep: `DATA-DICTIONARY.md` §3.
 
 | Field set | Object | Purpose | Milestone | Status |
 |---|---|---|---|---|
 | `fa/objects/Account/fieldSets/SalesReport_Account_Search.fieldSet-meta.xml` | Account | Extra text fields searched by the Account picker (D-29); repo holds Name only | L4 | Done |
-| `fa/objects/Opportunity/fieldSets/SalesReport_Opportunity_Form.fieldSet-meta.xml` | Opportunity | Editable fields on Update Opportunity (D-21) | L5 | Planned |
+| `fa/objects/Opportunity/fieldSets/SalesReport_Opportunity_Form.fieldSet-meta.xml` | Opportunity | Editable fields on Update Opportunity (D-21) | L5c | Planned (BA) |
 | `fa/objects/Task/fieldSets/SalesReport_Activity_Form.fieldSet-meta.xml` | Task | Fields on Log Activity (D-21): Type, ActivityDate, Description | L5a | Done |
 
 ## 7. Security and access
 
 | Path | Component | Purpose | Milestone | Status |
 |---|---|---|---|---|
-| `fa/permissionsets/SalesReport_User.permissionset-meta.xml` | Permission set | Reps: link page (L3); no object access (D-19); pre-authorises the ECA (L3) | L2–L3 | Done (L2: empty shell) |
-| `fa/permissionsets/SalesReport_Admin.permissionset-meta.xml` | Permission set | Admins: logs (L2), settings view (L2), manage links (L3) | L2–L3 | Done (L2 part) |
+| `fa/permissionsets/SalesReport_User.permissionset-meta.xml` | Permission set | Reps: link page (L3); no object access (D-19); pre-authorises the ECA (L3) | L2–L3 | Done |
+| `fa/permissionsets/SalesReport_Admin.permissionset-meta.xml` | Permission set | Admins: logs (L2), settings view (L2), manage links and link codes (L3), rate-limit counters (L7) | L2–L7 | Done |
 | `fa/remoteSiteSettings/SalesReport_LINE_API.remoteSite-meta.xml` | Remote Site | `https://api.line.me` (D-10) | L2 | Done |
 | `fa/remoteSiteSettings/SalesReport_Org_Domain.remoteSite-meta.xml` | Remote Site | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) | L3 | Removed (not needed) |
-| `fa/cachePartitions/SalesReportCache.cachePartition-meta.xml` | Platform Cache partition | For the link-code comparison (D-30; the object stays) and rate limits (L7). Deployed to `dev5` with **0 MB** — the org has no free capacity; capacity is set in Setup, not in the repo | L3/L7 | Done (0 MB) |
-| `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 49 English labels (L2 shell, L3 connect / link page, L4 Account picker, L5a activity form, L5b attachments, L7 rate-limit message), translations JA / TH in L6 | L2–L5, L6 | Done (L2–L5a part) |
+| `fa/cachePartitions/SalesReportCache.cachePartition-meta.xml` | Platform Cache partition | For the link-code comparison (D-30; the object stays). Deployed to `dev5` with **0 MB** — the org has no free capacity; not used (rate limit uses a custom object, D-36) | L3/L7 | Done (0 MB, unused) |
+| `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 49 English labels (L2 shell, L3 connect / link page, L4 Account picker, L5a activity form, L5b attachments, L7 rate-limit message), translations JA / TH in L6 | L2–L7, L6 | Done (English); translations in L6 |
 | `fa/customPermissions/SalesReport_Access.customPermission-meta.xml` | Custom permission | Checked by the link page; granted by `SalesReport_User` | L3 | Done |
 | Site guest profile settings | Profile (org-generated) | Apex `SalesReportConnectionController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done), `SalesReportActivityController` (L5a, done), `SalesReportActivityFileController` (L5b, done) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — done for L2–L5b |
 
@@ -137,7 +138,9 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | Salesforce Site | `SalesReport_Site` (path `salesreport`) | Setup → Sites | L2 | [HUMAN] — done |
 | Certificate | `SalesReport_JWT_Signing` | Setup → Certificate and Key Management | L3 | [HUMAN] — done |
 | External Client App | `SalesReport_App` | Setup → External Client App Manager | L3 | [HUMAN] — done |
-| Platform Cache partition | `SalesReportCache` | Setup → Platform Cache | L7 | [HUMAN] |
+| Platform Cache partition allocation | `SalesReportCache` | Setup → Platform Cache | L7 | Not allocated — no free capacity; not needed (D-36) |
+| Scheduled job | "Sales Report cleanup" (nightly 02:00) | Setup → Scheduled Jobs; created with `scripts/apex/schedule-cleanup.apex` | L7 | Done in `dev5` (by Claude, 2026-10-30) |
+| Settings value | *Attachments Enabled* = off | Setup → Custom Settings → Sales Report Settings | L5b | Off since 2026-11-02 |
 | Settings values | `SalesReport_Settings__c` org defaults | Setup → Custom Settings | L2–L3 | [HUMAN] — done |
 | LINE OA, Messaging API channel, LINE Login channel | "Sales Reporting" | LINE consoles (`LINE-SETUP.md`) | L1 | [HUMAN] — done |
 | LIFF app, rich menu | "Sales Reporting" | LINE Developers Console / OA Manager | L2 | [HUMAN] — done |
@@ -147,7 +150,8 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | File | Change | Milestone | Status |
 |---|---|---|---|
 | `scripts/apex/benchmark-link-codes-object.apex`, `scripts/apex/benchmark-link-codes-cache.apex` | Anonymous Apex benchmarks: link codes in the object vs Platform Cache (D-30); clean up after themselves | L3 | Done |
-| `scripts/apex/schedule-cleanup.apex` | Anonymous Apex | Schedules the nightly cleanup once per org (D-37) | L7 | Done |
+| `scripts/apex/schedule-cleanup.apex` | Anonymous Apex: schedules the nightly cleanup once per org (D-37) | L7 | Done |
+| `README.md` | Project README: what the feature is, folders, build/deploy/test commands, doc index (replaced the Salesforce DX template text) | L8 | Done |
 | `sfdx-project.json` | Add package directory `sales-report` (P1) | L2 | Done |
 | `manifest/package.xml` | Not used: deploys use `--source-dir sales-report` | L2 | Removed (not needed) |
 | `package.json` | Build script for `liff-app/` and `@line/liff` dependency | L2 | Done |

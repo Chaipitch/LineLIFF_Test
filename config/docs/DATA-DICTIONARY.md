@@ -2,10 +2,9 @@
 
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
-**State (2026-10-29): §1, §2 (except L7 fields), §3a Account search, §4, §5–§8 are built and deployed to sandbox `dev5`
-(milestones L2–L4).** Log Activity is built (Task, D-11, D-31–D-35; L5a, L5b). Still open: Update Opportunity
-fields (§3, §3a — BA: D-12, Q-O1), attachment limits (Q-A6a) and the L7
-items (rate limit, retention, cache). Update this file in the same commit whenever a field or setting changes.
+**State (2026-11-02): everything below is built and deployed to sandbox `dev5`** (L2–L5b, L7), except the Opportunity
+parts of §3/§3a (L5c — BA: Q-O1–Q-O7, D-12). Attachments (L5b) are built but switched off (`Attachments_Enabled__c`).
+Update this file in the same commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.
 Every custom field gets a **Description** (for admins) and, where users see it, **Help Text** — both as below.
@@ -122,7 +121,7 @@ feature does not grant standard-object access.
 
 | Object | Field | Read | Write | Notes |
 |---|---|---|---|---|
-| User | `Id`, `Name`, `Username`, `IsActive` | ✓ (system) | — | `Username` = JWT `sub`; `IsActive` checked before exchange. |
+| User | `Id`, `Name`, `Username`, `IsActive`, `TimeZoneSidKey` | ✓ (system) | — | `Username` = JWT `sub`; `IsActive` checked before exchange; time zone gives the rep's "today" (D-32). |
 | Account | `Id`, `Name` + text fields in field set `SalesReport_Account_Search` | ✓ | — | Built in L4 (D-29); which extra fields: BA Q-C1. |
 | Opportunity | `Id`, `Name`, `AccountId`, `OwnerId`, `IsClosed` | ✓ | — | List filter: `AccountId = :id AND IsClosed = false`. |
 | Opportunity | `StageName` | ✓ | ✓ | Open stages only (`01.`–`03.`) in this phase. |
@@ -132,8 +131,9 @@ feature does not grant standard-object access.
 | Opportunity | `NextStep` **or** `Next_Step_Custom__c` | ✓ | ✓ | D-12 open. |
 | Opportunity | `Next_Step_Due_Date__c` | ✓ | ✓ | |
 | Opportunity | `PreSales_Engineer__c` | ✓ | (BA) | Needed by active VR for Stage ≥ 02. |
-| Task (D-11) | `WhatId` (Account only, D-33), `Subject` (built), `Type`, `ActivityPurpose__c`, `ActivityDate`, `Status` (from date, D-32), `Priority` (layout default), `Description` | — | ✓ | `OwnerId` = the rep. Required flags follow Salesforce (D-31). |
-| ContentVersion (D-34) | `Title`, `PathOnClient`, `VersionData`, `FirstPublishLocationId` (= Task) | — | ✓ | Attachments, uploaded as the rep (L5b). |
+| Task (D-11) | `WhatId` (Account only, D-33), `Subject` (built), `Type`, `ActivityPurpose__c` (only if an admin adds it to the field set), `ActivityDate`, `Status` (from date, D-32), `Priority` (layout default), `Description` | — | ✓ | `OwnerId` = the rep. Required flags follow Salesforce (D-31). |
+| ContentVersion (D-34) | `Title`, `PathOnClient`, `VersionData`, `FirstPublishLocationId` (= Task) | — | ✓ | Attachments, uploaded as the rep (L5b; switched off for now). |
+| Task / ContentDocumentLink | `Id`, `CreatedById`, `CreatedDate` / `LinkedEntityId` | ✓ | — | Upload checks: the rep's own Task within 60 min; file count per Task. |
 
 ## 3a. Field sets (D-21, D-29)
 
@@ -141,8 +141,8 @@ feature does not grant standard-object access.
 |---|---|---|---|
 | `SalesReport_Account_Search` | Account | Extra text fields searched by the Account picker; first non-empty one shown under the name | Name only (admins add e.g. `Account_Name_TH__c`, `Account_No__c`) |
 
-Planned for L5 — the forms and the server-side whitelist read these by describe, so no org-specific field is referenced
-in code. Activity form decided 2026-10-30; Opportunity form waits on the BA (D-12, Q-O1). The "Required in set" column
+Form field sets — the forms and the server-side whitelist read these by describe, so no org-specific field is referenced
+in code. Activity form built 2026-10-30 (L5a); Opportunity form waits on the BA (L5c, D-12, Q-O1). The "Required in set" column
 is only an extra: a field is also required when the rep's layout or the database requires it (D-31).
 
 | Field set | Object | Initial members (BA to confirm) | Required in set |
@@ -165,7 +165,7 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Opportunity_Title` | Update opportunity | LIFF | L2 |
 | `SalesReport_Hello` | Hello, {0} | LIFF | L2 |
 | `SalesReport_Loading` | Loading… | LIFF | L2 |
-| `SalesReport_Coming_Soon` | This form is coming soon. | LIFF (until L5) | L2 |
+| `SalesReport_Coming_Soon` | This form is coming soon. | LIFF — Update Opportunity until L5c | L2 |
 | `SalesReport_Close` | Close | LIFF | L2 |
 | `SalesReport_Open_In_Line` | Please open this page from the Sales Reporting menu in LINE. | LIFF | L2 |
 | `SalesReport_Error_Generic` | Something went wrong. Please try again. | LIFF | L2 |

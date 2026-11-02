@@ -1,58 +1,63 @@
-# Salesforce DX Project
+# LINE Sales Reporting (LIFF → Salesforce)
 
-Salesforce DX is a development approach that brings source-driven development, team collaboration, and continuous integration to the Salesforce Platform. Instead of working directly in an org through a web browser, you work with metadata as source files in a local DX project, track changes in version control, and deploy through automated processes.
+Sales reps open a small form from a LINE Official Account's rich menu and record their work in Salesforce without
+leaving LINE:
 
-This project template gets you started with the tools and structure you need to build Salesforce applications using source control, scratch orgs, and the Salesforce CLI.
+- **Log Activity** — a Task on the chosen Account (photos/files supported, switched off for now).
+- **Update Opportunity** — waiting on the BA (L5c).
 
-## Prerequisites
+Reps log in to Salesforce once; after that every save runs **as the rep** (JWT bearer, "Option B"), so sharing,
+field-level security, validation rules and "Created By" are Salesforce's own. No middleware: LINE app → LIFF page on a
+public Salesforce Site → Apex REST → LINE ID-token verify + the org's REST API as the rep.
 
-Before you start, make sure you have:
+Status, 2026-11-02: L0–L5b and L7 done in sandbox `dev5`; L5c, L6 and L8 to come (`config/docs/IMPLEMENTATION-PLAN.md`).
 
-- **Salesforce CLI** - Download from [developer.salesforce.com/tools/salesforcecli](https://developer.salesforce.com/tools/salesforcecli). See [Install Salesforce CLI](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm) for details.
-- **VS Code with Salesforce Extension Pack** - See [Installation Instructions](https://developer.salesforce.com/docs/platform/sfvscode-extensions/guide/install.html) for details. Includes the Agentforce Vibes extension.
-- **A development org** - Sign up for a free Developer Edition org [here](https://developer.salesforce.com/signup).
-- **Dev Hub enabled** (optional, required to create scratch orgs) - You can enable Dev Hub in your development org under Setup > Dev Hub.  See [Provide Developers Access to Salesforce DX Tools](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_setup_dx_tools.htm).
+## Folders
 
-## Project Structure
+| Path | What |
+|---|---|
+| `sales-report/main/default/` | All Salesforce metadata of the feature (own package directory, packaging-ready — `COEXISTENCE.md` §3) |
+| `liff-app/` | LIFF front-end source (`src/`), bundled with esbuild into the static resource `SalesReport_LiffApp` |
+| `scripts/apex/` | One-off anonymous Apex: schedule the nightly cleanup, link-code benchmarks |
+| `config/docs/` | Specification, decisions, guides (below) |
 
-Your DX project follows this structure:
+## Build, deploy, test
 
-- **`force-app/main/default/`** - Your metadata source files live in this default package directory. You can configure additional package directories in the `sfdx-project.json` file.
-- **`config/`** - Scratch org definitions and project settings
-- **`scripts/`** - Automation scripts for common tasks
-- **`sfdx-project.json`** - Project manifest that defines package directories, namespace, API version, and other project-level settings
+```bash
+npm install
+```
 
-See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm).
+```bash
+npm run build:liff
+```
 
-## Get Started
+```bash
+sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests $(ls sales-report/main/default/classes/*Test.cls | xargs -n1 basename | sed 's/.cls$//' | sed 's/^/--tests /')
+```
 
-Ready to start developing? The [Get Started with Salesforce DX](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_get_started_dx.htm) guide walks you through your first project, from creating a scratch org to creating a simple Apex class or LWC to deploying your code to a sandbox.
+New org: deploy `sales-report/main/default/objects` first, follow `config/docs/SETUP-GUIDE.md` (Site, settings,
+certificate, External Client App, LIFF app), then schedule the cleanup once:
 
-## Common Salesforce CLI Commands
+```bash
+sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex
+```
 
-Here are common CLI commands that you'll use the most:
+## Documents (`config/docs/`)
 
-- `sf org login web`: Authorize an org
-- `sf org open`: Open your org in a browser
-- `sf org create scratch`: Create a scratch org
-- `sf project deploy start`: Deploy metadata to your org
-- `sf project retrieve start`: Retrieve metadata from your org
-- `sf template generate <artifact>`: Scaffold new components, such as Apex classes and triggers, LWC components, Lightning apps, and more
-- `sf apex <command>`: Run Apex tests, run anonymous Apex blocks, and view logs
-- `sf data <command>`: Work with test data
-- `sf alias <command>`: Manage org aliases
-- `sf config <command>`: Configure CLI settings
+| File | For | Contents |
+|---|---|---|
+| `SETUP-GUIDE.md` | Admins, BA | What each setup part is for, exact steps, device tests, day-to-day tasks |
+| `L0-SPEC.md` | Developers | Scope, org findings, architecture, API, data model, classes, security |
+| `DECISIONS.md` | Everyone | Decision log D-01 … D-38 and what is still open |
+| `IMPLEMENTATION-PLAN.md` | Everyone | Milestones L0–L8, task status, dependencies |
+| `DATA-DICTIONARY.md` | Admins, developers | Objects, fields, settings, labels, permissions, Site/ECA settings |
+| `FILE-INVENTORY.md` | Developers | Every file and org component, with status |
+| `BA-QUESTIONS.md` | BA | Open questions with recommendations; Thai checklist at the end |
+| `BA-FAQ.md` | BA, non-technical readers | Plain-language answers (objects, linking, unlinking) |
+| `COEXISTENCE.md` | Developers | No clash with the LINE Connect package; packaging rules |
+| `LINE-SETUP.md` | Admins | LINE OA and channel setup (L1) |
+| `ENVIRONMENTS.md` | Admins | Non-secret configuration values per org |
+| `MOCKUP-REVIEW.md` | BA | Concept mockups vs what is built |
+| `HANDOFF.md` | — | Original brief (historical; superseded by the documents above) |
 
-## Use Agentforce Vibes to Build Lightning Apps
-
-Transform your ideas into custom Lightning apps that extend CRM workflows directly in Lightning Experience. Through natural conversations with Agentforce Vibes, implement custom objects and fields, complex business logic, and dynamic UI components. See [Build a Lightning App Using Agentforce Vibes](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/lexapp-overview.html).
-
-## Additional Resources
-
-- [Agentforce Vibes Developer Guide](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/einstein-overview.html)
-- [Salesforce CLI Installation Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/)
-- [Salesforce CLI Plugin Development Guide](https://developer.salesforce.com/docs/platform/salesforce-cli-plugin/guide/conceptual-overview.html)
-- [Salesforce VS Code Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-
+No secrets are stored in this repository.
