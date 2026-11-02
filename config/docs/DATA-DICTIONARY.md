@@ -177,6 +177,8 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Connect_Title` | Connect Salesforce | LIFF — fallback only since D-40 (rep came back from the login without connecting) | L3 |
 | `SalesReport_Connect_Body` | To use Sales Report, log in to Salesforce once. After that you will not need to log in again. | LIFF — fallback only (D-40) | L3 |
 | `SalesReport_Connect_Button` | Log in to Salesforce | LIFF — fallback only (D-40) | L3 |
+| `SalesReport_Connect_In_Browser` | Open in your phone’s browser | LIFF — Connect screen, for passkey logins (D-41) | D-41 |
+| `SalesReport_Connect_Browser_Hint` | Stuck on “Verify Your Identity” (passkey or Face ID)? LINE can’t do that step — log in with your phone’s browser instead. You will come back to LINE afterwards. | LIFF — Connect screen (D-41) | D-41 |
 | `SalesReport_Connect_Waiting` | Finish logging in to Salesforce in your browser, then come back here. | Not used since D-40 (no external browser); kept for now | L3 |
 | `SalesReport_Connect_Check` | I've finished | Not used since D-40; kept for now | L3 |
 | `SalesReport_Linked_As` | Salesforce: {0} | LIFF | L3 |

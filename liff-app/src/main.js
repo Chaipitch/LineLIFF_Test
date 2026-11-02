@@ -208,10 +208,10 @@ let apiClient;
  * of redirecting again (they pressed Back or cancelled), so the app can never loop. */
 const LOGIN_STARTED = "salesReport.loginStartedAt";
 const LOGIN_RETRY_MS = 2 * 60 * 1000;
-
+// localStorage (not sessionStorage), so the marker survives closing and reopening the LIFF window.
 function loginRecentlyStarted() {
   try {
-    const at = Number(sessionStorage.getItem(LOGIN_STARTED) || 0);
+    const at = Number(localStorage.getItem(LOGIN_STARTED) || 0);
     return Date.now() - at < LOGIN_RETRY_MS;
   } catch {
     return false;
@@ -220,41 +220,72 @@ function loginRecentlyStarted() {
 
 function markLoginStarted(value) {
   try {
-    if (value) sessionStorage.setItem(LOGIN_STARTED, String(Date.now()));
-    else sessionStorage.removeItem(LOGIN_STARTED);
+    if (value) localStorage.setItem(LOGIN_STARTED, String(Date.now()));
+    else localStorage.removeItem(LOGIN_STARTED);
   } catch {
-    // Storage blocked: the Connect button still works.
+    // Storage blocked: the Connect buttons still work.
   }
 }
 
-/**
- * One-time login inside the LIFF window (BA request, D-40): create the link code and open the Salesforce login page
- * here. The form the rep came for travels with the link, so the link page returns straight to it.
- */
-async function startLogin(api) {
+/** A fresh one-time link page URL, carrying the form the rep came for so the link page returns straight to it. */
+async function newLinkUrl(api) {
   const result = await api.post("/link/start", {});
   const form = requestedForm();
-  const url = form
+  return form
     ? result.linkUrl + "&form=" + encodeURIComponent(form)
     : result.linkUrl;
+}
+
+/** One-time login inside the LIFF window (BA request, D-40): the Salesforce login page opens right here. */
+async function startLogin(api) {
+  const url = await newLinkUrl(api);
   markLoginStarted(true);
   window.location.assign(url);
 }
 
+/**
+ * The same login in the phone's own browser (D-41): LINE's built-in browser can't do passkeys / Face ID, so a rep
+ * stuck on Salesforce's "Verify Your Identity" uses this. After Connect, the link page's return address
+ * (liff.line.me) opens LINE again; this window re-checks when it becomes visible.
+ */
+async function startLoginInBrowser(api) {
+  const url = await newLinkUrl(api);
+  markLoginStarted(true);
+  onConnectScreen = true;
+  liff.openWindow({ url, external: true });
+}
+
+let onConnectScreen = false;
+
+/** Shown when the rep came back from the login without connecting (Back, cancel, or stuck on a passkey). */
 function showConnect(api) {
+  onConnectScreen = true;
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels.connectTitle));
   card.append(el("p", "sr-message", labels.connectBody));
-  const connect = button(labels.connectButton, async () => {
-    connect.disabled = true;
-    try {
-      await startLogin(api);
-    } catch (error) {
-      connect.disabled = false;
-      handleApiError(error);
-    }
-  });
-  card.append(connect);
+  const buttons = [];
+  function run(action) {
+    return async () => {
+      buttons.forEach((b) => (b.disabled = true));
+      try {
+        await action(api);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        buttons.forEach((b) => (b.disabled = false));
+      }
+    };
+  }
+  const inLine = button(labels.connectButton, run(startLogin));
+  const inBrowser = button(
+    labels.connectInBrowser,
+    run(startLoginInBrowser),
+    true
+  );
+  buttons.push(inLine, inBrowser);
+  card.append(inLine);
+  card.append(el("p", "sr-hint sr-connect-hint", labels.connectBrowserHint));
+  card.append(inBrowser);
   render(card);
 }
 
@@ -277,6 +308,7 @@ async function checkMe(api) {
   try {
     const me = await api.get("/connection");
     clearReloadFlag();
+    onConnectScreen = false;
     if (me.linked) {
       markLoginStarted(false);
       showHome(me, requestedForm());
@@ -343,6 +375,10 @@ async function start() {
 
   const api = createApi(config.apiBase, () => liff.getIDToken());
   apiClient = api;
+  // Back from the phone's browser after connecting there: check again without a tap.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && onConnectScreen) checkMe(api);
+  });
   await checkMe(api);
 }
 

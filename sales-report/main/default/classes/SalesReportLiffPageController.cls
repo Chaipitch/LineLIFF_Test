@@ -72,6 +72,8 @@ public with sharing class SalesReportLiffPageController {
       'selectPlaceholder' => System.Label.SalesReport_Select_Placeholder,
       'connectBody' => System.Label.SalesReport_Connect_Body,
       'connectButton' => System.Label.SalesReport_Connect_Button,
+      'connectInBrowser' => System.Label.SalesReport_Connect_In_Browser,
+      'connectBrowserHint' => System.Label.SalesReport_Connect_Browser_Hint,
       'connectCheck' => System.Label.SalesReport_Connect_Check,
       'connectTitle' => System.Label.SalesReport_Connect_Title,
       'connectWaiting' => System.Label.SalesReport_Connect_Waiting,

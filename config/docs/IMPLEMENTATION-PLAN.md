@@ -178,6 +178,9 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       screen only as a fallback after Back/cancel (no loop). Checked headless; 137 tests pass.
 - [x] H+C · Device test iOS (2026-11-02): unlinked + logged out of Salesforce → the Salesforce login page opens inside
       LINE (not the Salesforce app) → Connect → back on the form.
+- [x] C · Passkey fallback (D-41): Connect screen (after Back / reopening within 2 min) offers "Open in your phone's
+      browser" + hint; return re-checks on visibility. Checked headless; 137 tests pass.
+- [ ] H+C · Device test the passkey route: stuck on Verify → Back → Open in your phone's browser → verify → Connect → LINE.
 - [ ] H+C · Same check on Android.
 
 ## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)

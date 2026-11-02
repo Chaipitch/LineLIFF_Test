@@ -149,7 +149,8 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 ### 🔵 Security / นโยบาย (ตอบก่อนขึ้น production)
 
-19. ☐ Production บังคับ **MFA** สำหรับ Rep ไหม? มีแผนใช้ **SSO** ไหม? (Q-L6)
+19. ☐ Production บังคับ **MFA** สำหรับ Rep ไหม? ใช้วิธียืนยันตัวตนแบบไหน (passkey/Face ID, Salesforce Authenticator, รหัสทางอีเมล)? มีแผนใช้ **SSO** ไหม? (Q-L6)
+    ⚠️ passkey/Face ID ใช้ในหน้าล็อกอินที่เปิดใน LINE ไม่ได้ — Rep ต้องกด "Open in your phone’s browser" (D-41)
 20. ☐ มีนโยบายบริษัทเรื่องการแสดงข้อมูลลูกค้า/ดีลใน LINE ไหม? (Q-L7)
 
 ### ⚪ ทำทีหลังได้ (เฟสถัดไป)

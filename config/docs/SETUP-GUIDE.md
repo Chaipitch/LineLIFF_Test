@@ -333,6 +333,11 @@ allow LINE's permission the first time → the page shows **Log activity** and "
    and "Salesforce: <your name>" at the top. Reopening never asks to log in again. (Opened without a form, the app
    shows a small menu instead.)
 
+**Stuck on "Verify Your Identity" (passkey / Face ID)?** LINE's built-in browser can't do passkeys (D-41). Tap **Back**
+(or close and reopen the form within 2 minutes) → the Connect screen → **Open in your phone's browser** → verify there →
+**Connect** → LINE opens again on your form. Or use another verification method via *Having Trouble?*, or ask an admin
+for a temporary verification code (Setup → Users → the user → Generate temporary verification code).
+
 **L4-4 — Account search (done 2026-10-29).**
 1. Tap **Log Activity**. Under **Account**, type one letter: nothing happens. Type a second: after a short pause the
    list appears.
