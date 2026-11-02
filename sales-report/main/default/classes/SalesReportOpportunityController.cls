@@ -14,6 +14,7 @@ global with sharing class SalesReportOpportunityController {
   @HttpGet
   global static void getOpportunities() {
     try {
+      checkEnabled();
       SalesReportOrgApiCalloutService api = new SalesReportIdentityService()
         .repSession(RestContext.request);
       Map<String, String> params = RestContext.request.params;
@@ -33,6 +34,7 @@ global with sharing class SalesReportOpportunityController {
   @HttpPost
   global static void save() {
     try {
+      checkEnabled();
       SalesReportOrgApiCalloutService api = new SalesReportIdentityService()
         .repSession(RestContext.request);
       Blob body = RestContext.request.requestBody;
@@ -44,6 +46,17 @@ global with sharing class SalesReportOpportunityController {
       SalesReportRestService.fail(SOURCE_SAVE, e);
     } finally {
       SalesReportRestService.finish();
+    }
+  }
+
+  /** Refused before any callout while setting Update Opportunity Enabled is unticked. */
+  private static void checkEnabled() {
+    if (!SalesReportSettingsService.opportunityFormEnabled()) {
+      throw SalesReportException.of(
+        SalesReportException.NOT_AUTHORIZED,
+        403,
+        'Update Opportunity is switched off in Sales Report Settings.'
+      );
     }
   }
 }

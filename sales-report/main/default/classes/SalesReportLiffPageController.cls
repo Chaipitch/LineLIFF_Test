@@ -27,6 +27,10 @@ public with sharing class SalesReportLiffPageController {
           'maxSizeMb' => SalesReportSettingsService.attachmentMaxSizeMb(),
           'types' => SalesReportSettingsService.attachmentFileTypes()
         },
+        'forms' => new Map<String, Object>{
+          'activity' => true,
+          'opportunity' => SalesReportSettingsService.opportunityFormEnabled()
+        },
         'labels' => labels()
       }
     );

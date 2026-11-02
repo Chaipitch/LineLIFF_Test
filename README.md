@@ -4,7 +4,7 @@ Sales reps open a small form from a LINE Official Account's rich menu and record
 leaving LINE:
 
 - **Log Activity** — a Task on the chosen Account (photos/files supported, switched off for now).
-- **Update Opportunity** — pick one of the Account's open Opportunities and update its fields (L5c, proposed defaults).
+- **Update Opportunity** — pick one of the Account's open Opportunities and update its fields (L5c, proposed defaults; switched off for now).
 
 Reps log in to Salesforce once; after that every save runs **as the rep** (JWT bearer, "Option B"), so sharing,
 field-level security, validation rules and "Created By" are Salesforce's own. No middleware: LINE app → LIFF page on a

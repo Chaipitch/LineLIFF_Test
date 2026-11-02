@@ -3,7 +3,7 @@
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
 **State (2026-11-02): everything below is built and deployed to sandbox `dev5`** (L2–L5c, L7). Update Opportunity (L5c)
-uses the proposed defaults (D-39) until the BA answers Q-O1–Q-O7. Attachments (L5b) are switched off (`Attachments_Enabled__c`).
+uses the proposed defaults (D-39) and is **switched off** (`Opportunity_Form_Enabled__c`) until the BA answers Q-O1–Q-O7. Attachments (L5b) are switched off (`Attachments_Enabled__c`).
 Update this file in the same commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.
@@ -109,6 +109,7 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Attachment_Max_Files__c` | Attachment Max Files | Number(2,0) | 5 | L5b | Files per activity; capped at 10 in code. |
 | `Attachment_Max_Size_Mb__c` | Attachment Max Size MB | Number(1,0) | 4 | L5b | Per file, after photos are shrunk; 4 is also the hard cap (Apex heap, D-34). |
 | `Attachment_File_Types__c` | Attachment File Types | Text(255) | jpg,jpeg,png,pdf | L5b | Comma-separated extensions. Photos become .jpg on the phone, so keep jpg in the list. |
+| `Opportunity_Form_Enabled__c` | Update Opportunity Enabled | Checkbox | false | L5c | Off (2026-11-02): the Update Opportunity button shows "This form is coming soon" and `/opportunities` answers 403. Tick to switch on. |
 | `Opportunity_Stages__c` | Opportunity Stages | Text(255) | — (all active open stages) | L5c | Comma-separated stage API names reps may choose; closed stages are never offered; the current stage stays selectable (D-39). |
 | `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 | Per verified LINE user per calendar minute; over it → `RATE_LIMITED` (429). Capped at 1000. |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
@@ -167,7 +168,7 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Opportunity_Title` | Update opportunity | LIFF | L2 |
 | `SalesReport_Hello` | Hello, {0} | LIFF | L2 |
 | `SalesReport_Loading` | Loading… | LIFF | L2 |
-| `SalesReport_Coming_Soon` | This form is coming soon. | Not used since L5c (kept for future forms) | L2 |
+| `SalesReport_Coming_Soon` | This form is coming soon. | LIFF — shown while Update Opportunity is switched off | L2 |
 | `SalesReport_Close` | Close | LIFF | L2 |
 | `SalesReport_Open_In_Line` | Please open this page from the Sales Reporting menu in LINE. | LIFF | L2 |
 | `SalesReport_Error_Generic` | Something went wrong. Please try again. | LIFF | L2 |

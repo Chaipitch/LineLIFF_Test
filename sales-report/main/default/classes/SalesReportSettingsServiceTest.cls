@@ -90,6 +90,10 @@ private class SalesReportSettingsServiceTest {
       SalesReportSettingsService.attachmentsEnabled(),
       'Off by default'
     );
+    Assert.isFalse(
+      SalesReportSettingsService.opportunityFormEnabled(),
+      'Update Opportunity off by default'
+    );
     Assert.areEqual(
       SalesReportSettingsService.DEFAULT_ATTACHMENT_MAX_FILES,
       SalesReportSettingsService.attachmentMaxFiles(),

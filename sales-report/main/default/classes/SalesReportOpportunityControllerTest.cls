@@ -9,6 +9,7 @@ private class SalesReportOpportunityControllerTest {
   private static void linkedRep() {
     SalesReport_Settings__c settings = SalesReportTestFactory.settings();
     settings.Eca_Consumer_Key__c = 'test-consumer-key';
+    settings.Opportunity_Form_Enabled__c = true;
     update settings;
     SalesReportTestFactory.link(
       SalesReportTestFactory.LINE_USER_ID,
@@ -99,7 +100,12 @@ private class SalesReportOpportunityControllerTest {
 
   @IsTest
   static void notLinkedAnswers403() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReport_Settings__c settings = SalesReportTestFactory.settings(
+      true,
+      'WARN'
+    );
+    settings.Opportunity_Form_Enabled__c = true;
+    update settings;
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
@@ -115,7 +121,12 @@ private class SalesReportOpportunityControllerTest {
 
   @IsTest
   static void notLinkedCannotList() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReport_Settings__c settings = SalesReportTestFactory.settings(
+      true,
+      'WARN'
+    );
+    settings.Opportunity_Form_Enabled__c = true;
+    update settings;
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
@@ -127,5 +138,21 @@ private class SalesReportOpportunityControllerTest {
     Test.stopTest();
 
     Assert.areEqual(403, RestContext.response.statusCode, 'Forbidden');
+  }
+
+  @IsTest
+  static void switchedOffRefusesBeforeAnyCallout() {
+    SalesReportTestFactory.settings();
+    SalesReportHttpMock mock = SalesReportTestFactory.opportunityApiMock();
+    Test.setMock(HttpCalloutMock.class, mock);
+    request('GET', null)
+      .params.put('accountId', SalesReportTestFactory.ACCOUNT_ID);
+
+    Test.startTest();
+    SalesReportOpportunityController.getOpportunities();
+    Test.stopTest();
+
+    Assert.areEqual(403, RestContext.response.statusCode, 'Refused');
+    Assert.isTrue(mock.requests.isEmpty(), 'No LINE or Salesforce callout');
   }
 }

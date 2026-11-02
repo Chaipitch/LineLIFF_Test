@@ -142,6 +142,11 @@ public with sharing class SalesReportSettingsService {
     );
   }
 
+  /** Update Opportunity in LINE: off unless an admin ticks Update Opportunity Enabled. */
+  public static Boolean opportunityFormEnabled() {
+    return settings().Opportunity_Form_Enabled__c == true;
+  }
+
   /** Stage API names reps may choose on Update Opportunity; empty = all open stages. */
   public static Set<String> opportunityStages() {
     Set<String> stages = new Set<String>();

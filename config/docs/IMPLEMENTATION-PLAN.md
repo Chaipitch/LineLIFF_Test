@@ -8,7 +8,7 @@ Work one milestone at a time. Keep `FILE-INVENTORY.md` up to date in the same co
 Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason given).
 
 **Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched off (setting *Attachments Enabled*) · L5c built
-with the proposed defaults (device test pending) · L6 later (user) · L7 done · L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
+with the proposed defaults, switched off for now · L6 later (user) · L7 done · L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
 
 ---
 
@@ -150,7 +150,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] H · Switched off 2026-11-02 at the user's request: setting `Attachments_Enabled__c` (default off) hides the section and the endpoint refuses uploads; tick it to switch on.
 - [ ] H+C · Device test Android (camera and gallery) — when attachments are switched on again. Keep test files small (sandbox file storage: 59 MB free).
 
-### L5c — Update Opportunity — built 2026-11-02 with the proposed defaults (D-39)
+### L5c — Update Opportunity — built 2026-11-02 with the proposed defaults (D-39); switched off 2026-11-02 via `Opportunity_Form_Enabled__c`
 
 - [x] C · Shared form engine `SalesReportFormService` (field set + UI API as the rep, D-31/D-35) used by Log Activity and Update Opportunity.
 - [x] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities on the Account visible to the rep (≤ 50, by close date).
@@ -165,6 +165,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · Friendlier save errors (2026-11-02): "Salesforce couldn't save your changes:" above Salesforce's text; a broken validation-rule formula gets "A Salesforce rule couldn't run … send this to your administrator"; the error sits above Save (not in the pinned bar) and scrolls into view.
 - [~] H · Org issue found in the device test (2026-11-02): validation rule `Require_Main_PreSales_Engineer_When_Stag` (`VALUE(LEFT(TEXT(StageName), 2)) >= 2`) crashes on old unnumbered stages (e.g. "Proposal"), so such Opportunities can't be saved anywhere until the stage changes. Suggested fix for the rule owner: add `ISNUMBER(LEFT(TEXT(StageName), 2))` as the first condition. Not changed by Claude (org rule outside this feature).
 - [ ] H+C · Device test: update a **test** Opportunity from the phone; check the record and that its automation (Next Step date stamps, Slack alert) behaves as expected.
+- [x] H · Switched off 2026-11-02 at the user's request: setting `Opportunity_Form_Enabled__c` (default off) → "This form is coming soon" in LINE, `/opportunities` refused (403) before any callout; tick it to switch on.
 - [ ] BA · Q-O1–Q-O7, D-12, D-13 — answers become field-set / setting changes (D-39).
 
 **Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form; photos attached to the Task (when attachments are on).

@@ -114,6 +114,7 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **Edit** 
 | Account Search Min Chars / Max Results | How many letters before search starts / how many results | Blank = 2 / 10 |
 | Attachments Enabled | Lets reps attach photos/files to Log Activity | **Unticked** (off since 2026-11-02) |
 | Attachment Max Files / Max Size MB / File Types | Limits when attachments are on | Blank = 5 / 4 / `jpg,jpeg,png,pdf` |
+| Update Opportunity Enabled | Lets reps use Update Opportunity | **Unticked** (off since 2026-11-02; the button shows "coming soon") |
 | Opportunity Stages | Which stages reps may choose on Update Opportunity | Blank = all open stages (closing stays in Salesforce) |
 | Rate Limit per Minute | Most requests one LINE user may make per minute | Blank = 60 |
 | Log Level | How much the program writes to the log | `WARN` (`INFO`/`DEBUG` only while investigating) |
@@ -345,7 +346,7 @@ today or earlier → Completed, a future date → Open.
 file** → take or pick a photo → **Save** → "Uploading 1 of 1…" → the photo is under Files on the Task. If an upload
 fails, the saved screen offers **Try again** (within an hour).
 
-**L5c — Update Opportunity (built 2026-11-02; device test pending).** Use a **test** Opportunity — saving runs the
+**L5c — Update Opportunity (built 2026-11-02; switched off — tick *Update Opportunity Enabled* first).** Use a **test** Opportunity — saving runs the
 org's Opportunity automation (e.g. Slack alerts). Tap **Update Opportunity** → choose an Account → its open Opportunities
 appear (stage · close date) → tap one → the form shows its current Stage, Target TCV, Next Step, Target Close Date →
 change something → **Save** → "Opportunity updated: <name>". Moving to Stage 02 without a PreSales Engineer shows the
@@ -442,6 +443,7 @@ because the page controller's test counts the labels — update that count too.
 | Something went wrong | *Sales Report Logs* tab → "Errors today". |
 | Switch the forms off | Sales Report Settings → untick *Enabled*. |
 | Switch attachments on/off | Sales Report Settings → *Attachments Enabled*. |
+| Switch Update Opportunity on/off | Sales Report Settings → *Update Opportunity Enabled*. Optionally also hide the button in the rich menu (LINE Official Account Manager). |
 | "Too many requests" for a rep | Wait a minute; if it happens in normal use, raise *Rate Limit per Minute*. |
 | Check the nightly cleanup ran | Setup → Scheduled Jobs → "Sales Report cleanup"; the *Sales Report Logs* tab shows an INFO line when Log Level is INFO. |
 | Yearly | Renew the certificate before it expires (part G) and upload it to the app. |

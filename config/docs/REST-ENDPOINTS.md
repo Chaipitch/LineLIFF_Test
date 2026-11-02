@@ -150,7 +150,8 @@ Body: `{ accountId, values: { Type, ActivityDate, Description } }`
 ## 6. `/opportunities` — Update Opportunity
 
 `SalesReportOpportunityController` → `SalesReportOpportunityService` (D-39). One class for the whole form, so the guest
-profile needs one grant.
+profile needs one grant. **Currently switched off** (setting *Update Opportunity Enabled*): every call answers 403
+`NOT_AUTHORIZED` before any callout, and the LINE page shows "This form is coming soon".
 
 ### `GET /opportunities?accountId=…` — the Account's open Opportunities
 
