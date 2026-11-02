@@ -124,7 +124,12 @@ function showHome(me, formKey) {
     });
     card.append(form.element);
   } else {
-    card.append(el("p", "sr-message", labels.menuTitle));
+    // Opened without ?form= (e.g. "Open Sales Report in LINE" after the one-time login): let the rep pick a form.
+    card.append(button(labels.activityTitle, () => showHome(me, "activity")));
+    if (formEnabled("opportunity"))
+      card.append(
+        button(labels.opportunityTitle, () => showHome(me, "opportunity"), true)
+      );
   }
   render(identityBar(me), card);
 }
