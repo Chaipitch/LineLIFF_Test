@@ -37,7 +37,8 @@ appears in Salesforce under the rep's own name.
 | **F. LIFF app & rich menu** | Registering the form with LINE and adding the two menu buttons | Makes the buttons open our form inside LINE | Admin (LINE consoles) | Done |
 | **G. Certificate & External Client App** | A digital stamp and an "app pass" in Salesforce | Lets the system safely act **as the rep** after the one-time login, so data is saved under the rep's name with the rep's permissions | Admin | Done |
 | **H. Optional tuning** | Form fields, search fields, attachments switch, limits, nightly cleanup | Lets admins adjust the forms without a developer | Admin | Cleanup scheduled; attachments off |
-| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2–L5b done (iOS) |
+| **I. Device tests** | Trying it on a phone | Proves each step works for real | Admin + Claude | L2–L5b done (iOS); L5c in progress |
+| **J. Editing the LINE screens** | Changing texts, fields, colours or layout of the forms | Most changes need no developer; the rest are a quick rebuild | Admin / developer | Reference |
 
 ### Words used in this guide
 
@@ -354,6 +355,80 @@ org's validation message instead.
 Salesforce** appears again → repeat L3-6. Reconnecting reuses the same link record.
 
 If anything else appears: Setup → **Sales Report Logs** tab → "Errors today" / "All", and send Claude a screenshot.
+
+---
+
+## Part J — Editing the LINE screens (LIFF UI)
+
+**What it is for.** How to change what reps see in LINE. Many changes are made in Salesforce Setup and need no code;
+the rest are edits to the front-end source, followed by a rebuild and a deploy of one static resource.
+
+### J1. Changes without code (Salesforce Setup)
+
+| You want to change | Where | Takes effect |
+|---|---|---|
+| Any button or message text ("Save", "Log another activity", error texts) | Setup → **Custom Labels** → `SalesReport_*` (translations here too, L6) | Next time the form opens |
+| Which fields a form shows, and their order | Object Manager → Task / Opportunity → **Field Sets** → *Sales Report Activity Form* / *Sales Report Opportunity Form* | Next open |
+| A field's label (e.g. "Due Date Only" → "Date") | Object Manager → the field → Edit the label | Next open |
+| Which fields are required | The Task / Opportunity **page layout** of the reps' profile, or *Required* in the field set (D-31) | Next open |
+| Picklist values (Activity Type, Stage) | Object Manager → the field → Values | Next open |
+| Limits and switches (attachments on/off, stages, search length, rate limit) | Custom Settings → **Sales Report Settings** (Part C) | Immediately |
+
+### J2. Where the code lives
+
+```
+liff-app/src/               ← the source you edit
+  app.css                   colours, spacing, fonts, layout (light + dark mode colour tokens at the top)
+  main.js                   screens and flow: loading, Connect, identity bar, saved screens, error messages
+  formFields.js             how each field type is drawn (text, picklist, date, …) and field errors
+  activityForm.js           Log Activity form (Account → fields → attachments → Save)
+  opportunityForm.js        Update Opportunity form (Account → Opportunity list → fields → Save)
+  accountPicker.js          the Account search box and result list
+  attachments.js            photo/file picker, shrinking, uploads
+  api.js                    calls to Salesforce (rarely needs changing)
+
+sales-report/main/default/
+  pages/SalesReport_Liff.page                 the HTML shell: only loads app.css + app.js (rarely touched)
+  staticresources/SalesReport_LiffApp/        the BUILT files (app.js, app.css) — generated, never edit by hand
+  labels/CustomLabels.labels-meta.xml         all UI text
+  classes/SalesReportLiffPageController.cls   which labels and settings are passed to the page
+```
+
+### J3. Edit → build → deploy
+
+1. **Edit** files in `liff-app/src/`. Example: change `--sr-accent` at the top of `app.css` to restyle every button,
+   link and highlight.
+2. **Build** — bundles the source and the LINE SDK into the static resource:
+
+```bash
+npm run build:liff
+```
+
+3. **Deploy only the UI** (a CSS/JS-only change needs no Apex tests):
+
+```bash
+sf project deploy start -o lineliff-sbx --source-dir sales-report/main/default/staticresources --test-level NoTestRun
+```
+
+4. **Test**: close the LIFF window in LINE completely and reopen it from the rich menu. If LINE still shows the old
+   version, wait a minute — the page can be cached briefly.
+5. **Commit** both the source change and the rebuilt files in `staticresources/` (the repo keeps the built files, so a
+   deploy never needs a build step).
+
+**Adding new text:** add a Custom Label in `CustomLabels.labels-meta.xml`, pass it in `labels()` of
+`SalesReportLiffPageController.cls`, and use it in the JS as `labels.<key>`. This deploys with the Apex tests (Part B),
+because the page controller's test counts the labels — update that count too.
+
+### J4. Rules that keep it safe and working
+
+- **No text in the JS** — all wording comes from Custom Labels, so it can be translated (P11).
+- **No HTML insertion** — build elements with the `el()` helper and `textContent`, never `innerHTML`, so Salesforce data
+  can't inject HTML into the page.
+- **Older phones** — the build targets Safari 14 / ES2020; avoid very new JavaScript syntax (the build fails on some,
+  e.g. destructuring with default values).
+- **Previewing** — opened in a desktop browser the page only says "Please open this page from LINE". Check changes on a
+  phone, or ask Claude to run its browser preview, which fakes LINE and Salesforce.
+- **Don't edit `staticresources/SalesReport_LiffApp/` directly** — the next build overwrites it.
 
 ---
 
