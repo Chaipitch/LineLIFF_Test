@@ -63,9 +63,10 @@ LINE app ─ rich menu ─▶ https://liff.line.me/{liffId}?form=activity|opport
    REST API as the rep ──▶ <My Domain>/services/data/v68.0/...  (sharing, FLS, VRs native)
 ```
 
-First-time login (flow B): LIFF "Connect Salesforce" → `POST /link/start` → phone browser opens
-`<My Domain>/apex/SalesReport_Link?code=…` → rep logs in (MFA if required) → page shows the LINE account → **Connect** →
-`SalesReport_Line_Link__c` written → back to LINE. Proven on a phone 2026-10-29.
+First-time login (flow B, D-40): LIFF finds the rep not linked → `POST /link/start` → the **same LIFF window** opens
+`<My Domain>/apex/SalesReport_Link?code=…&form=…` → rep logs in (MFA if required) → page shows the LINE account →
+**Connect** → `SalesReport_Line_Link__c` written → back to the LIFF form automatically. (Until 2026-11-02 the link page
+opened in the phone's browser after a "Connect Salesforce" screen — D-15, proven on a phone 2026-10-29.)
 
 ## 4. API (Apex REST on the Site, `/services/apexrest/salesreport/v1/...`)
 

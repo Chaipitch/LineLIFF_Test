@@ -324,12 +324,12 @@ Create, then:
 **L2-7 — form opens (done 2026-10-29).** Add the OA (`https://line.me/R/ti/p/@939eyqft`) → tap **Log Activity** →
 allow LINE's permission the first time → the page shows **Log activity** and "Hello, <LINE name>".
 
-**L3-6 — one-time login (done 2026-10-29).**
-1. Tap **Log Activity** → **Connect Salesforce** → **Log in to Salesforce**.
-2. The phone's browser opens the Salesforce login → log in (MFA if asked).
+**L3-6 — one-time login (done 2026-10-29; inside LINE since 2026-11-02, D-40).**
+1. Tap **Log Activity** (not connected yet) → the Salesforce login opens **right inside LINE** (D-40).
+2. Log in (MFA if asked).
 3. **Connect LINE to Salesforce** — "Connect the LINE account "<LINE name>" to your Salesforce user <name>?" →
-   **Connect** → **Open Sales Report in LINE**.
-4. Back in LINE: **Open Sales Report in LINE** goes straight to the form you tapped in the rich menu, with your LINE name
+   **Connect** → after a moment you are taken back to the form automatically (or tap **Open Sales Report in LINE**).
+4. Back in LINE you are on the form you tapped in the rich menu, with your LINE name
    and "Salesforce: <your name>" at the top. Reopening never asks to log in again. (Opened without a form, the app
    shows a small menu instead.)
 

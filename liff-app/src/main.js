@@ -1,6 +1,6 @@
 // Sales Report LIFF app.
-// Initialises LIFF and sends the LINE ID token to /connection. Not linked yet: "Connect Salesforce" opens the one-time link
-// page in the browser (D-15) and /connection is checked again when the rep comes back. Linked: greets the rep and shows the
+// Initialises LIFF and sends the LINE ID token to /connection. Not linked yet: the LIFF window goes straight to the
+// Salesforce login of the one-time link page (D-40); after Connect the link page brings the rep back to their form. Linked: greets the rep and shows the
 // form named by ?form= (activity = Log Activity, L5a; opportunity = Update Opportunity, L5c).
 // All text is rendered with textContent; no data is ever inserted as HTML.
 import liff from "@line/liff";
@@ -202,40 +202,59 @@ function showActivitySaved(me, result, failed) {
   render(identityBar(me), card);
 }
 
-let waitingForLink = false;
 let apiClient;
 
+/** Set when the app sends the rep to the Salesforce login; if they come back unlinked soon after, show a button instead
+ * of redirecting again (they pressed Back or cancelled), so the app can never loop. */
+const LOGIN_STARTED = "salesReport.loginStartedAt";
+const LOGIN_RETRY_MS = 2 * 60 * 1000;
+
+function loginRecentlyStarted() {
+  try {
+    const at = Number(sessionStorage.getItem(LOGIN_STARTED) || 0);
+    return Date.now() - at < LOGIN_RETRY_MS;
+  } catch {
+    return false;
+  }
+}
+
+function markLoginStarted(value) {
+  try {
+    if (value) sessionStorage.setItem(LOGIN_STARTED, String(Date.now()));
+    else sessionStorage.removeItem(LOGIN_STARTED);
+  } catch {
+    // Storage blocked: the Connect button still works.
+  }
+}
+
+/**
+ * One-time login inside the LIFF window (BA request, D-40): create the link code and open the Salesforce login page
+ * here. The form the rep came for travels with the link, so the link page returns straight to it.
+ */
+async function startLogin(api) {
+  const result = await api.post("/link/start", {});
+  const form = requestedForm();
+  const url = form
+    ? result.linkUrl + "&form=" + encodeURIComponent(form)
+    : result.linkUrl;
+  markLoginStarted(true);
+  window.location.assign(url);
+}
+
 function showConnect(api) {
-  waitingForLink = false;
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels.connectTitle));
   card.append(el("p", "sr-message", labels.connectBody));
   const connect = button(labels.connectButton, async () => {
     connect.disabled = true;
     try {
-      const result = await api.post("/link/start", {});
-      waitingForLink = true;
-      // Pass on the form the rep came for, so "Open Sales Report in LINE" on the link page goes straight back to it.
-      const form = requestedForm();
-      const url = form
-        ? result.linkUrl + "&form=" + encodeURIComponent(form)
-        : result.linkUrl;
-      liff.openWindow({ url, external: true });
-      showWaiting(api);
+      await startLogin(api);
     } catch (error) {
       connect.disabled = false;
       handleApiError(error);
     }
   });
   card.append(connect);
-  render(card);
-}
-
-function showWaiting(api) {
-  const card = el("section", "sr-card");
-  card.append(el("h1", "sr-title", labels.connectTitle));
-  card.append(el("p", "sr-message", labels.connectWaiting));
-  card.append(button(labels.connectCheck, () => checkMe(api)));
   render(card);
 }
 
@@ -259,12 +278,12 @@ async function checkMe(api) {
     const me = await api.get("/connection");
     clearReloadFlag();
     if (me.linked) {
-      waitingForLink = false;
+      markLoginStarted(false);
       showHome(me, requestedForm());
-    } else if (waitingForLink) {
-      showWaiting(api);
-    } else {
+    } else if (loginRecentlyStarted()) {
       showConnect(api);
+    } else {
+      await startLogin(api);
     }
   } catch (error) {
     handleApiError(error);
@@ -324,10 +343,6 @@ async function start() {
 
   const api = createApi(config.apiBase, () => liff.getIDToken());
   apiClient = api;
-  // Coming back from the browser after the one-time login: check again without a tap.
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && waitingForLink) checkMe(api);
-  });
   await checkMe(api);
 }
 

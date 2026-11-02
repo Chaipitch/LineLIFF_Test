@@ -170,6 +170,14 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 
 **Exit:** both forms save real records as the rep in the sandbox; validation errors shown on the form; photos attached to the Task (when attachments are on).
 
+### Change after L5 — login inside LINE (BA, 2026-11-02, D-40)
+
+- [x] C · No "Connect Salesforce" screen first: unlinked → `/link/start` → same LIFF window opens the link page (Salesforce
+      login inside LINE); form carried in the link; link page returns to the form automatically after Connect; Connect
+      screen only as a fallback after Back/cancel (no loop). Checked headless; 137 tests pass.
+- [ ] H+C · Device test on iOS and Android: login page opens inside LINE (not the Salesforce app), MFA if asked,
+      Connect → back on the form.
+
 ## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)
 
 - [ ] C · Labels via Custom Labels `SalesReport_*` in the agreed languages (JA / EN / TH — BA), picked from LINE/browser language.
