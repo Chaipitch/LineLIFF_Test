@@ -86,6 +86,11 @@ public with sharing class SalesReportSettingsService {
     );
   }
 
+  /** Attachments on Log Activity: off unless an admin ticks Attachments Enabled. */
+  public static Boolean attachmentsEnabled() {
+    return settings().Attachments_Enabled__c == true;
+  }
+
   /** Between 1 and MAX_ATTACHMENT_FILES; blank = DEFAULT_ATTACHMENT_MAX_FILES. */
   public static Integer attachmentMaxFiles() {
     return bounded(

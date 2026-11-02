@@ -106,6 +106,7 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Link_Code_Ttl_Minutes__c` | Link Code TTL (min) | Number(3,0) | 5 | L3 | |
 | `Account_Search_Min_Chars__c` | Account Search Min Chars | Number(2,0) | 2 | L4 | |
 | `Account_Search_Max_Results__c` | Account Search Max Results | Number(3,0) | 10 | L4 | Capped at 50 in code. |
+| `Attachments_Enabled__c` | Attachments Enabled | Checkbox | false | L5b | Off (2026-11-02): attachment section hidden in LINE and uploads refused (403). Tick to switch on. |
 | `Attachment_Max_Files__c` | Attachment Max Files | Number(2,0) | 5 | L5b | Files per activity; capped at 10 in code. |
 | `Attachment_Max_Size_Mb__c` | Attachment Max Size MB | Number(1,0) | 4 | L5b | Per file, after photos are shrunk; 4 is also the hard cap (Apex heap, D-34). |
 | `Attachment_File_Types__c` | Attachment File Types | Text(255) | jpg,jpeg,png,pdf | L5b | Comma-separated extensions. Photos become .jpg on the phone, so keep jpg in the list. |

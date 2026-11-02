@@ -19,6 +19,13 @@ public with sharing class SalesReportActivityFileService {
     String rawName,
     Blob data
   ) {
+    if (!SalesReportSettingsService.attachmentsEnabled()) {
+      throw SalesReportException.of(
+        SalesReportException.NOT_AUTHORIZED,
+        403,
+        'Attachments are switched off in Sales Report Settings.'
+      );
+    }
     if (taskId == null || !TASK_ID.matcher(taskId).matches()) {
       throw invalid('Missing or invalid activity ID.');
     }

@@ -20,7 +20,10 @@ public with sharing class SalesReportLiffPageController {
           'maxResults' => SalesReportSettingsService.accountSearchMaxResults()
         },
         'attachments' => new Map<String, Object>{
-          'maxFiles' => SalesReportSettingsService.attachmentMaxFiles(),
+          // 0 hides the attachment section in LINE.
+          'maxFiles' => SalesReportSettingsService.attachmentsEnabled()
+            ? SalesReportSettingsService.attachmentMaxFiles()
+            : 0,
           'maxSizeMb' => SalesReportSettingsService.attachmentMaxSizeMb(),
           'types' => SalesReportSettingsService.attachmentFileTypes()
         },

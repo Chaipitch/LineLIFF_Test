@@ -130,7 +130,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] H · Guest profile: add Apex class `SalesReportActivityController` — done 2026-10-30; public `/activity` answers 401 for a fake token.
 - [x] H+C · Device test (2026-10-30): Task logged from the phone on *Mock Customer 030 Co., Ltd.* — Created By / Assigned To = the rep, Subject "<Type> – <Account>", Status `Completed`, Priority `Normal`, Subtype `Task`.
 
-### L5b — Attachments (built 2026-10-30 with the proposed limits)
+### L5b — Attachments (built 2026-10-30 with the proposed limits; switched off 2026-11-02 via `Attachments_Enabled__c`)
 
 - [ ] BA · Limits: count, size, types (Q-A6a). Built with the proposal 5 × 4 MB, jpg/jpeg/png/pdf — change in Settings, no code.
 - [x] C · Settings `Attachment_Max_Files__c` (5, cap 10), `Attachment_Max_Size_Mb__c` (4, hard cap 4), `Attachment_File_Types__c`.

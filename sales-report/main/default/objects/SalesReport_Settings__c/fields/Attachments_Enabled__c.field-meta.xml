@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Attachments_Enabled__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >When checked, reps can attach photos and files to Log Activity in LINE (limits: Attachment Max Files / Max Size MB / File Types). Unchecked (default) hides the attachment section and the server refuses uploads.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >Check to let reps attach photos and files to activities logged from LINE.</inlineHelpText>
+    <label>Attachments Enabled</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

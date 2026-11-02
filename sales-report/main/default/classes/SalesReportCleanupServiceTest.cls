@@ -71,7 +71,9 @@ private class SalesReportCleanupServiceTest {
   @IsTest
   static void schedulesNightlyAndRunsAsJob() {
     Test.startTest();
-    String jobId = SalesReportCleanupService.schedule();
+    String jobId = SalesReportCleanupService.schedule(
+      SalesReportCleanupService.JOB_NAME + ' (test)'
+    );
     Test.stopTest();
 
     CronTrigger job = [
@@ -81,7 +83,7 @@ private class SalesReportCleanupServiceTest {
     ];
     Assert.areEqual(SalesReportCleanupService.CRON, job.CronExpression, 'Cron');
     Assert.areEqual(
-      SalesReportCleanupService.JOB_NAME,
+      SalesReportCleanupService.JOB_NAME + ' (test)',
       job.CronJobDetail.Name,
       'Name'
     );

@@ -15,7 +15,13 @@ public without sharing class SalesReportCleanupService implements Schedulable {
   private static final String SOURCE = 'SalesReportCleanupService';
 
   public static String schedule() {
-    return System.schedule(JOB_NAME, CRON, new SalesReportCleanupService());
+    return schedule(JOB_NAME);
+  }
+
+  /** Job names are unique per org; tests use their own so they don't clash with the real nightly job. */
+  @TestVisible
+  static String schedule(String jobName) {
+    return System.schedule(jobName, CRON, new SalesReportCleanupService());
   }
 
   public void execute(SchedulableContext context) {

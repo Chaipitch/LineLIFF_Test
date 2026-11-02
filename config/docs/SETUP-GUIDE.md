@@ -287,6 +287,8 @@ Create, then:
   **page layout** of the reps' profile, or tick *Required* for it in the field set. Validation rules on Task also apply
   and their message is shown on the form. If you make a field required on the layout but **don't** add it to the field
   set, reps get the message "Salesforce requires *X* … ask your admin to add it to field set SalesReport_Activity_Form".
+- **Attachments on/off (L5b).** Part C setting *Attachments Enabled* — **unticked = off** (current state, 2026-11-02): the
+  "Photos and files" section is hidden in LINE and the server refuses uploads. Tick it to switch attachments on.
 - **Attachment limits (L5b).** Part C settings: *Attachment Max Files* (blank = 5, at most 10), *Attachment Max Size MB*
   (blank = 4; 4 is the most Salesforce can handle on this route), *Attachment File Types* (blank = `jpg,jpeg,png,pdf`).
   Photos are shrunk on the phone and always arrive as .jpg, so keep `jpg` in the list. Files count against the org's

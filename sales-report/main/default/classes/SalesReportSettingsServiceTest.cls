@@ -86,6 +86,10 @@ private class SalesReportSettingsServiceTest {
 
   @IsTest
   static void attachmentLimitsFollowSettings() {
+    Assert.isFalse(
+      SalesReportSettingsService.attachmentsEnabled(),
+      'Off by default'
+    );
     Assert.areEqual(
       SalesReportSettingsService.DEFAULT_ATTACHMENT_MAX_FILES,
       SalesReportSettingsService.attachmentMaxFiles(),

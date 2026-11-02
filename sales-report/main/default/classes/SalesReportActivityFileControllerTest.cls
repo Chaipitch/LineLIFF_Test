@@ -21,6 +21,7 @@ private class SalesReportActivityFileControllerTest {
   static void linkedRepAttachesAFile() {
     SalesReport_Settings__c settings = SalesReportTestFactory.settings();
     settings.Eca_Consumer_Key__c = 'test-consumer-key';
+    settings.Attachments_Enabled__c = true;
     update settings;
     SalesReportTestFactory.link(
       SalesReportTestFactory.LINE_USER_ID,

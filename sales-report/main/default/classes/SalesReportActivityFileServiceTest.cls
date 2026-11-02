@@ -2,6 +2,14 @@
 private class SalesReportActivityFileServiceTest {
   private static final String TASK_ID = '00T000000000001EAA';
 
+  @TestSetup
+  static void attachmentsOn() {
+    insert new SalesReport_Settings__c(
+      SetupOwnerId = UserInfo.getOrganizationId(),
+      Attachments_Enabled__c = true
+    );
+  }
+
   private static SalesReportOrgApiCalloutService api() {
     return new SalesReportOrgApiCalloutService(
       'session-token',
@@ -130,10 +138,9 @@ private class SalesReportActivityFileServiceTest {
 
   @IsTest
   static void inputIsCheckedBeforeAnyCallout() {
-    insert new SalesReport_Settings__c(
-      SetupOwnerId = UserInfo.getOrganizationId(),
-      Attachment_Max_Size_Mb__c = 1
-    );
+    SalesReport_Settings__c settings = SalesReport_Settings__c.getOrgDefaults();
+    settings.Attachment_Max_Size_Mb__c = 1;
+    update settings;
     SalesReportHttpMock http = SalesReportTestFactory.taskFileMock(
       UserInfo.getUserId(),
       Datetime.now(),
@@ -180,5 +187,28 @@ private class SalesReportActivityFileServiceTest {
       'Shortened'
     );
     Assert.isTrue(cleaned.endsWith('.pdf'), 'Extension kept');
+  }
+
+  @IsTest
+  static void switchedOffRefusesUploads() {
+    SalesReport_Settings__c settings = SalesReport_Settings__c.getOrgDefaults();
+    settings.Attachments_Enabled__c = false;
+    update settings;
+    SalesReportHttpMock http = SalesReportTestFactory.taskFileMock(
+      UserInfo.getUserId(),
+      Datetime.now(),
+      0
+    );
+    Test.setMock(HttpCalloutMock.class, http);
+
+    SalesReportException e = attachExpectingFailure(
+      TASK_ID,
+      'a.jpg',
+      Blob.valueOf('x')
+    );
+
+    Assert.areEqual(SalesReportException.NOT_AUTHORIZED, e.code, 'Code');
+    Assert.areEqual(403, e.statusCode, 'Status');
+    Assert.isTrue(http.requests.isEmpty(), 'Nothing sent');
   }
 }
