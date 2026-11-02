@@ -51,14 +51,14 @@ Steps for the human tasks: `SETUP-GUIDE.md` L2-4 … L2-7.
 - [x] C · Permission sets `SalesReport_User`, `SalesReport_Admin`.
 - [x] C · LIFF page: bundle `@line/liff` (npm) into static resource `SalesReport_LiffApp`; VF page `SalesReport_Liff` serving it; `liff.init`,
       `getIDToken`, show display name; CSP-safe, text rendered as text only.
-- [x] C · Apex: `SalesReportMeController` (`GET /salesreport/v1/me`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
+- [x] C · Apex: `SalesReportConnectionController` (`GET /salesreport/v1/connection`) + `SalesReportLineCalloutService` (ID-token verify callout, `aud`/`iss`/`exp`
       checks) + `SalesReportLineVerifyData` (DTO) + `SalesReportException` + `SalesReportLogService`; callout mocks + tests.
 - [x] H · Setup → Sites → create Site `SalesReport_Site` (path `salesreport`), active; guest profile: Apex classes `SalesReport*Controller`
       + VF page `SalesReport_Liff` only, **no object access** → send Site URL.
 - [x] H · LINE Login channel → LIFF → add app (size Full, endpoint = Site URL of `SalesReport_Liff`, scopes `openid profile`,
       bot link = the OA) → send LIFF ID.
 - [x] H · Rich menu: 2 URI actions → `https://liff.line.me/{liffId}?form=activity` / `?form=opportunity` (OA Manager or API).
-- [x] C · Measure API usage: 100 public `/me` calls raised `DailyApiRequests` by ~17 over 2.5 min, i.e. background org traffic, not 1 per call → Apex REST through the public Site does **not** count 1:1 against the daily API limit (it counts against Site limits instead). Test log entries (146 WARN) deleted afterwards.
+- [x] C · Measure API usage: 100 public `/connection` calls raised `DailyApiRequests` by ~17 over 2.5 min, i.e. background org traffic, not 1 per call → Apex REST through the public Site does **not** count 1:1 against the daily API limit (it counts against Site limits instead). Test log entries (146 WARN) deleted afterwards.
 
 - [x] C · Deploy to sandbox `dev5`: 31/31 tests pass, coverage 97.3%; Code Analyzer (Recommended): 0 Critical/High.
 - [x] C · Settings org default: LINE Login channel ID, Enabled, Log Level WARN; `SalesReport_Admin` assigned to the deploying admin.
@@ -75,7 +75,7 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
 - [x] C · `POST /salesreport/v1/link/start`: verify token, create code (256 random bits, store SHA-256 only), TTL from settings (5 min), return link URL.
 - [x] C · VF page `SalesReport_Link` (login required): shows the LINE account, links only after **Connect** (POST, CSRF-protected);
       rejects expired/used codes; one active link per LINE user and per User; requires custom permission `SalesReport_Access` (D-27).
-- [x] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-checks `/me` when the rep returns.
+- [x] C · LIFF: "Connect Salesforce" screen → `liff.openWindow({ external: true })` (D-15); re-checks `/connection` when the rep returns.
 - [x] H · Setup → Certificate and Key Management → create self-signed cert `SalesReport_JWT_Signing` (L3-2).
 - [x] H · Setup → External Client App Manager → new ECA `SalesReport_App`: OAuth on, JWT bearer flow on, cert uploaded,
       scopes `api` + `id` + `refresh_token` (required by Salesforce for JWT bearer), Permitted Users = "Admin approved users are pre-authorized", permission set `SalesReport_User`
@@ -83,15 +83,15 @@ Human steps: `SETUP-GUIDE.md` L3-2 … L3-6.
 - [x] H · Guest profile: add Apex class `SalesReportLinkController` (L3-4).
 - [x] C · Remote Site for the org's My Domain: **not needed** — callouts to the own domain work without one (tested).
 - [x] C · `SalesReportSessionCalloutService`: `Auth.JWT` (iss = consumer key, sub = rep username, aud by `Organization.IsSandbox`) →
-      `Auth.JWS` → `Auth.JWTBearerTokenExchange`, per request, never stored (D-16). `/me` proves it via `userinfo` as the rep.
+      `Auth.JWS` → `Auth.JWTBearerTokenExchange`, per request, never stored (D-16). `/connection` proves it via `userinfo` as the rep.
 - [x] C · Unlink: admins set Status = Unlinked (or delete); deactivated users are unlinked on their next request (no User trigger, D-27).
 - [x] C · Tests: expired/used/unknown/oversized code, double use, replaced LINE account, relink to another user, deactivated user,
-      no-permission user, malformed codes, linked `/me` through the rep session, JWT config errors — 58 tests, 96.4% coverage; Code Analyzer: 0 Critical/High (one documented suppression: named-credential suggestion for the per-request rep session).
+      no-permission user, malformed codes, linked `/connection` through the rep session, JWT config errors — 58 tests, 96.4% coverage; Code Analyzer: 0 Critical/High (one documented suppression: named-credential suggestion for the per-request rep session).
 - [x] C · `SalesReport_User` assigned to the test admin/rep in the sandbox.
 - [x] C · ECA consumer key set; real JWT exchange for the test user works (3 runs: exchange 117–185 ms, userinfo 53–152 ms, i.e. ~0.2–0.35 s extra per request) → per-request exchange kept (D-16). Public `/link/start` answers through the Site (401 for a fake token).
 - [x] H+C · Device test on the user's phone (2026-10-29): Connect → browser login → confirm page (plain page, no Lightning redirect, so D-28 not needed) → back in LINE shows the Salesforce name. Link `LL-000000` Active, code used once. Second platform (iOS/Android, whichever wasn't used) moves to L8 device QA.
 
-**Exit (met 2026-10-29):** a test rep links once, reopens LIFF without logging in, and `/me` returns their Salesforce name via a call made as them.
+**Exit (met 2026-10-29):** a test rep links once, reopens LIFF without logging in, and `/connection` returns their Salesforce name via a call made as them.
 
 ## L4 — Account auto-complete (2 d) — **done 2026-10-29**
 

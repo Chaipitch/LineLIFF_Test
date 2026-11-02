@@ -1,5 +1,5 @@
 @IsTest
-private class SalesReportMeControllerTest {
+private class SalesReportConnectionControllerTest {
   private static Map<String, Object> responseJson() {
     return (Map<String, Object>) JSON.deserializeUntyped(
       RestContext.response.responseBody.toString()
@@ -17,13 +17,13 @@ private class SalesReportMeControllerTest {
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
     );
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
 
     Test.startTest();
-    SalesReportMeController.getMe();
+    SalesReportConnectionController.getConnection();
     Test.stopTest();
 
     Assert.areEqual(200, RestContext.response.statusCode, 'OK');
@@ -48,10 +48,10 @@ private class SalesReportMeControllerTest {
   @IsTest
   static void missingTokenAnswers401AndLogsWarning() {
     SalesReportTestFactory.settings(true, 'WARN');
-    SalesReportTestFactory.meRequest(null, null);
+    SalesReportTestFactory.restRequest(null, null);
 
     Test.startTest();
-    SalesReportMeController.getMe();
+    SalesReportConnectionController.getConnection();
     Test.stopTest();
 
     Assert.areEqual(401, RestContext.response.statusCode, 'Unauthorised');
@@ -66,7 +66,11 @@ private class SalesReportMeControllerTest {
       WITH SYSTEM_MODE
     ];
     Assert.areEqual('WARN', log.Level__c, 'Logged as warning');
-    Assert.areEqual(SalesReportMeController.SOURCE, log.Source__c, 'Source');
+    Assert.areEqual(
+      SalesReportConnectionController.SOURCE,
+      log.Source__c,
+      'Source'
+    );
   }
 
   @IsTest
@@ -81,13 +85,13 @@ private class SalesReportMeControllerTest {
         )
       )
     );
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
 
     Test.startTest();
-    SalesReportMeController.getMe();
+    SalesReportConnectionController.getConnection();
     Test.stopTest();
 
     Assert.areEqual(401, RestContext.response.statusCode, 'Unauthorised');
@@ -106,12 +110,12 @@ private class SalesReportMeControllerTest {
   @IsTest
   static void switchedOffAnswers503() {
     SalesReportTestFactory.settings(false, 'WARN');
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
 
-    SalesReportMeController.getMe();
+    SalesReportConnectionController.getConnection();
 
     Assert.areEqual(503, RestContext.response.statusCode, 'Unavailable');
     Assert.areEqual(
@@ -128,13 +132,13 @@ private class SalesReportMeControllerTest {
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
     );
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
 
     SalesReportRestService.fail(
-      SalesReportMeController.SOURCE,
+      SalesReportConnectionController.SOURCE,
       new NullPointerException()
     );
 
@@ -172,13 +176,13 @@ private class SalesReportMeControllerTest {
         '{"name":"Rep From Session"}'
       );
     Test.setMock(HttpCalloutMock.class, mock);
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
 
     Test.startTest();
-    SalesReportMeController.getMe();
+    SalesReportConnectionController.getConnection();
     Test.stopTest();
 
     Assert.areEqual(200, RestContext.response.statusCode, 'OK');
@@ -208,13 +212,13 @@ private class SalesReportMeControllerTest {
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
     );
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
 
     Test.startTest();
-    SalesReportMeController.getMe();
+    SalesReportConnectionController.getConnection();
     Test.stopTest();
 
     Assert.areEqual(503, RestContext.response.statusCode, 'Not configured');

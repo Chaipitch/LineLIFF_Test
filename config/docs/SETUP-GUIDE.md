@@ -85,7 +85,7 @@ npm run build:liff
 Sandbox (only this feature's tests):
 
 ```bash
-sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityServiceTest --tests SalesReportActivityFileControllerTest --tests SalesReportActivityFileServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportMeControllerTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
+sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityServiceTest --tests SalesReportActivityFileControllerTest --tests SalesReportActivityFileServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportConnectionControllerTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
 ```
 
 Production: validate first with `--test-level RunLocalTests` (`sf project deploy validate`), then quick-deploy.
@@ -164,7 +164,7 @@ Save. Then on the Site detail page:
    entries) need an owner.
 2. **Public Access Settings** (opens the guest profile *Sales Report Profile*):
    - **Enabled Apex Class Access** → add the doors — *why: each door must be allowed explicitly*:
-     - `SalesReportMeController` — "who am I?" (L2)
+     - `SalesReportConnectionController` — "is this LINE user connected to Salesforce?" (L2)
      - `SalesReportLinkController` — "start my one-time login" (L3)
      - `SalesReportAccountController` — "search Accounts" (L4)
      - `SalesReportActivityController` — "show the Log Activity form and save it" (L5a)
@@ -177,7 +177,7 @@ Save. Then on the Site detail page:
 Check (Claude can do this):
 
 ```bash
-curl -s https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/services/apexrest/salesreport/v1/me
+curl -s https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/services/apexrest/salesreport/v1/connection
 ```
 
 Expected: `{"error":{"message":"No LINE ID token was sent.","code":"TOKEN_MISSING"}}` (HTTP 401).

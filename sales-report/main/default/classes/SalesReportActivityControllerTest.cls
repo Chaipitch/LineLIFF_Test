@@ -19,7 +19,7 @@ private class SalesReportActivityControllerTest {
   }
 
   private static RestRequest request(String method, String body) {
-    RestRequest req = SalesReportTestFactory.meRequest(
+    RestRequest req = SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );

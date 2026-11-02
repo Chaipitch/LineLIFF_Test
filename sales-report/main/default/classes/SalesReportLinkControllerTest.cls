@@ -13,7 +13,7 @@ private class SalesReportLinkControllerTest {
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
     );
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
@@ -47,7 +47,7 @@ private class SalesReportLinkControllerTest {
   @IsTest
   static void startWithoutTokenCreatesNothing() {
     SalesReportTestFactory.settings();
-    SalesReportTestFactory.meRequest(null, null);
+    SalesReportTestFactory.restRequest(null, null);
 
     SalesReportLinkController.start();
 

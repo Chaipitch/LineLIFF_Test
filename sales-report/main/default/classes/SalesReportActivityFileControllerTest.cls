@@ -1,7 +1,7 @@
 @IsTest
 private class SalesReportActivityFileControllerTest {
   private static void request(Map<String, String> params, Blob body) {
-    RestRequest req = SalesReportTestFactory.meRequest(
+    RestRequest req = SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );

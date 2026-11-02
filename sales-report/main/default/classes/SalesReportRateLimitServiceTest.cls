@@ -118,13 +118,13 @@ private class SalesReportRateLimitServiceTest {
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
     );
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
 
     Test.startTest();
-    SalesReportMeController.getMe();
+    SalesReportConnectionController.getConnection();
     Test.stopTest();
 
     Assert.areEqual(429, RestContext.response.statusCode, 'Too many');

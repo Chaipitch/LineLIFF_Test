@@ -260,7 +260,7 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 
 | Area | Grant |
 |---|---|
-| Apex classes | `SalesReportMeController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a), `SalesReportActivityFileController` (L5b); later `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
+| Apex classes | `SalesReportConnectionController` (L2), `SalesReportLinkController` (L3), `SalesReportAccountController` (L4), `SalesReportActivityController` (L5a), `SalesReportActivityFileController` (L5b); later `SalesReportOpportunityController` (L5c). Page controllers need no class access. |
 | Visualforce pages | `SalesReport_Liff` (+ Salesforce's default Site pages: error pages, `SiteLogin`, `SiteRegister`, `ForgotPassword` … — optional tidy-up: remove the login/register/password pages, the Site has no login) |
 | Objects | **none** (audit 2026-10-30: 0 object permissions; the 440 field-permission rows are Salesforce defaults on standard/org objects — ineffective without object access, none on `SalesReport_*`) |
 | Other | Leave all "View …"/API permissions off (audit 2026-10-30: API Enabled, View All Data, Modify All Data, View Setup, Run Reports all off; no permission sets assigned to the guest user) |

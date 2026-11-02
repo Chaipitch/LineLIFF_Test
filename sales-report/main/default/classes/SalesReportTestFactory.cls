@@ -61,10 +61,10 @@ public with sharing class SalesReportTestFactory {
     );
   }
 
-  public static RestRequest meRequest(String headerName, String token) {
+  public static RestRequest restRequest(String headerName, String token) {
     RestRequest req = new RestRequest();
     req.httpMethod = 'GET';
-    req.requestURI = '/salesreport/v1/me';
+    req.requestURI = '/salesreport/v1/connection';
     if (headerName != null) {
       req.headers.put(headerName, token);
     }

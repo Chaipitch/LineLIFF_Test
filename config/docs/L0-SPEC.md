@@ -75,7 +75,7 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24). Responses 
 | Method & path | Purpose | Rep must be linked | Status | Notes |
 |---|---|---|---|---|
 
-| `GET /me` | Verify token; return `{ linked, lineDisplayName, salesforceUserName }` | no | Done (L2–L3) | First call on every page load. When linked, the Salesforce name is read **as the rep** (proves the JWT session). |
+| `GET /connection` | Verify token; return `{ linked, lineDisplayName, salesforceUserName }` | no | Done (L2–L3) | First call on every page load. When linked, the Salesforce name is read **as the rep** (proves the JWT session). |
 | `POST /link/start` | Create one-time link code; return link-page URL | no | Done (L3) | 256 random bits, base64url; SHA-256 stored only; 5-min expiry; single use. |
 | `GET /accounts?q=` | Account auto-complete | yes | Done (L4) | Min 2 chars, max 10 (settings). Runs as the rep → only visible Accounts. Name + field set `SalesReport_Account_Search` (D-29); prefix matches first. |
 | `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | L5 | `IsClosed = false`, ordered by CloseDate. |
@@ -118,7 +118,7 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 
 | Layer | Class | Purpose | Milestone |
 |---|---|---|---|
-| Controller | ✓ `SalesReportMeController` | `@RestResource` `GET /salesreport/v1/me` | L2 |
+| Controller | ✓ `SalesReportConnectionController` | `@RestResource` `GET /salesreport/v1/connection` | L2 |
 | Controller | ✓ `SalesReportLinkController` | `@RestResource` `POST /salesreport/v1/link/start` | L3 |
 | Controller | ✓ `SalesReportLinkPageController` | VF `SalesReport_Link` page (runs as the logged-in rep) | L3 |
 | Controller | ✓ `SalesReportAccountController` | `@RestResource` `GET /salesreport/v1/accounts` | L4 |
@@ -137,7 +137,7 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | CalloutService | ✓ `SalesReportSessionCalloutService` | JWT bearer exchange for the rep (Option B) | L3 |
 | CalloutService | ✓ `SalesReportOrgApiCalloutService` | REST API calls to the org **as the rep** (query, create, update) | L3–L5 |
 | Data | ✓ `SalesReportLineVerifyData` | LINE verify response (`sub`, `aud`, `exp`, `name`, …) | L2 |
-| Data | ✓ `SalesReportMeData`, ✓ `SalesReportLinkStartData`, ✓ `SalesReportAccountData`, ✓ `SalesReportErrorData`, `SalesReportOpportunityData`, `SalesReportActivityData` | Request/response DTOs | L2–L5 |
+| Data | ✓ `SalesReportConnectionData`, ✓ `SalesReportLinkStartData`, ✓ `SalesReportAccountData`, ✓ `SalesReportErrorData`, `SalesReportOpportunityData`, `SalesReportActivityData` | Request/response DTOs | L2–L5 |
 | Controller | ✓ `SalesReportLiffPageController` | VF `SalesReport_Liff`: LIFF ID, API base path (P6), labels, search limits | L2 |
 | Service | ✓ `SalesReportRestService` | Shared JSON responses and error mapping | L2 |
 | Service | ✓ `SalesReportNamespaceService` | Namespace-safe REST/page paths (P6) | L3 |
@@ -159,7 +159,7 @@ Built classes are marked ✓ (deployed to sandbox `dev5`).
 | Token endpoint / audience in sandbox | Token endpoint `<My Domain>/services/oauth2/token`; `aud` = `https://test.salesforce.com` (sandbox) / `https://login.salesforce.com` (production), from `Organization.IsSandbox`. | **Verified in L3** (sandbox) |
 | Callout to own My Domain | **No Remote Site Setting needed** — Apex callouts to the org's own My Domain work without one. | **Verified in L3** (D-27) |
 | Access-token caching | Not cached: exchange per request costs 117–185 ms (+ userinfo 53–152 ms) — acceptable (D-16). | Measured in L3 |
-| Apex REST via public Site vs API limit | **Measured 2026-10-29 (sandbox):** 100 anonymous `/me` calls through the Site raised `DailyApiRequests` by ~17 (background org traffic), so Site guest Apex REST calls do not count 1:1 against the daily API limit. They do count against Site limits (sandbox: 1,024 MB/day bandwidth, 30 min/day request time, 500k page views/month). Each rep request = 1 Site request + 1 LINE verify callout (+ JWT exchange and 1 REST call as the rep from L3; Account search query 60–170 ms in L4). Re-measure the daily API count with real usage in L8. | Measured |
+| Apex REST via public Site vs API limit | **Measured 2026-10-29 (sandbox):** 100 anonymous `/connection` calls through the Site raised `DailyApiRequests` by ~17 (background org traffic), so Site guest Apex REST calls do not count 1:1 against the daily API limit. They do count against Site limits (sandbox: 1,024 MB/day bandwidth, 30 min/day request time, 500k page views/month). Each rep request = 1 Site request + 1 LINE verify callout (+ JWT exchange and 1 REST call as the rep from L3; Account search query 60–170 ms in L4). Re-measure the daily API count with real usage in L8. | Measured |
 
 ## 7. Field lists
 
@@ -220,7 +220,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 |---|---|
 | L0 Spec + decisions | Done |
 | L1 LINE setup | Done |
-| L2 Site, LIFF shell, `/me` | Done — LINE name shown on the phone |
+| L2 Site, LIFF shell, `/connection` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
 | L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS (Android check pending); L5c Update Opportunity waiting on the BA (D-12, Q-O1) |

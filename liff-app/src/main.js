@@ -1,6 +1,6 @@
 // Sales Report LIFF app.
-// Initialises LIFF and sends the LINE ID token to /me. Not linked yet: "Connect Salesforce" opens the one-time link
-// page in the browser (D-15) and /me is checked again when the rep comes back. Linked: greets the rep and shows the
+// Initialises LIFF and sends the LINE ID token to /connection. Not linked yet: "Connect Salesforce" opens the one-time link
+// page in the browser (D-15) and /connection is checked again when the rep comes back. Linked: greets the rep and shows the
 // form named by ?form= (activity = Log Activity, L5a; opportunity is still coming soon).
 // All text is rendered with textContent; no data is ever inserted as HTML.
 import liff from "@line/liff";
@@ -216,7 +216,7 @@ function handleApiError(error) {
 async function checkMe(api) {
   showLoading();
   try {
-    const me = await api.get("/me");
+    const me = await api.get("/connection");
     clearReloadFlag();
     if (me.linked) {
       waitingForLink = false;

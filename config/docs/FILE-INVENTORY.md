@@ -40,7 +40,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 
 | Class | Layer | Purpose | Milestone | Status |
 |---|---|---|---|---|
-| `SalesReportMeController` | Controller | `GET /salesreport/v1/me` | L2 | Done |
+| `SalesReportConnectionController` | Controller | `GET /salesreport/v1/connection` | L2 | Done |
 | `SalesReportLinkController` | Controller | `POST /salesreport/v1/link/start` | L3 | Done |
 | `SalesReportLinkPageController` | Controller | VF page `SalesReport_Link`: confirm, then link the logged-in rep | L3 | Done |
 | `SalesReportAccountController` | Controller | `GET /salesreport/v1/accounts` | L4 | Done |
@@ -61,7 +61,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportSessionCalloutService` | CalloutService | JWT bearer exchange (Option B) | L3 | Done |
 | `SalesReportOrgApiCalloutService` | CalloutService | Org REST API calls as the rep: userinfo, SOQL, UI API, create, file upload (save errors → `SAVE_FAILED` with fields), rep's today and User ID | L3–L5 | Done |
 | `SalesReportLineVerifyData` | Data | LINE verify response | L2 | Done |
-| `SalesReportMeData` | Data | `/me` response | L2 | Done |
+| `SalesReportConnectionData` | Data | `/connection` response | L2 | Done |
 | `SalesReportAccountData` | Data | Account search result (`id`, `name`, `detail`) | L4 | Done |
 | `SalesReportOpportunityData` | Data | Opportunity list item / update request | L5 | Planned |
 | `SalesReportActivityData` | Data | `POST /activity` response (`id`, `subject`, `status`) | L5a | Done |
@@ -128,7 +128,7 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | `fa/cachePartitions/SalesReportCache.cachePartition-meta.xml` | Platform Cache partition | For the link-code comparison (D-30; the object stays) and rate limits (L7). Deployed to `dev5` with **0 MB** — the org has no free capacity; capacity is set in Setup, not in the repo | L3/L7 | Done (0 MB) |
 | `fa/labels/CustomLabels.labels-meta.xml` | Custom Labels `SalesReport_*` | UI text; 49 English labels (L2 shell, L3 connect / link page, L4 Account picker, L5a activity form, L5b attachments, L7 rate-limit message), translations JA / TH in L6 | L2–L5, L6 | Done (L2–L5a part) |
 | `fa/customPermissions/SalesReport_Access.customPermission-meta.xml` | Custom permission | Checked by the link page; granted by `SalesReport_User` | L3 | Done |
-| Site guest profile settings | Profile (org-generated) | Apex `SalesReportMeController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done), `SalesReportActivityController` (L5a, done), `SalesReportActivityFileController` (L5b, done) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — done for L2–L5b |
+| Site guest profile settings | Profile (org-generated) | Apex `SalesReportConnectionController`, `SalesReportLinkController` (done), `SalesReportAccountController` (done), `SalesReportActivityController` (L5a, done), `SalesReportActivityFileController` (L5b, done) + VF `SalesReport_Liff`; no object access | L2–L5 | [HUMAN] — done for L2–L5b |
 
 ## 8. Components created in Setup ([HUMAN], not in the repo)
 

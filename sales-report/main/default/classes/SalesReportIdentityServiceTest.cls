@@ -20,7 +20,7 @@ private class SalesReportIdentityServiceTest {
       SalesReportTestFactory.verifyBody()
     );
     Test.setMock(HttpCalloutMock.class, mock);
-    RestRequest req = SalesReportTestFactory.meRequest(
+    RestRequest req = SalesReportTestFactory.restRequest(
       'x-line-id-token',
       SalesReportTestFactory.ID_TOKEN
     );
@@ -46,7 +46,7 @@ private class SalesReportIdentityServiceTest {
   static void switchedOff() {
     SalesReportTestFactory.settings(false, 'WARN');
     SalesReportException e = identifyExpectingFailure(
-      SalesReportTestFactory.meRequest(
+      SalesReportTestFactory.restRequest(
         SalesReportIdentityService.TOKEN_HEADER,
         SalesReportTestFactory.ID_TOKEN
       )
@@ -58,7 +58,7 @@ private class SalesReportIdentityServiceTest {
   @IsTest
   static void missingChannelId() {
     SalesReportException e = identifyExpectingFailure(
-      SalesReportTestFactory.meRequest(
+      SalesReportTestFactory.restRequest(
         SalesReportIdentityService.TOKEN_HEADER,
         SalesReportTestFactory.ID_TOKEN
       )
@@ -70,7 +70,7 @@ private class SalesReportIdentityServiceTest {
   static void missingToken() {
     SalesReportTestFactory.settings();
     SalesReportException e = identifyExpectingFailure(
-      SalesReportTestFactory.meRequest(null, null)
+      SalesReportTestFactory.restRequest(null, null)
     );
     Assert.areEqual(SalesReportException.TOKEN_MISSING, e.code, 'No header');
     Assert.areEqual(401, e.statusCode, 'Status');
@@ -87,7 +87,7 @@ private class SalesReportIdentityServiceTest {
   static void oversizedTokenIsRejectedWithoutCallout() {
     SalesReportTestFactory.settings();
     SalesReportException e = identifyExpectingFailure(
-      SalesReportTestFactory.meRequest(
+      SalesReportTestFactory.restRequest(
         SalesReportIdentityService.TOKEN_HEADER,
         'x'.repeat(SalesReportIdentityService.MAX_TOKEN_LENGTH + 1)
       )

@@ -7,7 +7,7 @@ private class SalesReportAccountControllerTest {
   }
 
   private static void request(String term) {
-    SalesReportTestFactory.meRequest(
+    SalesReportTestFactory.restRequest(
       SalesReportIdentityService.TOKEN_HEADER,
       SalesReportTestFactory.ID_TOKEN
     );
@@ -81,7 +81,7 @@ private class SalesReportAccountControllerTest {
   @IsTest
   static void missingTokenAnswers401() {
     SalesReportTestFactory.settings(true, 'WARN');
-    SalesReportTestFactory.meRequest(null, null);
+    SalesReportTestFactory.restRequest(null, null);
 
     SalesReportAccountController.search();
 
