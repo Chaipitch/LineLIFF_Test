@@ -37,10 +37,10 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 | # | Question | Context / options | Recommendation | Answer |
 |---|---|---|---|---|
-| Q-O1 ⚑ | Which fields can reps edit? (G3) | Mockup: Stage, Amount, Next Step. Other candidates: Close Date, Your Win Confidence, Next Step Due Date. Fields come from a field set, so admins can change this later without code (D-21). | Stage, Amount, Next Step, Close Date | BA will confirm later (2026-10-30) |
-| Q-O2 ⚑ | Which "Next Step" field do reps use? (D-12) | Two fields are labelled "Next Step": standard `NextStep` and custom `Next_Step_Custom__c` (+ `Next_Step_Due_Date__c`). Flows stamp "Next Step updated" dates. | Whichever the sales team uses in reports | |
+| Q-O1 ⚑ | Which fields can reps edit? (G3) | Mockup: Stage, Amount, Next Step. Other candidates: Close Date, Your Win Confidence, Next Step Due Date. Fields come from a field set, so admins can change this later without code (D-21). | Stage, Amount, Next Step, Close Date | **Answered 2026-11-03:** Account → Opportunity (choose), Stage, Amount, Main PreSales Engineer, Next Step (custom), Next Step Due Date. Built (D-46); Close Date no longer on the form. |
+| Q-O2 ⚑ | Which "Next Step" field do reps use? (D-12) | Two fields are labelled "Next Step": standard `NextStep` and custom `Next_Step_Custom__c` (+ `Next_Step_Due_Date__c`). Flows stamp "Next Step updated" dates. | Whichever the sales team uses in reports | **Answered 2026-11-03:** custom `Next_Step_Custom__c` (+ `Next_Step_Due_Date__c`) (D-46). |
 | Q-O3 ⚑ | Which stages can be chosen? | Org stages: 01. Before 1st MTG, 02. Early Stage, 03. Final Proposal, 08.Closed Won, 08.Closed Lost. Closing needs extra fields (signed contract + win reason; lost reason + detail) by active validation rules. | Open stages 01–03 only; close in Salesforce | |
-| Q-O4 ⚑ | Moving to Stage 02+ requires **PreSales Engineer** (active validation rule). Add it to the form? | Without it, reps will see the error and can't save. | Add PreSales Engineer to the form | |
+| Q-O4 ⚑ | Moving to Stage 02+ requires **PreSales Engineer** (active validation rule). Add it to the form? | Without it, reps will see the error and can't save. | Add PreSales Engineer to the form | **Answered 2026-11-03:** yes — on the form as a search box of active Users (D-46). |
 | Q-O5 | Labels: the org calls `Amount` "Target TCV" and stages have numbers. OK to show the org's labels as-is? | Form shows Salesforce labels automatically. | Yes | |
 | Q-O6 | Which Opportunities appear in the list? | Own only / all open on the Account / all visible. | All open on the Account that the rep can see | |
 | Q-O7 | Create new Opportunities from LINE? | Not in plan (adds scope). | Not in phase 1 | |
@@ -116,13 +116,11 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 1. ☐ **Rep คนไหนบ้างที่จะใช้?** ขอรายชื่อ — ⚠️ การดู/แก้ Opportunity ต้องใช้ license **Salesforce เต็ม**
    ซึ่งตอนนี้ใช้ครบทั้ง 9 license แล้ว คนที่เป็น **Salesforce Platform** บันทึกกิจกรรมได้ แต่**มองไม่เห็น Opportunity** (Q-S1, D-13)
-2. ☐ **Rep แก้ไขฟิลด์ไหนได้บ้าง?** เสนอ: Stage, Amount (Target TCV), Next Step, Close Date
-   / ตัวเลือกเพิ่ม: Your Win Confidence, Next Step Due Date (Q-O1)
-3. ☐ **ใช้ฟิลด์ "Next Step" ตัวไหน?** ใน org มี 2 ตัวชื่อเหมือนกัน: `NextStep` (มาตรฐาน) หรือ `Next_Step_Custom__c` (Q-O2)
+2. ✅ ตอบแล้ว (3 พ.ย.): ฟิลด์ที่แก้ได้ = Stage, Amount (Target TCV), Main PreSales Engineer, Next Step, Next Step Due Date (Q-O1, D-46)
+3. ✅ ตอบแล้ว (3 พ.ย.): ใช้ `Next_Step_Custom__c` และ `Next_Step_Due_Date__c` (Q-O2, D-46)
 4. ☐ **ให้เลือก Stage ได้ถึงไหน?** เสนอ: เฉพาะ 01–03 ส่วนปิดดีล (Won/Lost) ทำใน Salesforce
    เพราะการปิดดีลต้องกรอกเอกสารสัญญา/เหตุผลเพิ่มตาม validation rule (Q-O3)
-5. ☐ **เพิ่มฟิลด์ PreSales Engineer ในฟอร์มไหม?** Stage 02 ขึ้นไประบบบังคับกรอก ถ้าไม่มีในฟอร์ม Rep จะบันทึกไม่ผ่าน
-   → เสนอ: เพิ่ม (Q-O4)
+5. ✅ ตอบแล้ว (3 พ.ย.): **เพิ่ม Main PreSales Engineer** ในฟอร์ม (ค้นหาชื่อ user) (Q-O4, D-46)
 6. ☐ **แสดง Opportunity ไหนบ้าง?** เสนอ: ดีลที่ยังเปิดอยู่ของ Account ที่เลือก และ Rep มีสิทธิ์มองเห็น (Q-O6)
 7. ☐ **แสดงชื่อฟิลด์ตาม Salesforce ได้ไหม?** เช่น Amount แสดงเป็น "Target TCV", Stage มีเลขนำหน้า → เสนอ: ได้ (Q-O5)
 

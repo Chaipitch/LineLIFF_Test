@@ -2,6 +2,7 @@
 // picklist values, defaults or current values, and required flags (D-31). Shared by Log Activity and Update
 // Opportunity. Errors are shown next to each field and cleared as soon as the rep changes it. All text uses textContent.
 import { ApiError } from "./api.js";
+import { createSearchPicker } from "./accountPicker.js";
 
 export function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -51,8 +52,30 @@ function isEmpty(value) {
   );
 }
 
-function buildControl(field, labels, id, dateDefaultToday) {
+function buildControl(field, labels, id, options) {
   const initial = field.defaultValue;
+  if (field.type === "lookup" && options.searchLookup) {
+    // Search box; the value is the chosen record's ID. "Change" empties it (clears an optional lookup on save).
+    let value = initial || "";
+    const picker = createSearchPicker({
+      inputId: id,
+      placeholder: labels.accountPlaceholder,
+      searchingText: labels.accountSearching,
+      noResultsText: labels.noMatches,
+      changeText: labels.change,
+      minChars: options.minChars || 2,
+      initial: initial
+        ? { id: initial, name: field.displayValue || initial }
+        : null,
+      search: (term, signal) => options.searchLookup(field, term, signal),
+      onSelect: (item) => {
+        value = item ? item.id : "";
+        picker.element.dispatchEvent(new Event("change", { bubbles: true }));
+      },
+      onError: options.onError || (() => {})
+    });
+    return { node: picker.element, read: () => value };
+  }
   if (field.type === "textarea") {
     const area = el("textarea", "sr-input sr-textarea");
     area.rows = 4;
@@ -108,14 +131,15 @@ function buildControl(field, labels, id, dateDefaultToday) {
   }
   if (field.maxLength) input.maxLength = field.maxLength;
   if (initial != null) input.value = initial;
-  else if (field.type === "date" && dateDefaultToday)
+  else if (field.type === "date" && options.dateDefaultToday)
     input.value = localToday();
   return { node: input, read: () => input.value.trim() };
 }
 
 /**
  * options: labels, idPrefix, dateDefaultToday (new records), sendEmpty (edits: empty fields are sent so Salesforce
- * clears them). Returns { element, render(fields), collect(), mark(name, message), clear() }.
+ * clears them), searchLookup(field, term, signal) → Promise of [{ id, name, detail }] and minChars (lookup fields;
+ * forms without it skip lookups), onError. Returns { element, render(fields), collect(), mark(name, message), clear() }.
  */
 export function createFieldList(options) {
   const labels = options.labels;
@@ -144,7 +168,8 @@ export function createFieldList(options) {
     (fields || []).forEach((field, index) => {
       const id = (options.idPrefix || "sr-field-") + index;
       const wrapper = el("div", "sr-field");
-      const control = buildControl(field, labels, id, options.dateDefaultToday);
+      if (field.type === "lookup" && !options.searchLookup) return;
+      const control = buildControl(field, labels, id, options);
       const label = el("label", "sr-label", field.label);
       label.htmlFor = id;
       if (field.required) {

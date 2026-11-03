@@ -351,9 +351,10 @@ fails, the saved screen offers **Try again** (within an hour).
 
 **L5c — Update Opportunity (built 2026-11-02; switched off — tick *Update Opportunity Enabled* first).** Use a **test** Opportunity — saving runs the
 org's Opportunity automation (e.g. Slack alerts). Tap **Update Opportunity** → choose an Account → its open Opportunities
-appear (stage · close date) → tap one → the form shows its current Stage, Target TCV, Next Step, Target Close Date →
-change something → **Save** → "Opportunity updated: <name>". Moving to Stage 02 without a PreSales Engineer shows the
-org's validation message instead.
+appear (stage · close date) → tap one → the form shows its current Stage, Target TCV, Main PreSales Engineer, Next Step,
+Next Step Due Date (BA's fields, D-46) → change something (type 2+ letters of a name to pick a PreSales Engineer;
+**Change** empties it) → **Save** → "Opportunity updated: <name>". Moving to Stage 02 without a PreSales Engineer shows
+the org's validation message instead.
 
 **Re-test the first-time login.** (1) Open your link and click **Revoke** (Day-to-day tasks below). (2) To see the Salesforce
 password screen again, also log out of Salesforce **in the phone's browser** (open `https://<My Domain>/secur/logout.jsp`

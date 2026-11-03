@@ -28,24 +28,34 @@ private class SalesReportFormServiceTest {
       new Map<String, Object>{
         'StageName' => SalesReportTestFactory.openStages()[0],
         'Amount' => 5,
-        'CloseDate' => '2027-01-31',
-        'NextStep' => ' '
+        'Next_Step_Due_Date__c' => '2027-01-31',
+        'Next_Step_Custom__c' => ' '
       },
       errors
     );
     Assert.isTrue(errors.isEmpty(), 'No errors: ' + errors);
-    Assert.isTrue(values.containsKey('NextStep'), 'Sent empty → cleared');
-    Assert.isNull(values.get('NextStep'), 'Null clears');
+    Assert.isTrue(
+      values.containsKey('Next_Step_Custom__c'),
+      'Sent empty → cleared'
+    );
+    Assert.isNull(values.get('Next_Step_Custom__c'), 'Null clears');
 
     values = form.values(
       new Map<String, Object>{
         'StageName' => SalesReportTestFactory.openStages()[0],
         'Amount' => 5,
-        'CloseDate' => '2027-01-31'
+        'Next_Step_Due_Date__c' => '2027-01-31'
       },
       errors
     );
-    Assert.isFalse(values.containsKey('NextStep'), 'Not sent → untouched');
+    Assert.isFalse(
+      values.containsKey('Next_Step_Custom__c'),
+      'Not sent → untouched'
+    );
+    Assert.isFalse(
+      form.byName.containsKey('PreSales_Engineer__c'),
+      'Forms that cannot search leave lookups out'
+    );
   }
 
   @IsTest

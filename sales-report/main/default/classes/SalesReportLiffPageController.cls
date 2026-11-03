@@ -51,6 +51,7 @@ public with sharing class SalesReportLiffPageController {
       'accountPlaceholder' => System.Label.SalesReport_Account_Search_Placeholder,
       'accountNoResults' => System.Label.SalesReport_No_Results,
       'accountSearching' => System.Label.SalesReport_Searching,
+      'noMatches' => System.Label.SalesReport_No_Matches,
       'change' => System.Label.SalesReport_Change,
       'activityTitle' => System.Label.SalesReport_Activity_Title,
       'activitySaved' => System.Label.SalesReport_Activity_Saved,

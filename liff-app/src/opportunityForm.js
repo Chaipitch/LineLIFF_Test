@@ -49,7 +49,20 @@ export function createOpportunityForm(options) {
   const fields = createFieldList({
     labels,
     idPrefix: "sr-opp-field-",
-    sendEmpty: true
+    sendEmpty: true,
+    minChars: options.minChars,
+    onError,
+    // Lookup fields (e.g. Main PreSales Engineer): records the rep can see, searched through the same endpoint.
+    searchLookup: async (field, term, signal) =>
+      (
+        await api.get(
+          "/opportunities?lookup=" +
+            encodeURIComponent(field.name) +
+            "&q=" +
+            encodeURIComponent(term),
+          { signal }
+        )
+      ).records
   });
   fields.element.hidden = true;
   const formError = el("p", "sr-error sr-form-error");

@@ -152,7 +152,7 @@ is only an extra: a field is also required when the rep's layout or the database
 
 | Field set | Object | Initial members (BA to confirm) | Required in set |
 |---|---|---|---|
-| `SalesReport_Opportunity_Form` | Opportunity | `StageName`, `Amount`, `NextStep`, `CloseDate` (built, L5c, D-39). Admins may add org fields such as `Your_Win_Confidence__c`, `Next_Step_Custom__c`, `Next_Step_Due_Date__c` in Setup (P3); lookups such as `PreSales_Engineer__c` can't be shown | none (follow the edit layout, D-31) |
+| `SalesReport_Opportunity_Form` | Opportunity | BA's list (2026-11-03, D-46): `StageName`, `Amount`, `PreSales_Engineer__c` (User lookup → search box of active Users), `Next_Step_Custom__c`, `Next_Step_Due_Date__c`. Org fields, so this field set is a P3 exception for TerraSky Thailand orgs. Account and Opportunity are chosen above the fields, not in the set | none (follow the edit layout, D-31) |
 | `SalesReport_Activity_Form` | Task (D-11) | `Type`, `ActivityDate`, `Description` (built, L5a). Admins may add `ActivityPurpose__c` in Setup (org field, kept out of the repo, P3) | none (follow the layout, D-31) |
 
 Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`;
@@ -221,6 +221,7 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Save_Failed` | Salesforce couldn’t save your changes: | LIFF — first line above Salesforce's own save error | L5c |
 | `SalesReport_Rule_Error` | A Salesforce rule couldn’t run, so nothing was saved. Please send this message to your administrator: | LIFF — when a validation-rule formula itself fails ("Validation Formula … Invalid") | L5c |
 | `SalesReport_Error_No_Access` | Your Salesforce user can’t open this data. Please ask your administrator. | LIFF (`NO_ACCESS`) | L5c |
+| `SalesReport_No_Matches` | No matches | LIFF — lookup search (e.g. Main PreSales Engineer) found nothing | D-46 |
 | `SalesReport_Error_Reference` | Reference: {0} | LIFF and link page — under unexpected errors, {0} = request ID (D-45) | D-45 |
 | `SalesReport_Link_Already_Linked` | This Salesforce user is already linked to another LINE account. Please contact your administrator to revoke the existing link before linking a new account. | Link page (`ALREADY_LINKED`) | D-44 |
 | `SalesReport_Link_Line_In_Use` | This LINE account is already linked to another Salesforce user. Please contact your administrator to revoke that link first. | Link page (`LINE_IN_USE`) | D-44 |

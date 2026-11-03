@@ -325,13 +325,34 @@ public with sharing class SalesReportTestFactory {
     return stages;
   }
 
-  /** Body of GET ui-api/object-info/Opportunity (Stage, Amount, Next Step, Close Date; Amount optional). */
+  /**
+   * Body of GET ui-api/object-info/Opportunity: the BA's form fields (Stage, Amount, Main PreSales Engineer, Next Step,
+   * Next Step Due Date). Amount is required by the mock layout; the due date is DB-required here so tests cover a
+   * required date.
+   */
   public static String opportunityObjectInfoBody() {
+    Map<String, Object> engineer = fieldInfo(
+      'Reference',
+      'Main PreSales Engineer',
+      false,
+      18
+    );
+    engineer.put('relationshipName', 'PreSales_Engineer__r');
+    engineer.put(
+      'referenceToInfos',
+      new List<Object>{ new Map<String, Object>{ 'apiName' => 'User' } }
+    );
     Map<String, Object> infos = new Map<String, Object>{
       'StageName' => fieldInfo('Picklist', 'Stage', true, 255),
       'Amount' => fieldInfo('Currency', 'Target TCV', false, 0),
-      'NextStep' => fieldInfo('String', 'Next Step', false, 255),
-      'CloseDate' => fieldInfo('Date', 'Target Close Date', true, 0)
+      'PreSales_Engineer__c' => engineer,
+      'Next_Step_Custom__c' => fieldInfo('TextArea', 'Next Step', false, 255),
+      'Next_Step_Due_Date__c' => fieldInfo(
+        'Date',
+        'Next Step Due Date',
+        true,
+        0
+      )
     };
     for (String name : infos.keySet()) {
       ((Map<String, Object>) infos.get(name)).put('updateable', true);
@@ -388,8 +409,12 @@ public with sharing class SalesReportTestFactory {
             'IsClosed' => isClosed,
             'StageName' => stage,
             'Amount' => 1200000,
-            'NextStep' => 'Send quote',
-            'CloseDate' => '2026-12-15'
+            'PreSales_Engineer__c' => UserInfo.getUserId(),
+            'PreSales_Engineer__r' => new Map<String, Object>{
+              'Name' => 'Engineer One'
+            },
+            'Next_Step_Custom__c' => 'Send quote',
+            'Next_Step_Due_Date__c' => '2026-12-15'
           }
         }
       }
@@ -423,6 +448,13 @@ public with sharing class SalesReportTestFactory {
           '","Name":"Toyota – CRM renewal","StageName":"Early Stage","CloseDate":"2026-12-15","Owner":{"Name":"Rep One"}}]}'
       )
       .route('FROM+Opportunity+WHERE+Id', 200, recordBody)
+      .route(
+        'FROM+User+WHERE+Name',
+        200,
+        '{"totalSize":1,"done":true,"records":[{"Id":"' +
+          UserInfo.getUserId() +
+          '","Name":"Engineer One","Title":"PreSales"}]}'
+      )
       .route('/sobjects/Opportunity/', 204, '');
   }
 

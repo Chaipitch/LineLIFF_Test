@@ -201,6 +201,16 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       relink.
 - [ ] BA · Confirm Revoked vs Unlinked (Q-L9).
 
+### Change: BA's Opportunity fields (2026-11-03, D-46)
+
+- [x] C · Field set `SalesReport_Opportunity_Form` = Stage, Amount, Main PreSales Engineer, Next Step (custom), Next Step
+      Due Date (Q-O1, Q-O2, Q-O4).
+- [x] C · Lookup fields on the form: search box (reused Account picker), `GET /opportunities?lookup=&q=` as the rep,
+      current name shown, ID checked on save. No new guest-profile grant (same controller).
+- [x] C · Read-only check in `dev5` (fields, current PreSales Engineer name, user search). Form **stays switched off**
+      (user).
+- [ ] H · When switching on: tick *Update Opportunity Enabled*, device-test with a **test** Opportunity (Slack alerts).
+
 ## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)
 
 - [ ] C · Labels via Custom Labels `SalesReport_*` in the agreed languages (JA / EN / TH — BA), picked from LINE/browser language.

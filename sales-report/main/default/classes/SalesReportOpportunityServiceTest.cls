@@ -25,8 +25,8 @@ private class SalesReportOpportunityServiceTest {
     return new Map<String, Object>{
       'StageName' => SalesReportTestFactory.openStages()[0],
       'Amount' => '1500000',
-      'NextStep' => '',
-      'CloseDate' => '2027-01-31'
+      'Next_Step_Custom__c' => '',
+      'Next_Step_Due_Date__c' => '2027-01-31'
     };
   }
 
@@ -105,18 +105,29 @@ private class SalesReportOpportunityServiceTest {
       byName.put(field.name, field);
     }
     Assert.areEqual(
-      new Set<String>{ 'StageName', 'Amount', 'NextStep', 'CloseDate' },
+      new Set<String>{
+        'StageName',
+        'Amount',
+        'PreSales_Engineer__c',
+        'Next_Step_Custom__c',
+        'Next_Step_Due_Date__c'
+      },
       byName.keySet(),
       'Field set members'
     );
+    SalesReportFormData.Field engineer = byName.get('PreSales_Engineer__c');
+    Assert.areEqual('lookup', engineer.type, 'User lookup');
+    Assert.areEqual('User', engineer.lookupObject, 'Searches Users');
+    Assert.areEqual(UserInfo.getUserId(), engineer.defaultValue, 'Current ID');
+    Assert.areEqual('Engineer One', engineer.displayValue, 'Current name');
     Assert.areEqual(
       '2026-12-15',
-      byName.get('CloseDate').defaultValue,
+      byName.get('Next_Step_Due_Date__c').defaultValue,
       'Current date'
     );
     Assert.areEqual(
       'Send quote',
-      byName.get('NextStep').defaultValue,
+      byName.get('Next_Step_Custom__c').defaultValue,
       'Current text'
     );
     Assert.isTrue(byName.get('Amount').required, 'Required on the rep layout');
@@ -197,9 +208,12 @@ private class SalesReportOpportunityServiceTest {
       req.getBody()
     );
     Assert.areEqual(1500000, sent.get('Amount'), 'Amount');
-    Assert.areEqual('2027-01-31', sent.get('CloseDate'), 'Date');
-    Assert.isTrue(sent.containsKey('NextStep'), 'Cleared field sent');
-    Assert.isNull(sent.get('NextStep'), 'Cleared to null');
+    Assert.areEqual('2027-01-31', sent.get('Next_Step_Due_Date__c'), 'Date');
+    Assert.isTrue(
+      sent.containsKey('Next_Step_Custom__c'),
+      'Cleared field sent'
+    );
+    Assert.isNull(sent.get('Next_Step_Custom__c'), 'Cleared to null');
     Assert.areEqual(
       'Bearer session-token',
       req.getHeader('Authorization'),
@@ -375,5 +389,77 @@ private class SalesReportOpportunityServiceTest {
       }
     }
     Assert.isNotNull(updateRequest(mock), 'Saved with the unchanged old stage');
+  }
+
+  @IsTest
+  static void lookupAcceptsOnlyARecordOfItsObject() {
+    SalesReportHttpMock mock = SalesReportTestFactory.opportunityApiMock();
+    Test.setMock(HttpCalloutMock.class, mock);
+    Map<String, Object> wrong = validValues();
+    wrong.put('PreSales_Engineer__c', ACCOUNT_ID);
+
+    Test.startTest();
+    SalesReportException e = saveExpectingFailure(body(ACCOUNT_ID, wrong));
+    Map<String, Object> right = validValues();
+    right.put('PreSales_Engineer__c', UserInfo.getUserId());
+    new SalesReportOpportunityService().save(api(), body(ACCOUNT_ID, right));
+    Test.stopTest();
+
+    Assert.isTrue(
+      e.fieldErrors.containsKey('PreSales_Engineer__c'),
+      'An Account ID is not a User'
+    );
+    Map<String, Object> sent = (Map<String, Object>) JSON.deserializeUntyped(
+      updateRequest(mock).getBody()
+    );
+    Assert.areEqual(
+      UserInfo.getUserId(),
+      sent.get('PreSales_Engineer__c'),
+      'User ID saved'
+    );
+  }
+
+  @IsTest
+  static void lookupSearchFindsActiveUsersAsTheRep() {
+    SalesReportHttpMock mock = SalesReportTestFactory.opportunityApiMock();
+    Test.setMock(HttpCalloutMock.class, mock);
+
+    Test.startTest();
+    SalesReportLookupData data = new SalesReportOpportunityService()
+      .searchLookup(api(), 'PreSales_Engineer__c', 'eng');
+    Test.stopTest();
+
+    Assert.areEqual(1, data.records.size(), 'One user');
+    Assert.areEqual('Engineer One', data.records[0].name, 'Name');
+    Assert.areEqual('PreSales', data.records[0].detail, 'Title');
+    String query = EncodingUtil.urlDecode(
+      mock.requests[mock.requests.size() - 1].getEndpoint(),
+      'UTF-8'
+    );
+    Assert.isTrue(query.contains('IsActive = true'), query);
+    Assert.isTrue(query.contains('LIKE \'%eng%\''), query);
+  }
+
+  @IsTest
+  static void lookupSearchRefusesOtherFieldsAndShortTerms() {
+    SalesReportOpportunityService service = new SalesReportOpportunityService();
+    for (String field : new List<String>{ 'Name', 'StageName', null }) {
+      try {
+        service.searchLookup(api(), field, 'eng');
+        Assert.fail('Expected a refusal for ' + field);
+      } catch (SalesReportException e) {
+        Assert.areEqual(
+          SalesReportException.INVALID_INPUT,
+          e.code,
+          'Field ' + field
+        );
+      }
+    }
+    try {
+      service.searchLookup(api(), 'PreSales_Engineer__c', 'e');
+      Assert.fail('Expected QUERY_TOO_SHORT');
+    } catch (SalesReportException e) {
+      Assert.areEqual(SalesReportException.QUERY_TOO_SHORT, e.code, 'Short');
+    }
   }
 }

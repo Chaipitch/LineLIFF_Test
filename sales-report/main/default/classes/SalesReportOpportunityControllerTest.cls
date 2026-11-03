@@ -66,9 +66,28 @@ private class SalesReportOpportunityControllerTest {
 
     Assert.areEqual(200, RestContext.response.statusCode, 'OK');
     Assert.areEqual(
-      4,
+      5,
       ((List<Object>) responseJson().get('fields')).size(),
       'Fields'
+    );
+  }
+
+  @IsTest
+  static void getWithLookupSearchesTheField() {
+    linkedRep();
+    RestRequest req = request('GET', null);
+    req.params.put('lookup', 'PreSales_Engineer__c');
+    req.params.put('q', 'eng');
+
+    Test.startTest();
+    SalesReportOpportunityController.getOpportunities();
+    Test.stopTest();
+
+    Assert.areEqual(200, RestContext.response.statusCode, 'OK');
+    Assert.areEqual(
+      1,
+      ((List<Object>) responseJson().get('records')).size(),
+      'Users found'
     );
   }
 
@@ -84,7 +103,7 @@ private class SalesReportOpportunityControllerTest {
           'values' => new Map<String, Object>{
             'StageName' => SalesReportTestFactory.openStages()[0],
             'Amount' => 10,
-            'CloseDate' => '2027-01-31'
+            'Next_Step_Due_Date__c' => '2027-01-31'
           }
         }
       )

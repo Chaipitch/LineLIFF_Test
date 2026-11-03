@@ -10,13 +10,17 @@ public with sharing class SalesReportFormData {
     /** Field API name, the key in the POST body. */
     public String name;
     public String label;
-    /** text | textarea | picklist | multipicklist | date | boolean | number | email | phone | url */
+    /** text | textarea | picklist | multipicklist | date | boolean | number | email | phone | url | lookup */
     public String type;
     public Boolean required = false;
     /** Default for a new record, or the current value when editing. */
     public Object defaultValue;
     public Integer maxLength;
     public List<Option> options;
+    /** lookup only: the object searched (e.g. User); the value is a record ID, never a name. */
+    public String lookupObject;
+    /** lookup only: name of the current record, shown instead of its ID. */
+    public String displayValue;
   }
 
   public class Option {

@@ -75,6 +75,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportFormData` | Data | Form definition (fields with label, type, required, default/current value, options); was `SalesReportActivityFormData` until L5c | L5a/L5c | Done |
 | `SalesReportErrorData` | Data | Error response (`code`, `message`, `fields`, `reference` = request ID, D-45) | L2, L5a, D-45 | Done |
 | `SalesReportNamespaceService` | Service | Namespace-safe REST and page paths (P6) | L3 | Done |
+| `SalesReportLookupData` | Data | `GET /opportunities?lookup=` response (`records`: `id`, `name`, `detail`) | D-46 | Done |
 | `SalesReportLinkStartData` | Data | `/link/start` response (`linkUrl`) | L3 | Done |
 | `SalesReportException` | Other | Typed exception, plain-language message | L2 | Done |
 | `SalesReportRestService` | Service | Shared JSON responses / error mapping for the REST controllers | L2 | Done |

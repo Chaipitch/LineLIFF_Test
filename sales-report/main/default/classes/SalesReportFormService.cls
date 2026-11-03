@@ -7,6 +7,7 @@
  * (object-info, layout, picklist-values for the rep's default record type — not record-defaults, which returns every
  * related object, ~4.7 MB). A field is required on the form exactly when Salesforce requires it for this rep: required
  * on their layout, required by the database, or ticked Required in the field set. Validation rules run on save.
+ * Single-object lookups (e.g. a User) are offered only to forms that search them (Update Opportunity, searchLookup).
  */
 public with sharing class SalesReportFormService {
   /** New record (fields the rep can create, Create layout) or existing record (fields the rep can edit, Edit layout). */
@@ -45,6 +46,9 @@ public with sharing class SalesReportFormService {
   private static final Pattern ISO_DATE = Pattern.compile(
     '\\d{4}-\\d{2}-\\d{2}'
   );
+  @TestVisible
+  static final Integer MAX_LOOKUP_RESULTS = 10;
+  private static final Integer MAX_TERM_LENGTH = 80;
 
   public final String objectName;
   public final String fieldSetName;
@@ -57,6 +61,10 @@ public with sharing class SalesReportFormService {
   public final Map<String, Object> defaults = new Map<String, Object>();
   public final Set<String> layoutRequired = new Set<String>();
   public final String objectLabel;
+  /** Lookup field → relationship name (e.g. PreSales_Engineer__c → PreSales_Engineer__r), for reading the name. */
+  public final Map<String, String> lookupRelationships = new Map<String, String>();
+  /** Lookup fields are offered only by forms that can search them (Update Opportunity). */
+  private final Boolean allowLookups;
 
   public SalesReportFormService(
     SalesReportOrgApiCalloutService api,
@@ -64,6 +72,17 @@ public with sharing class SalesReportFormService {
     String fieldSetName,
     Purpose purpose
   ) {
+    this(api, objectType, fieldSetName, purpose, false);
+  }
+
+  public SalesReportFormService(
+    SalesReportOrgApiCalloutService api,
+    Schema.SObjectType objectType,
+    String fieldSetName,
+    Purpose purpose,
+    Boolean allowLookups
+  ) {
+    this.allowLookups = allowLookups == true;
     Schema.DescribeSObjectResult describe = objectType.getDescribe();
     this.objectName = describe.getName();
     this.fieldSetName = fieldSetName;
@@ -225,6 +244,15 @@ public with sharing class SalesReportFormService {
           return raw;
         }
       }
+      when 'lookup' {
+        if (
+          raw instanceof String && isRecordOf((String) raw, field.lookupObject)
+        ) {
+          return raw;
+        }
+        errors.put(field.name, 'Choose from the list.');
+        return null;
+      }
       when 'multipicklist' {
         List<Object> items = raw instanceof List<Object>
           ? (List<Object>) raw
@@ -258,6 +286,104 @@ public with sharing class SalesReportFormService {
       field.type == 'picklist' ? 'Choose from the list.' : 'Invalid value.'
     );
     return null;
+  }
+
+  /**
+   * Records for a lookup field of the form, searched **as the rep** by name (only what they can see; active users
+   * only for User lookups). The field must be a single-object lookup in the field set: checked with describe, so the
+   * search needs no UI API calls.
+   */
+  public static SalesReportLookupData searchLookup(
+    SalesReportOrgApiCalloutService api,
+    Schema.SObjectType objectType,
+    String fieldSetName,
+    String fieldName,
+    String rawTerm
+  ) {
+    Schema.SObjectType target = lookupTarget(
+      objectType,
+      fieldSetName,
+      fieldName
+    );
+    String term = rawTerm == null
+      ? ''
+      : rawTerm.normalizeSpace().left(MAX_TERM_LENGTH);
+    if (term.length() < SalesReportSettingsService.accountSearchMinChars()) {
+      throw SalesReportException.of(
+        SalesReportException.QUERY_TOO_SHORT,
+        400,
+        'Type at least ' +
+          SalesReportSettingsService.accountSearchMinChars() +
+          ' characters.'
+      );
+    }
+    Boolean isUser = target == User.SObjectType;
+    // escapeSingleQuotes escapes quotes and backslashes, then the LIKE wildcards; the object name comes from describe.
+    String pattern =
+      '\'%' +
+      String.escapeSingleQuotes(term).replace('%', '\\%').replace('_', '\\_') +
+      '%\'';
+    List<Object> records = api.query(
+      'SELECT Id, Name' +
+        (isUser ? ', Title' : '') +
+        ' FROM ' +
+        target.getDescribe().getName() +
+        ' WHERE Name LIKE ' +
+        pattern +
+        (isUser ? ' AND IsActive = true' : '') +
+        ' ORDER BY Name LIMIT ' +
+        MAX_LOOKUP_RESULTS
+    );
+    SalesReportLookupData data = new SalesReportLookupData();
+    for (Object row : records) {
+      Map<String, Object> record = (Map<String, Object>) row;
+      SalesReportLookupData.Item item = new SalesReportLookupData.Item();
+      item.id = (String) record.get('Id');
+      item.name = (String) record.get('Name');
+      item.detail = isUser ? (String) record.get('Title') : null;
+      data.records.add(item);
+    }
+    return data;
+  }
+
+  /** The object a field-set lookup points to; INVALID_INPUT when the field is not a single-object lookup there. */
+  private static Schema.SObjectType lookupTarget(
+    Schema.SObjectType objectType,
+    String fieldSetName,
+    String fieldName
+  ) {
+    Schema.FieldSet fieldSet = objectType.getDescribe()
+      .fieldSets.getMap()
+      .get(fieldSetName);
+    if (fieldSet != null && fieldName != null) {
+      for (Schema.FieldSetMember member : fieldSet.getFields()) {
+        if (
+          member.getFieldPath() == fieldName &&
+          member.getType() == Schema.DisplayType.REFERENCE
+        ) {
+          List<Schema.SObjectType> targets = member.getSObjectField()
+            .getDescribe()
+            .getReferenceTo();
+          if (targets.size() == 1) {
+            return targets[0];
+          }
+        }
+      }
+    }
+    throw SalesReportException.of(
+      SalesReportException.INVALID_INPUT,
+      400,
+      'Field ' + fieldName + ' cannot be searched from LINE.'
+    );
+  }
+
+  private static Boolean isRecordOf(String value, String objectName) {
+    try {
+      return Id.valueOf(value).getSObjectType().getDescribe().getName() ==
+        objectName;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   /** Request body → JSON object; INVALID_INPUT otherwise. */
@@ -367,6 +493,10 @@ public with sharing class SalesReportFormService {
       return null;
     }
     String inputType = INPUT_TYPES.get((String) info.get('dataType'));
+    String lookupObject = lookupObjectOf(info);
+    if (lookupObject != null) {
+      inputType = 'lookup';
+    }
     if (inputType == null) {
       SalesReportLogService.warn(
         SOURCE,
@@ -390,11 +520,31 @@ public with sharing class SalesReportFormService {
       info.get('required') == true ||
       layoutRequired.contains(name));
     field.defaultValue = defaults.get(name);
+    if (lookupObject != null) {
+      field.lookupObject = lookupObject;
+      lookupRelationships.put(name, (String) info.get('relationshipName'));
+    }
     if (TEXT_TYPES.contains(inputType) && info.get('length') != null) {
       Integer length = Integer.valueOf(info.get('length'));
       field.maxLength = length > 0 ? length : null;
     }
     return field;
+  }
+
+  /** The single object a lookup field points to, when this form allows lookups; otherwise null. */
+  private String lookupObjectOf(Map<String, Object> info) {
+    if (!allowLookups || info.get('dataType') != 'Reference') {
+      return null;
+    }
+    List<Object> targets = (List<Object>) info.get('referenceToInfos');
+    if (
+      targets == null ||
+      targets.size() != 1 ||
+      String.isBlank((String) info.get('relationshipName'))
+    ) {
+      return null;
+    }
+    return (String) ((Map<String, Object>) targets[0]).get('apiName');
   }
 
   private void addPicklistValues(Map<String, Object> picklists) {

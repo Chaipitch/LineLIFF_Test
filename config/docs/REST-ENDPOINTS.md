@@ -2,7 +2,7 @@
 
 How the Apex REST endpoints of LINE Sales Reporting handle a request, step by step. Contract summary (paths, request
 and response shapes, error codes): `L0-SPEC.md` §4. Classes: `L0-SPEC.md` §5a. Decisions: `DECISIONS.md` (D-xx).
-Last updated 2026-11-03 (link rules D-44, support reference D-45).
+Last updated 2026-11-03 (link rules D-44, support reference D-45, BA's Opportunity fields and lookup search D-46).
 
 Base URL (sandbox `dev5`):
 `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/services/apexrest/salesreport/v1/…`
@@ -183,16 +183,32 @@ profile needs one grant. **Currently switched off** (setting *Update Opportunity
 4. Stage choices: active **open** stages (optionally narrowed by setting *Opportunity Stages*), plus the record's current
    stage even if that stage is no longer active, so an unchanged stage can still be saved.
 
-**Returns:** `{ id, name, accountId, fields }` — each field's `defaultValue` is the current value.
+**Returns:** `{ id, name, accountId, fields }` — each field's `defaultValue` is the current value. Fields today (D-46):
+Stage, Amount (Target TCV), Main PreSales Engineer, Next Step (custom), Next Step Due Date. A lookup field has
+`type: "lookup"`, `lookupObject` (e.g. `User`) and `displayValue` (the current record's name, read as
+`<relationship>.Name`).
+
+### `GET /opportunities?lookup=<field>&q=…` — search for a lookup field
+
+For the form's lookup fields, e.g. `lookup=PreSales_Engineer__c` (D-46).
+
+1. Verify the token and get the rep's session.
+2. The field must be a single-object lookup in field set `SalesReport_Opportunity_Form` (checked with describe — no UI
+   API calls, so it is fast enough per keystroke); anything else → `INVALID_INPUT`. At least 2 characters (same setting
+   as the Account search) → otherwise `QUERY_TOO_SHORT`.
+3. `SELECT Id, Name[, Title] FROM <object> WHERE Name LIKE '%term%' [AND IsActive = true] ORDER BY Name LIMIT 10`
+   **as the rep** (term escaped; active users only for User lookups).
+
+**Returns:** `{ records: [{ id, name, detail }] }` (`detail` = a User's title).
 
 ### `POST /opportunities` — save
 
-Body: `{ id, accountId, values: { StageName, Amount, NextStep, CloseDate } }`
+Body: `{ id, accountId, values: { StageName, Amount, PreSales_Engineer__c, Next_Step_Custom__c, Next_Step_Due_Date__c } }`
 
 1. Verify the token, get the rep's session.
 2. Read the Opportunity as the rep: it must be open and belong to the chosen Account.
-3. Check the values like Log Activity (only form fields, picklist values, types, required). Optional fields sent empty
-   are **cleared** (set to null).
+3. Check the values like Log Activity (only form fields, picklist values, types, required; a lookup value must be an ID
+   of its object, e.g. a User ID). Optional fields sent empty are **cleared** (set to null).
 4. Update as the rep (`POST /sobjects/Opportunity/<id>?_HttpMethod=PATCH`, because Apex can't send PATCH). Validation-rule
    errors (e.g. Stage 02 without PreSales Engineer) come back as `SAVE_FAILED`.
 

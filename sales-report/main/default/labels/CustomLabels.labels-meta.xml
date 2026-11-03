@@ -358,6 +358,14 @@
         <value>Sales Report</value>
     </labels>
     <labels>
+        <fullName>SalesReport_No_Matches</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_No_Matches</shortDescription>
+        <value>No matches</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_No_Open_Opportunities</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>

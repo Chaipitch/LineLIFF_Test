@@ -55,18 +55,45 @@ public with sharing class SalesReportOpportunityService {
   ) {
     checkId(opportunityId);
     SalesReportFormService context = formService(api);
+    Set<String> extraFields = new Set<String>(context.byName.keySet());
+    // Lookups also read the related record's name, e.g. PreSales_Engineer__r.Name (names from the UI API).
+    for (String relationship : context.lookupRelationships.values()) {
+      extraFields.add(relationship + '.Name');
+    }
     Map<String, Object> current = openOpportunity(
       api,
       opportunityId,
-      context.byName.keySet()
+      extraFields
     );
     restrictStages(context, (String) current.get(STAGE_FIELD));
     for (SalesReportFormData.Field field : context.form.fields) {
       field.defaultValue = current.get(field.name);
+      String relationship = context.lookupRelationships.get(field.name);
+      if (relationship != null && current.get(relationship) != null) {
+        field.displayValue = (String) ((Map<String, Object>) current.get(
+            relationship
+          ))
+          .get('Name');
+      }
     }
     SalesReportOpportunityFormData data = summary(current);
     data.fields = context.form.fields;
     return data;
+  }
+
+  /** Records for a lookup field of the form (e.g. Main PreSales Engineer), searched as the rep. */
+  public SalesReportLookupData searchLookup(
+    SalesReportOrgApiCalloutService api,
+    String fieldName,
+    String term
+  ) {
+    return SalesReportFormService.searchLookup(
+      api,
+      Opportunity.SObjectType,
+      FORM_FIELD_SET,
+      fieldName,
+      term
+    );
   }
 
   public SalesReportOpportunityFormData save(
@@ -118,7 +145,8 @@ public with sharing class SalesReportOpportunityService {
       api,
       Opportunity.SObjectType,
       FORM_FIELD_SET,
-      SalesReportFormService.Purpose.EDIT_RECORD
+      SalesReportFormService.Purpose.EDIT_RECORD,
+      true
     );
   }
 

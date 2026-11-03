@@ -126,6 +126,7 @@ function showHome(me, formKey) {
       api: apiClient,
       labels,
       createPicker: newPicker,
+      minChars: (config.accountSearch || {}).minChars || 2,
       onSaved: (result) => showOpportunitySaved(me, result),
       onError: handleApiError
     });

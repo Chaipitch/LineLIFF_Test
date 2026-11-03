@@ -1,6 +1,7 @@
 /**
  * /services/apexrest/salesreport/v1/opportunities — Update Opportunity for the linked rep, run as the rep (Option B).
  * GET ?accountId=…: the Account's open Opportunities. GET ?id=…: the update form with current values.
+ * GET ?lookup=<field>&q=…: search for a lookup field of the form (e.g. Main PreSales Engineer → active Users).
  * POST { id, accountId, values }: update the Opportunity. One class (one guest-profile grant) for the whole form.
  * Exposed to the Site guest user (`global` is required by @RestResource).
  */
@@ -19,11 +20,19 @@ global with sharing class SalesReportOpportunityController {
         .repSession(RestContext.request);
       Map<String, String> params = RestContext.request.params;
       SalesReportOpportunityService service = new SalesReportOpportunityService();
-      SalesReportRestService.ok(
-        params.containsKey('id')
-          ? (Object) service.form(api, params.get('id'))
-          : (Object) service.listOpen(api, params.get('accountId'))
-      );
+      Object result;
+      if (params.containsKey('lookup')) {
+        result = service.searchLookup(
+          api,
+          params.get('lookup'),
+          params.get('q')
+        );
+      } else if (params.containsKey('id')) {
+        result = service.form(api, params.get('id'));
+      } else {
+        result = service.listOpen(api, params.get('accountId'));
+      }
+      SalesReportRestService.ok(result);
     } catch (Exception e) {
       SalesReportRestService.fail(SOURCE_GET, e);
     } finally {
