@@ -8,6 +8,12 @@ public with sharing class SalesReportLinkPageController {
   public static final String STATE_DONE = 'DONE';
   public static final String STATE_INVALID = 'INVALID';
   public static final String STATE_NOT_ALLOWED = 'NOT_ALLOWED';
+  /** The rep's Salesforce user already has an active link to another LINE account (D-44). */
+  public static final String STATE_ALREADY_LINKED = 'ALREADY_LINKED';
+  /** This LINE account is actively linked to another Salesforce user (D-44). */
+  public static final String STATE_LINE_IN_USE = 'LINE_IN_USE';
+  /** Unexpected failure; the page shows the request ID as a support reference (D-45). */
+  public static final String STATE_ERROR = 'ERROR';
   public static final String ACCESS_PERMISSION = 'SalesReport_Access';
   @TestVisible
   static final String SOURCE = 'SalesReportLinkPageController';
@@ -19,7 +25,11 @@ public with sharing class SalesReportLinkPageController {
   public String lineDisplayName { get; private set; }
   public String userName { get; private set; }
   public String returnUrl { get; private set; }
+  /** Request ID shown on unexpected errors, matching the Sales Report Log entry. */
+  public String reference { get; private set; }
   private final String code;
+  /** Why the page opened in a refused state, logged by logVisit(); null when there is nothing to log. */
+  private String refusal;
 
   public SalesReportLinkPageController() {
     code = wellFormedCode(
@@ -38,14 +48,51 @@ public with sharing class SalesReportLinkPageController {
       state = STATE_NOT_ALLOWED;
       return;
     }
-    SalesReport_Link_Code__c usable = new SalesReportLinkService()
-      .findUsableCode(code);
+    SalesReportLinkService service = new SalesReportLinkService();
+    SalesReport_Link_Code__c usable = service.findUsableCode(code);
     if (usable == null) {
       state = STATE_INVALID;
+      refusal =
+        SalesReportException.LINK_CODE_INVALID +
+        ': code ' +
+        (code == null ? 'missing or malformed' : service.codeProblem(code));
       return;
     }
     lineDisplayName = usable.Line_Display_Name__c;
+    String conflict = service.conflict(
+      usable.Line_User_Id__c,
+      UserInfo.getUserId()
+    );
+    if (conflict != null) {
+      state = conflict == SalesReportException.ALREADY_LINKED
+        ? STATE_ALREADY_LINKED
+        : STATE_LINE_IN_USE;
+      refusal = conflict + ': linking refused, existing link kept.';
+      SalesReportLogService.setLineUserRef(usable.Line_User_Id__c);
+      return;
+    }
     state = STATE_CONFIRM;
+  }
+
+  /** True when the page opened refused and logVisit() still has to log why. */
+  public Boolean hasRefusal {
+    get {
+      return refusal != null;
+    }
+  }
+
+  /**
+   * Logs why the page opened refused (expired, used or unknown code; already linked). Called by the page right after
+   * it loads, as a CSRF-protected postback, because a page may not write records while loading. It only writes a log
+   * entry, never a link or a code, and logs once.
+   */
+  public PageReference logVisit() {
+    if (refusal != null) {
+      SalesReportLogService.warn(SOURCE + '.open', refusal);
+      SalesReportLogService.flush();
+      refusal = null;
+    }
+    return null;
   }
 
   /** Links the rep, then goes straight back to the LIFF form (no "done" page in between) when the LIFF ID is set. */
@@ -64,13 +111,18 @@ public with sharing class SalesReportLinkPageController {
         next.setRedirect(true);
       }
     } catch (SalesReportException e) {
-      state = STATE_INVALID;
+      state = e.code == SalesReportException.ALREADY_LINKED
+        ? STATE_ALREADY_LINKED
+        : e.code == SalesReportException.LINE_IN_USE
+            ? STATE_LINE_IN_USE
+            : STATE_INVALID;
       SalesReportLogService.warn(
         SOURCE + '.confirm',
         e.code + ': ' + e.getMessage()
       );
     } catch (Exception e) {
-      state = STATE_INVALID;
+      state = STATE_ERROR;
+      reference = Request.getCurrent().getRequestId();
       SalesReportLogService.error(SOURCE + '.confirm', e);
     } finally {
       SalesReportLogService.flush();

@@ -75,7 +75,7 @@ LINE's browser can't do passkeys, D-41.)
 Step-by-step walkthrough of each endpoint: **`REST-ENDPOINTS.md`**.
 
 All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count towards the per-LINE-user rate limit (D-36). Responses are JSON, never cached; errors use
-`{ "error": { "code": "...", "message": "<plain-language>", "fields": { … } } }` (`fields` only on form errors). Error codes: `TOKEN_MISSING`,
+`{ "error": { "code": "...", "message": "<plain-language>", "fields": { … }, "reference": "<request ID>" } }` (`fields` only on form errors; `reference` = Salesforce request ID, same as the Sales Report Log entry, shown in LINE on server errors — D-45). Error codes: `TOKEN_MISSING`,
 `TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
 (403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `RATE_LIMITED` (429; L7), `NO_ACCESS` (403 — the rep can't read that object/field, e.g. Opportunity on a Platform licence; L5c), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
 
@@ -93,15 +93,19 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count t
 
 Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` —
 needs custom permission `SalesReport_Access`; shows the LINE account; links only after **Connect** (POST, CSRF-protected);
-writes `SalesReport_Line_Link__c` through `SalesReportLinkService` (D-27).
+writes `SalesReport_Line_Link__c` through `SalesReportLinkService` (D-27): a **new link record** per link; refused
+with "contact your administrator" when the rep's user already has an active link to another LINE account
+(`ALREADY_LINKED`) or the LINE account is actively linked to another user (`LINE_IN_USE`), existing link untouched,
+WARN logged; expired, used and unknown codes are logged too (D-44).
 
 ## 5. Data model (D-08, decided)
 
 Naming (D-07): components prefixed `SalesReport_`; fields on our own objects unprefixed.
 
-**`SalesReport_Line_Link__c`** — one record per LINE user: `Line_User_Id__c` (unique, external ID), `User__c`, `Status__c`
-(Active / Unlinked), `Active_User_Key__c` (unique; enforces one active link per User), `Line_Display_Name__c`,
-linked/unlinked audit fields; field history on User and Status. Latest confirmed login wins (`BA-FAQ.md` §4).
+**`SalesReport_Line_Link__c`** — one record **per link** (D-44): `Line_User_Id__c` (external ID, not unique), `User__c`,
+`Status__c` (Active / Unlinked / Revoked), `Active_User_Key__c` and `Active_Line_Key__c` (unique; one active link per User
+and per LINE account, kept by trigger `SalesReportLineLinkTrigger`), `Line_Display_Name__c`, linked/ended audit fields;
+field history on User and Status. A second LINE account is refused until an admin **Revokes** the first (`BA-FAQ.md` §4).
 **`SalesReport_Link_Code__c`** — `Code_Hash__c` (SHA-256, unique), `Line_User_Id__c`, `Line_Display_Name__c`, `Expires_At__c`,
 `Used_At__c`, `Used_By__c`.
 **`SalesReport_Log__c`** — application log (D-18).
@@ -211,7 +215,7 @@ active validation rule (Stage ≥ 02 needs it) shows its message on the form ins
 
 Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 
-- Every class declares sharing. Controllers and most services are `with sharing`; only `SalesReportLinkService`,
+- Every class declares sharing. Controllers, most services and the link trigger handler are `with sharing`; only `SalesReportLinkService`,
   `SalesReportLogService`, `SalesReportRateLimitService` and `SalesReportCleanupService` are `without sharing` and state
   system mode explicitly (D-25), with written justifications (`DATA-DICTIONARY.md` §5.3). All business-data reads/writes
   go through the rep's own session (Option B).
@@ -232,7 +236,9 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 3. Rep logs a visit → a Task appears on the Account, Created By = the rep (with photos under Files once attachments are switched on).
 4. Rep moves an Opportunity to Stage 02 without PreSales Engineer → sees the org's validation message, nothing saved.
    Rep changes Next Step and Close Date → the Opportunity shows the new values, Last Modified By = the rep.
-5. Admin deactivates/unlinks the rep → next LIFF open shows "Connect Salesforce" again.
+5. Admin deactivates the rep or clicks **Revoke** on the link → next LIFF open asks for the Salesforce login again.
+6. A second LINE account logs in as a rep who is already linked → "contact your administrator", the existing link stays
+   (D-44).
 
 ## 10. Where we are
 
@@ -246,4 +252,5 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; **switched off** 2026-11-02 (`Opportunity_Form_Enabled__c`); BA answers = Setup changes |
 | L6 Languages + UI states | Later (user, 2026-11-02) |
 | L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
+| BA architecture review | Done (2026-11-03): link rules D-44 (block, Revoke, history, Revoked status) and support reference D-45 — deployed to `dev5`, device test pending |
 | L8 QA, UAT, go-live | Not started |

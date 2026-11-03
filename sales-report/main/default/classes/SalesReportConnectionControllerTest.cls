@@ -150,11 +150,17 @@ private class SalesReportConnectionControllerTest {
       'No internals leaked'
     );
     SalesReportLogService.flush();
+    SalesReport_Log__c log = [
+      SELECT Level__c, Request_Id__c
+      FROM SalesReport_Log__c
+      WITH SYSTEM_MODE
+    ];
     Assert.areEqual(
-      'ERROR',
-      [SELECT Level__c FROM SalesReport_Log__c WITH SYSTEM_MODE].Level__c,
-      'Logged as error'
+      log.Request_Id__c,
+      errorJson().get('reference'),
+      'Support reference matches the log entry'
     );
+    Assert.areEqual('ERROR', log.Level__c, 'Logged as error');
   }
 
   @IsTest

@@ -67,8 +67,15 @@ function errorText(code) {
   return labels.errorGeneric;
 }
 
-function showError(code) {
-  showMessage(errorText(code), true);
+// Unexpected failures (server errors) show the request ID so the rep can quote it to support (D-45).
+function showError(code, reference) {
+  const text = errorText(code);
+  showMessage(
+    reference && labels.errorReference
+      ? text + "\n" + format(labels.errorReference, reference)
+      : text,
+    true
+  );
 }
 
 function button(text, onClick, secondary) {
@@ -282,7 +289,9 @@ function handleApiError(error) {
     reloadOnceForFreshToken()
   )
     return;
-  showError(error instanceof ApiError ? error.code : undefined);
+  if (error instanceof ApiError)
+    showError(error.code, error.status >= 500 ? error.reference : null);
+  else showError();
 }
 
 async function checkMe(api) {

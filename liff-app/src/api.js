@@ -6,12 +6,14 @@ const TIMEOUT_MS = 15000;
 const UPLOAD_TIMEOUT_MS = 90000;
 
 export class ApiError extends Error {
-  constructor(status, code, message, fields) {
+  constructor(status, code, message, fields, reference) {
     super(message || code || `HTTP ${status}`);
     this.status = status;
     this.code = code;
     // Field API name → message, when the server can point at fields (INVALID_INPUT, SAVE_FAILED).
     this.fields = fields || null;
+    // Salesforce request ID of the failed call, matching the Sales Report Log entry (D-45).
+    this.reference = reference || null;
   }
 }
 
@@ -77,7 +79,8 @@ export function createApi(apiBase, getIdToken) {
         response.status,
         detail.code || "HTTP_" + response.status,
         detail.message,
-        detail.fields
+        detail.fields,
+        detail.reference
       );
     }
     return data;

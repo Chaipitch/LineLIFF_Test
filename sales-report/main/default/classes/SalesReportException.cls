@@ -19,6 +19,8 @@ public with sharing class SalesReportException extends Exception {
   public static final String SAVE_FAILED = 'SAVE_FAILED';
   public static final String RATE_LIMITED = 'RATE_LIMITED';
   public static final String NO_ACCESS = 'NO_ACCESS';
+  public static final String ALREADY_LINKED = 'ALREADY_LINKED';
+  public static final String LINE_IN_USE = 'LINE_IN_USE';
 
   public String code { get; private set; }
   public Integer statusCode { get; private set; }

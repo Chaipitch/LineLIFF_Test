@@ -10,13 +10,14 @@ private class SalesReportLinkServiceTest {
         User__c,
         Status__c,
         Active_User_Key__c,
+        Active_Line_Key__c,
         Unlink_Reason__c,
         Unlinked_At__c,
         Unlinked_By__c,
         Line_Display_Name__c
       FROM SalesReport_Line_Link__c
       WITH SYSTEM_MODE
-      ORDER BY Line_User_Id__c
+      ORDER BY Line_User_Id__c, Linked_At__c
     ];
   }
 
@@ -113,6 +114,7 @@ private class SalesReportLinkServiceTest {
       rows[0].Active_User_Key__c,
       'Active key'
     );
+    Assert.areEqual(LINE_A, rows[0].Active_Line_Key__c, 'Active LINE key');
     Assert.areEqual(
       SalesReportTestFactory.DISPLAY_NAME,
       rows[0].Line_Display_Name__c,
@@ -172,7 +174,7 @@ private class SalesReportLinkServiceTest {
   }
 
   @IsTest
-  static void newLineAccountReplacesTheUsersPreviousOne() {
+  static void userAlreadyLinkedToAnotherLineAccountIsBlocked() {
     SalesReportTestFactory.link(
       LINE_A,
       UserInfo.getUserId(),
@@ -181,43 +183,74 @@ private class SalesReportLinkServiceTest {
     SalesReportLinkService service = new SalesReportLinkService();
     String code = service.createCode(SalesReportTestFactory.identity(LINE_B));
 
-    service.consume(code, UserInfo.getUserId());
+    Assert.areEqual(
+      SalesReportException.ALREADY_LINKED,
+      service.conflict(LINE_B, UserInfo.getUserId()),
+      'Seen before Connect'
+    );
+    SalesReportException e = consumeExpectingFailure(code);
 
+    Assert.areEqual(SalesReportException.ALREADY_LINKED, e.code, 'Blocked');
+    Assert.areEqual(409, e.statusCode, 'Conflict');
     List<SalesReport_Line_Link__c> rows = links();
-    Assert.areEqual(2, rows.size(), 'Old and new link');
-    Assert.areEqual(
-      SalesReportLinkService.STATUS_UNLINKED,
-      rows[0].Status__c,
-      'Old LINE account unlinked'
-    );
-    Assert.areEqual(
-      SalesReportLinkService.REASON_REPLACED,
-      rows[0].Unlink_Reason__c,
-      'Reason'
-    );
-    Assert.isNull(rows[0].Active_User_Key__c, 'Key released');
-    Assert.areEqual(
-      UserInfo.getUserId(),
-      rows[0].Unlinked_By__c,
-      'Unlinked by the rep'
-    );
+    Assert.areEqual(1, rows.size(), 'No new link');
     Assert.areEqual(
       SalesReportLinkService.STATUS_ACTIVE,
-      rows[1].Status__c,
-      'New LINE account active'
+      rows[0].Status__c,
+      'Existing link kept'
+    );
+    Assert.isNotNull(
+      service.findUsableCode(code),
+      'Code left unused (retry after the admin revokes)'
     );
   }
 
   @IsTest
-  static void relinkingALineAccountMovesItAndClearsUnlinkFields() {
+  static void lineAccountLinkedToAnotherUserIsBlocked() {
+    User other = SalesReportTestFactory.rep('other', false);
+    SalesReportTestFactory.link(
+      LINE_A,
+      other.Id,
+      SalesReportLinkService.STATUS_ACTIVE
+    );
+    SalesReportLinkService service = new SalesReportLinkService();
+
+    SalesReportException e = consumeExpectingFailure(
+      service.createCode(SalesReportTestFactory.identity(LINE_A))
+    );
+
+    Assert.areEqual(SalesReportException.LINE_IN_USE, e.code, 'Blocked');
+    List<SalesReport_Line_Link__c> rows = links();
+    Assert.areEqual(1, rows.size(), 'No new link');
+    Assert.areEqual(other.Id, rows[0].User__c, 'Existing link kept');
+  }
+
+  @IsTest
+  static void samePairAlreadyLinkedOnlyUsesTheCode() {
+    SalesReport_Line_Link__c existing = SalesReportTestFactory.link(
+      LINE_A,
+      UserInfo.getUserId(),
+      SalesReportLinkService.STATUS_ACTIVE
+    );
+    SalesReportLinkService service = new SalesReportLinkService();
+    String code = service.createCode(SalesReportTestFactory.identity(LINE_A));
+
+    SalesReport_Line_Link__c link = service.consume(code, UserInfo.getUserId());
+
+    Assert.areEqual(existing.Id, link.Id, 'Same link');
+    Assert.areEqual(1, links().size(), 'No new record');
+    Assert.isNull(service.findUsableCode(code), 'Code used up');
+  }
+
+  @IsTest
+  static void relinkCreatesANewRecordAndKeepsHistory() {
     User other = SalesReportTestFactory.rep('other', false);
     SalesReport_Line_Link__c old = SalesReportTestFactory.link(
       LINE_A,
       other.Id,
-      SalesReportLinkService.STATUS_UNLINKED
+      SalesReportLinkService.STATUS_ACTIVE
     );
-    old.Unlink_Reason__c = 'Admin';
-    old.Unlinked_At__c = Datetime.now();
+    old.Status__c = SalesReportLinkService.STATUS_REVOKED;
     Database.update(old, AccessLevel.SYSTEM_MODE);
     SalesReportLinkService service = new SalesReportLinkService();
 
@@ -227,19 +260,50 @@ private class SalesReportLinkServiceTest {
     );
 
     List<SalesReport_Line_Link__c> rows = links();
-    Assert.areEqual(1, rows.size(), 'Same record reused');
+    Assert.areEqual(2, rows.size(), 'Old record kept, new record added');
+    Assert.areEqual(other.Id, rows[0].User__c, 'History unchanged');
     Assert.areEqual(
-      UserInfo.getUserId(),
-      rows[0].User__c,
-      'Moved to the new user'
+      SalesReportLinkService.STATUS_REVOKED,
+      rows[0].Status__c,
+      'Still revoked'
     );
+    Assert.isNotNull(rows[0].Unlinked_At__c, 'End date kept');
+    Assert.areEqual(UserInfo.getUserId(), rows[1].User__c, 'New link');
     Assert.areEqual(
       SalesReportLinkService.STATUS_ACTIVE,
-      rows[0].Status__c,
-      'Active again'
+      rows[1].Status__c,
+      'Active'
     );
-    Assert.isNull(rows[0].Unlink_Reason__c, 'Reason cleared');
-    Assert.isNull(rows[0].Unlinked_At__c, 'Unlinked at cleared');
+    Assert.areEqual(
+      UserInfo.getUserId(),
+      service.findActiveLink(LINE_A).User__c,
+      'The new link is the active one'
+    );
+  }
+
+  @IsTest
+  static void codeProblemNamesTheReason() {
+    SalesReportLinkService service = new SalesReportLinkService();
+    String used = service.createCode(SalesReportTestFactory.identity(LINE_A));
+    service.consume(used, UserInfo.getUserId());
+    String expired = service.createCode(
+      SalesReportTestFactory.identity(LINE_B)
+    );
+    SalesReport_Link_Code__c row = [
+      SELECT Id
+      FROM SalesReport_Link_Code__c
+      WHERE Code_Hash__c = :SalesReportLinkService.hash(expired)
+      WITH SYSTEM_MODE
+    ];
+    row.Expires_At__c = Datetime.now().addSeconds(-1);
+    Database.update(row, AccessLevel.SYSTEM_MODE);
+    String fresh = service.createCode(SalesReportTestFactory.identity(LINE_B));
+
+    Assert.areEqual('used', service.codeProblem(used), 'Used');
+    Assert.areEqual('expired', service.codeProblem(expired), 'Expired');
+    Assert.areEqual('unknown', service.codeProblem('nope'), 'Unknown');
+    Assert.areEqual('unknown', service.codeProblem(null), 'Blank');
+    Assert.isNull(service.codeProblem(fresh), 'Usable');
   }
 
   @IsTest
@@ -299,6 +363,8 @@ private class SalesReportLinkServiceTest {
       'Reason'
     );
     Assert.isNull(row.Active_User_Key__c, 'Key released');
+    Assert.isNull(row.Active_Line_Key__c, 'LINE key released');
+    Assert.isNotNull(row.Unlinked_At__c, 'End date');
   }
 
   @IsTest

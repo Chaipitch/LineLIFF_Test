@@ -66,6 +66,34 @@
             </p>
           </apex:outputPanel>
 
+          <apex:outputPanel
+            layout="none"
+            rendered="{!state == 'ALREADY_LINKED'}"
+          >
+            <p class="sr-message">
+              <apex:outputText
+                value="{!$Label.SalesReport_Link_Already_Linked}"
+              />
+            </p>
+          </apex:outputPanel>
+
+          <apex:outputPanel layout="none" rendered="{!state == 'LINE_IN_USE'}">
+            <p class="sr-message">
+              <apex:outputText value="{!$Label.SalesReport_Link_Line_In_Use}" />
+            </p>
+          </apex:outputPanel>
+
+          <apex:outputPanel layout="none" rendered="{!state == 'ERROR'}">
+            <p class="sr-message">
+              <apex:outputText value="{!$Label.SalesReport_Error_Generic}" />
+            </p>
+            <p class="sr-message sr-reference">
+              <apex:outputText value="{!$Label.SalesReport_Error_Reference}">
+                <apex:param value="{!reference}" />
+              </apex:outputText>
+            </p>
+          </apex:outputPanel>
+
           <apex:outputPanel layout="none" rendered="{!state == 'NOT_ALLOWED'}">
             <p class="sr-message">
               <apex:outputText
@@ -75,6 +103,21 @@
           </apex:outputPanel>
         </section>
       </main>
+      <!-- Logs why the page was refused (expired or used code, already linked) with a CSRF-protected postback:
+           records can't be written while the page loads. It only writes a log entry. -->
+      <apex:form rendered="{!hasRefusal}">
+        <apex:actionFunction
+          name="srLogVisit"
+          action="{!logVisit}"
+          reRender="srLogDone"
+        />
+        <apex:outputPanel id="srLogDone" layout="none" />
+      </apex:form>
+      <apex:outputPanel layout="none" rendered="{!hasRefusal}">
+        <script>
+          srLogVisit();
+        </script>
+      </apex:outputPanel>
     </body>
   </html>
 </apex:page>

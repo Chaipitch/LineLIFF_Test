@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Status__c</fullName>
     <description
-  >Only Active links authorise requests. Set to Unlinked (or delete the record) to disconnect a rep.</description>
+  >Only Active links authorise requests. Revoked: ended by an administrator (Revoke button). Unlinked: ended automatically (Salesforce user deactivated). An ended link cannot be made Active again; the rep links again from LINE.</description>
     <externalId>false</externalId>
     <label>Status</label>
     <required>true</required>
@@ -17,6 +17,8 @@
         >Active</label></value>
             <value><fullName>Unlinked</fullName><default>false</default><label
         >Unlinked</label></value>
+            <value><fullName>Revoked</fullName><default>false</default><label
+        >Revoked</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

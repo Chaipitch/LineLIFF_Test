@@ -12,6 +12,8 @@
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
+            <value><fullName>Revoked by admin</fullName><default
+        >false</default><label>Revoked by admin</label></value>
             <value><fullName>Admin</fullName><default>false</default><label
         >Admin</label></value>
             <value><fullName>User deactivated</fullName><default

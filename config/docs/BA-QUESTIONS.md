@@ -59,11 +59,12 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 | # | Question | Context / options | Recommendation | Answer |
 |---|---|---|---|---|
 | Q-L1 | How long does a link last? | Forever until unlinked, or re-confirm every N months. | Until unlinked or user deactivated | |
-| Q-L2 | Who unlinks reps when they leave or change phones? | Built: *Sales Report LINE Links* tab (set Status = Unlinked) and automatic unlink when the user is deactivated. | Salesforce admin | |
+| Q-L2 | Who unlinks reps when they leave or change phones? | Built: **Revoke** button on the link in the *Sales Report LINE Links* tab, and automatic unlink when the user is deactivated (D-44). | Salesforce admin | **Answered** in the BA architecture document v1.0 (2026-11-03): an administrator revokes. |
 | Q-L3 | Should the one-time login happen **inside LINE** (as in the mockup) or in the phone's browser? (G4, D-15) | In-app: matches the mockup, rep returns to the form automatically. External browser: may reuse an existing Salesforce login. | **Tested 2026-10-29:** the phone's browser works well (plain page, back to LINE with one tap). Keep the browser unless the BA wants the in-app look | **Phone's browser, opened right away; back to the form in LINE after Connect** — 2026-11-02 (D-42; in-LINE login dropped because of passkeys) |
 | Q-L4 | (Info) After linking, reps never log in again unless unlinked, deactivated or permission removed — there is no session expiry. OK? (G5) | Mockup says "re-authentication when session expires"; our design is stricter and simpler. | Confirm; update slide wording | |
 | Q-L5 | What should the "connected" screen show? (G6) | Mockup shows the raw LINE User ID. | LINE display name ↔ Salesforce name | |
-| Q-L8 | When a second LINE account logs in as the same rep: keep **latest wins** (old link ended automatically) or **first wins** (refuse until an admin unlinks)? Notify on replacement? | Explained in `BA-FAQ.md` §4. | Latest wins, no notification in phase 1 | |
+| Q-L8 | When a second LINE account logs in as the same rep: keep **latest wins** (old link ended automatically) or **first wins** (refuse until an admin unlinks)? Notify on replacement? | Explained in `BA-FAQ.md` §4. | Latest wins, no notification in phase 1 | **Answered** in the BA architecture document v1.0 (2026-11-03): **first wins** — refuse, "contact your administrator", keep the existing link, log WARN. Built (D-44). |
+| Q-L9 | Status of an ended link: **Revoked** = ended by an administrator, **Unlinked** = ended automatically (Salesforce user deactivated). OK? | Built this way (D-44); the BA document lists the three values but not the rule. | As built | |
 | Q-L6 | Is MFA required for reps in **production**? Any SSO planned? | Sandbox has no SSO and no MFA permission; production must be checked before go-live. | | |
 | Q-L7 | Any company policy on business data shown inside LINE? | Forms show Account and Opportunity names/amounts. | | |
 
@@ -142,8 +143,9 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 
 13. ✅ ตอบแล้ว (2 พ.ย.): ล็อกอิน Salesforce ครั้งแรก**เปิดใน browser ของมือถือทันที** (ไม่ต้องกดปุ่มก่อน) เพราะหน้าล็อกอินใน LINE ใช้ passkey/Face ID ไม่ได้ — กด Connect แล้วกลับมาที่ฟอร์มใน LINE อัตโนมัติ (Q-L3, D-42)
 14. ☐ ผูกบัญชีแล้ว**ไม่หมดอายุ** Rep ไม่ต้องล็อกอินซ้ำ จนกว่า admin จะยกเลิกการผูก หรือ user ถูก deactivate — โอเคไหม? (Q-L1, Q-L4)
-15. ☐ ถ้า Rep ผูก LINE บัญชีที่สองกับ user เดิม → **บัญชีล่าสุดใช้ได้ บัญชีเก่าถูกยกเลิกอัตโนมัติ** หรือให้ปฏิเสธจนกว่า admin จะยกเลิก? (Q-L8)
-16. ☐ **ใครเป็นคนยกเลิกการผูก** เมื่อ Rep ลาออก/เปลี่ยนมือถือ? → เสนอ: admin ทำผ่านแท็บ Line Link (Q-L2)
+15. ✅ ตอบแล้ว (เอกสาร architecture ของ BA, 3 พ.ย.): ถ้า Rep ผูก LINE บัญชีที่สองกับ user เดิม → **ปฏิเสธ** ให้ติดต่อ admin บัญชีเดิมยังใช้ได้ (Q-L8, D-44)
+    ☐ **ยืนยันความหมายสถานะ:** Revoked = admin ยกเลิก, Unlinked = ระบบยกเลิกอัตโนมัติเพราะ user ถูก deactivate — โอเคไหม? (Q-L9)
+16. ✅ ตอบแล้ว (3 พ.ย.): **admin เป็นคนยกเลิกการผูก** ด้วยปุ่ม **Revoke** ในแท็บ Sales Report LINE Links (Q-L2, D-44)
 17. ☐ ค้นหา Account ด้วย**ชื่อเท่านั้น** และแสดงทุก Account ที่ Rep มีสิทธิ์เห็น — ต้องค้นด้วยชื่อภาษาไทย/รหัสลูกค้าด้วยไหม? (Q-C1, Q-C2)
 18. ☐ ภาษาหน้าจอ: ไทย / อังกฤษ / ญี่ปุ่น — ต้องครบทั้งสามไหม? (Q-S3)
 

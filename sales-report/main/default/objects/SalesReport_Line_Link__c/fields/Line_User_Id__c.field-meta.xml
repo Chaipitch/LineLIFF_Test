@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Line_User_Id__c</fullName>
-    <caseSensitive>true</caseSensitive>
     <description
-  >LINE user ID (sub) from a verified LINE ID token. Never taken from request data.</description>
+  >LINE user ID (sub) from a verified LINE ID token. Never taken from request data. Not unique: every link is a new record (D-44); Active Line Key keeps one active link per LINE account.</description>
     <externalId>true</externalId>
     <label>LINE User ID</label>
     <length>64</length>
@@ -11,5 +10,5 @@
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Text</type>
-    <unique>true</unique>
+    <unique>false</unique>
 </CustomField>

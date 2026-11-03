@@ -355,10 +355,16 @@ appear (stage · close date) → tap one → the form shows its current Stage, T
 change something → **Save** → "Opportunity updated: <name>". Moving to Stage 02 without a PreSales Engineer shows the
 org's validation message instead.
 
-**Re-test the first-time login.** (1) Set your link to *Unlinked* (Day-to-day tasks below). (2) To see the Salesforce
+**Re-test the first-time login.** (1) Open your link and click **Revoke** (Day-to-day tasks below). (2) To see the Salesforce
 password screen again, also log out of Salesforce **in the phone's browser** (open `https://<My Domain>/secur/logout.jsp`
 there) — otherwise it still has your session and goes straight to **Connect**. (3) Reopen the form from the rich menu →
-login in the browser → **Connect** → back in LINE on the form. Reconnecting reuses the same link record.
+login in the browser → **Connect** → back in LINE on the form. Linking again creates a **new** link record; the revoked
+one stays as history (D-44).
+
+**Test the link rules (D-44).** With your user linked from phone A, open the form on phone B (another LINE account) and
+log in as the same user → the link page says the user is already linked to another LINE account and shows no Connect
+button; *Sales Report Logs* has a WARN `ALREADY_LINKED` entry; phone A still works. Revoke the link → phone B can link.
+A revoked link can't be set back to Active (Salesforce shows an error).
 
 If anything else appears: Setup → **Sales Report Logs** tab → "Errors today" / "All", and send Claude a screenshot.
 
@@ -443,7 +449,8 @@ because the page controller's test counts the labels — update that count too.
 | Task | How |
 |---|---|
 | Give a new rep access | Assign **Sales Report User** (part D). The rep links on first use. |
-| Disconnect a rep / lost phone | *Sales Report LINE Links* tab → the rep's link → Status = **Unlinked**. Next time the form asks to connect again. Prefer Unlinked over delete: it keeps the history and reconnecting reuses the record. |
+| Disconnect a rep / lost phone / new phone | *Sales Report LINE Links* tab → the rep's active link → **Revoke** (change the reason in the dialog if needed). The link stops working at once; next time the form asks to log in again and a new link record is created. Prefer Revoke over delete: it keeps the history. A second phone can't link until the first link is revoked (D-44). |
+| A rep quotes "Reference: …" | *Sales Report Logs* tab → search the reference in **Request ID** (D-45). |
 | Rep left the company | Deactivate the user as usual — the link ends automatically on the next attempt. |
 | Something went wrong | *Sales Report Logs* tab → "Errors today". |
 | Switch the forms off | Sales Report Settings → untick *Enabled*. |

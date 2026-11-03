@@ -38,6 +38,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>SalesReport_Line_Link__c.Active_Line_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SalesReport_Line_Link__c.Active_User_Key__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -52,7 +57,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>SalesReport_Line_Link__c.Unlink_Reason__c</field>
         <readable>true</readable>
     </fieldPermissions>

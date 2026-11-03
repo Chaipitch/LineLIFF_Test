@@ -2,7 +2,7 @@
 
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
-**State (2026-11-02): everything below is built and deployed to sandbox `dev5`** (L2–L5c, L7). Update Opportunity (L5c)
+**State (2026-11-03): everything below is built and deployed to sandbox `dev5`** (L2–L5c, L7, link rules D-44/D-45). Update Opportunity (L5c)
 uses the proposed defaults (D-39) and is **switched off** (`Opportunity_Form_Enabled__c`) until the BA answers Q-O1–Q-O7. Attachments (L5b) are switched off (`Attachments_Enabled__c`).
 Update this file in the same commit whenever a field or setting changes.
 
@@ -20,23 +20,25 @@ Every custom field gets a **Description** (for admins) and, where users see it, 
 | Label / plural | Sales Report LINE Link / Sales Report LINE Links |
 | Record name | Auto Number `LL-{000000}` |
 | Sharing (OWD) | Private (internal and external) |
-| Who writes | `SalesReportLinkService` only (system mode, see §5.3) — reps have **no** object access |
+| Who writes | `SalesReportLinkService` (system mode, see §5.3) and admins (**Revoke** button); trigger `SalesReportLineLinkTrigger` keeps the keys and audit fields (D-44) — reps have **no** object access |
 | Who reads | Site requests via `SalesReportIdentityService` (system mode); admins via `SalesReport_Admin` |
 | Field history | On: `User__c`, `Status__c` |
-| Records | One per LINE user (upsert by `Line_User_Id__c`); re-linking reuses the record |
+| Records | **One per link** (D-44): every successful link inserts a new record; ended records are kept unchanged as history. Ended links can't be made Active again, and `Line_User_Id__c` / `User__c` can't be changed after insert (trigger) |
+| Layout / action | Layout *Sales Report LINE Link Layout* (in the repo) with quick action **Revoke** (`SalesReport_Line_Link__c.Revoke`, Update type: Status = Revoked, Unlink Reason = Revoked by admin, reason editable in the dialog) |
 
 | Field | Label | Type | Req | Unique / Ext ID | Default | Description / Help |
 |---|---|---|---|---|---|---|
 | `Name` | Link No. | Auto Number | — | — | `LL-{000000}` | |
-| `Line_User_Id__c` | LINE User ID | Text(64) | Yes (enforced in code) | Unique (case-sensitive), External ID | — | LINE user ID (`U` + 32 hex) taken from a **verified** ID token (`sub`). Never from request data. |
+| `Line_User_Id__c` | LINE User ID | Text(64) | Yes (enforced in code) | External ID (**not unique** since D-44) | — | LINE user ID (`U` + 32 hex) taken from a **verified** ID token (`sub`). Never from request data. |
 | `User__c` | Salesforce User | Lookup(User) | Yes | — | — | The rep who completed the one-time login. |
-| `Status__c` | Status | Picklist (restricted): `Active`, `Unlinked` | Yes | — | `Active` | Only `Active` links authorise requests. |
-| `Active_User_Key__c` | Active User Key | Text(18) | No | Unique | — | Set to `User__c` Id while Active, blank when Unlinked. Enforces **one active link per User** at database level. Not on layouts. |
+| `Status__c` | Status | Picklist (restricted): `Active`, `Unlinked`, `Revoked` | Yes | — | `Active` | Only `Active` links authorise requests. **Revoked** = ended by an admin (Revoke button); **Unlinked** = ended automatically (user deactivated) — BA to confirm (D-44). |
+| `Active_User_Key__c` | Active User Key | Text(18) | No | Unique (case-sensitive) | — | `User__c` Id while Active, blank once ended; set by the trigger. Enforces **one active link per User** at database level. Read-only on the layout. |
+| `Active_Line_Key__c` | Active LINE Key | Text(64) | No | Unique (case-sensitive) | — | `Line_User_Id__c` while Active, blank once ended; set by the trigger. Enforces **one active link per LINE account** (D-44). Read-only on the layout. |
 | `Linked_At__c` | Linked At | Date/Time | Yes | — | — | When the link page completed. |
-| `Unlinked_At__c` | Unlinked At | Date/Time | No | — | — | |
-| `Unlink_Reason__c` | Unlink Reason | Picklist (restricted): `Admin`, `User deactivated`, `Relinked to another User`, `Replaced by new LINE account` | No | — | — | |
+| `Unlinked_At__c` | Unlinked At | Date/Time | No | — | — | Filled by the trigger when a link ends. |
+| `Unlink_Reason__c` | Unlink Reason | Picklist (restricted): `Revoked by admin`, `Admin`, `User deactivated`, `Relinked to another User`, `Replaced by new LINE account` | No | — | — | Default when ending: Revoked → `Revoked by admin`, Unlinked by hand → `Admin`. The last two values are only on links ended before D-44 ("latest wins"). |
 | `Line_Display_Name__c` | LINE Display Name | Text(255) | No | — | — | LINE display name at linking time (verified token), so admins can recognise the account. |
-| `Unlinked_By__c` | Unlinked By | Lookup(User) | No | — | — | Admin who unlinked; blank for automatic unlinks. |
+| `Unlinked_By__c` | Unlinked By | Lookup(User) | No | — | — | Admin who ended the link (filled by the trigger); blank for automatic unlinks by the Site guest. |
 
 ### 1.2 `SalesReport_Link_Code__c` — one-time link codes
 
@@ -219,6 +221,11 @@ Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3
 | `SalesReport_Save_Failed` | Salesforce couldn’t save your changes: | LIFF — first line above Salesforce's own save error | L5c |
 | `SalesReport_Rule_Error` | A Salesforce rule couldn’t run, so nothing was saved. Please send this message to your administrator: | LIFF — when a validation-rule formula itself fails ("Validation Formula … Invalid") | L5c |
 | `SalesReport_Error_No_Access` | Your Salesforce user can’t open this data. Please ask your administrator. | LIFF (`NO_ACCESS`) | L5c |
+| `SalesReport_Error_Reference` | Reference: {0} | LIFF and link page — under unexpected errors, {0} = request ID (D-45) | D-45 |
+| `SalesReport_Link_Already_Linked` | This Salesforce user is already linked to another LINE account. Please contact your administrator to revoke the existing link before linking a new account. | Link page (`ALREADY_LINKED`) | D-44 |
+| `SalesReport_Link_Line_In_Use` | This LINE account is already linked to another Salesforce user. Please contact your administrator to revoke that link first. | Link page (`LINE_IN_USE`) | D-44 |
+| `SalesReport_Link_Already_Ended` | This link has already ended and its status can't be changed. The rep links again from LINE, which creates a new link. | Record error (trigger) | D-44 |
+| `SalesReport_Link_Identity_Locked` | The LINE user and Salesforce user of a link can't be changed. Revoke the link; the rep then links again from LINE. | Record error (trigger) | D-44 |
 
 Note: the Subject label is
 read in the Site guest user's language (en_US), not the rep's.
@@ -242,12 +249,12 @@ Validation-rule messages from the org are shown as returned (they are already in
 
 | Area | Grant |
 |---|---|
-| `SalesReport_Line_Link__c` | Read, Edit, Delete, View All. Unlink = set `Status__c` to Unlinked (or delete); all other fields read-only via FLS |
+| `SalesReport_Line_Link__c` | Read, Edit, Delete, View All. Disconnect = **Revoke** button (or delete test data); `Unlink_Reason__c` editable, all other fields read-only via FLS (`Status__c` is required, so editable, but the trigger refuses changes to an ended link) |
 | `SalesReport_Link_Code__c` | Read, Edit (required by Salesforce for Delete), Delete, View All; fields read-only |
 | `SalesReport_Log__c` | Read, Edit, Delete, View All (Edit is required by Salesforce for Delete; all log fields are read-only via FLS) |
 | `SalesReport_Rate_Limit__c` | Read, Edit (required for Delete), Delete, View All; fields read-only. No tab (L7) |
 | Tabs | `SalesReport_Line_Link__c`, `SalesReport_Log__c` visible |
-| Apex | none (unlink = set Status to Unlinked in the tab; no extra action needed) |
+| Apex | none (Revoke is a quick action; the trigger runs in system context) |
 
 ### 5.3 `without sharing` justifications
 
@@ -261,6 +268,7 @@ Justifications (repeated in class headers):
 |---|---|
 | `SalesReportLinkService` | Creates link codes and reads the active link from the guest context (only for a **verified** LINE user ID), consumes codes and writes links on behalf of the logged-in rep (`UserInfo.getUserId()`), ends links of deactivated users. Reps and the guest get no object access, so mappings can't be edited by hand. |
 | `SalesReportLogService` | Logs must be written whoever the running user is. |
+| — | `SalesReportLineLinkTriggerHandler` is `with sharing`: it only sets fields on the records being saved, no queries. |
 | `SalesReportRateLimitService` | Reads and writes the per-LINE-user counter for the Site guest (only after the LINE token is verified); stores only a hash of the LINE user ID. |
 | `SalesReportCleanupService` | Deletes expired link codes, old logs and old counters owned by the guest / default record owner, whoever schedules the job. |
 

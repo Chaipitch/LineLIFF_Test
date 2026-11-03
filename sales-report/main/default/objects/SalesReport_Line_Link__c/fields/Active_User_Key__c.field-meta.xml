@@ -3,7 +3,7 @@
     <fullName>Active_User_Key__c</fullName>
     <caseSensitive>true</caseSensitive>
     <description
-  >Salesforce User Id while the link is active, blank otherwise. Enforces one active link per User. Maintained by SalesReportLinkService.</description>
+  >Salesforce User Id while the link is active, blank otherwise. Enforces one active link per User. Maintained by the SalesReportLineLinkTrigger.</description>
     <externalId>false</externalId>
     <label>Active User Key</label>
     <length>18</length>

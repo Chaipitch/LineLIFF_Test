@@ -1,7 +1,7 @@
 # BA FAQ — LINE Sales Reporting
 
 Plain-language answers to questions from the BA. Technical detail: `DATA-DICTIONARY.md` (objects and fields),
-`DECISIONS.md` (D-xx). Last updated 2026-11-02 (login in the phone's browser, D-42).
+`DECISIONS.md` (D-xx). Last updated 2026-11-03 (link rules from the BA's architecture review: block, Revoke, history, D-44).
 
 ---
 
@@ -9,17 +9,17 @@ Plain-language answers to questions from the BA. Technical detail: `DATA-DICTION
 
 In a **custom object, `SalesReport_Line_Link__c` ("Sales Report LINE Link")**, not on the User object (D-08).
 
-One record per LINE account holds: LINE User ID (from LINE's verified login, unique), Salesforce User, Status
-(Active / Unlinked), LINE display name, and when/why it was linked or unlinked. Changes to User and Status are tracked
-in field history.
+One record **per link** holds: LINE User ID (from LINE's verified login), Salesforce User, Status (Active / Revoked /
+Unlinked), LINE display name, and when/why it was linked or ended. Every new link is a new record; ended ones stay as
+history and can't be changed back (D-44).
 
 Why not a field on User:
 
 - **Security** — reps get no access to these records; only Sales Report's code writes them (D-19), so nobody can edit a
   mapping by hand to act as someone else. A User field is harder to lock down.
 - **History** — a separate record keeps who was linked, when, and why it ended (new phone, admin, deactivated user).
-- **Admin view** — its own tab, *Sales Report LINE Links*, with "Active links" / "All links". To disconnect a rep, set
-  Status to Unlinked.
+- **Admin view** — its own tab, *Sales Report LINE Links*, with "Active links" / "All links". To disconnect a rep, open
+  the link and click **Revoke**.
 - **No changes to User** — the org already has a lot of automation (and LINE Connect); our own object keeps the feature
   separate and easy to remove or package later.
 - **Rules enforced by the database** — one active LINE account per rep, one rep per LINE account.
@@ -67,28 +67,31 @@ complexity and risk. Common login designs keep the short-lived "login attempt" a
 
 ## 4. What if two LINE accounts try to log in as the same Salesforce user?
 
-**Rule: one Salesforce user has one active LINE account. The latest confirmed login wins.**
+**Rule (BA architecture review, D-44): one Salesforce user has one active LINE account, and a second one is refused
+until an administrator revokes the first.** (Until 2026-11-03 the latest login won and replaced the old link.)
 
 | Step | What happens |
 |---|---|
 | Phone A links to Roj | Link A is active |
-| Phone B logs in **as Roj** and taps **Connect** | Link B becomes active; Link A is set to **Unlinked**, reason "Replaced by new LINE account" |
-| Phone A opens the form again | Is asked to log in to Salesforce again (in the phone's browser) — it can no longer act as Roj |
+| Phone B logs in **as Roj** | The link page says *"This Salesforce user is already linked to another LINE account. Please contact your administrator to revoke the existing link before linking a new account."* There is no Connect button. Link A stays active; a WARN entry goes to the Sales Report Log |
+| Admin clicks **Revoke** on link A | Link A: Status **Revoked**, reason "Revoked by admin", Unlinked At / By filled in |
+| Phone B opens the form again and logs in | A **new** link record B is created; link A stays as history |
 
-- **At the same moment** — the database allows only one active link per user, so one goes first and the other replaces
-  it. There are never two active links for one user.
-- **It needs Roj's own login** — phone B must log in with Roj's Salesforce username, password and MFA, and tap Connect
-  on a page that shows which LINE account is being connected. No one can take over without Roj's credentials.
-- **Visible to admins** — the *Sales Report LINE Links* tab shows the old link as Unlinked with reason and time; field
-  history records the change.
-- **Reverse case** — one LINE account logging in as two different Salesforce users also follows "latest wins": the LINE
-  account moves to the second user.
+- **At the same moment** — the database allows only one active link per user and per LINE account, so one Connect
+  goes first and the other is refused. There are never two active links for one user.
+- **It needs Roj's own login** — phone B must log in with Roj's Salesforce username, password and MFA. Even then it
+  can't take over the link: an admin has to revoke it first, so a stolen password alone can't silently move Roj's
+  LINE connection.
+- **Visible to admins** — the WARN log entry (`ALREADY_LINKED`) shows the refused attempt; the tab shows every link
+  with its status, reason and dates.
+- **Reverse case** — one LINE account trying to log in as a second Salesforce user is refused the same way: *"This
+  LINE account is already linked to another Salesforce user…"* (`LINE_IN_USE`).
+- **Same phone, same user again** (e.g. the rep tapped the link twice) — nothing changes; LINE opens the form.
 - **A different LINE Official Account** — only the Sales Reporting OA's LIFF app can start a login. A login token from
   any other OA or LINE channel (including LINE Connect's) fails our check, because LINE ties each token to our channel ID.
 
-**Open choice for the BA:** "latest wins" suits reps who change phones (no admin needed). Alternative: "first wins" — a
-second phone is refused until an admin unlinks the first. Small change either way. Optional extra: notify the rep/admin
-when a link is replaced (extra scope).
+**Trade-off:** a rep who changes phones needs an admin to revoke the old link first (one click). Optional extra: notify
+the admin when an attempt is refused (extra scope).
 
 ## 5. Is the Sales Report Link Code a token?
 
@@ -127,34 +130,35 @@ that shows the LINE name being connected (with the note "Only continue if you op
 | | Effect |
 |---|---|
 | The wrong LINE account | Can submit reports **as the rep** until fixed — this is the real risk |
-| The rep's own phone | Is unlinked immediately and asks the rep to log in to Salesforce next time, so the rep notices quickly |
-| Fix | The rep taps Connect on their own phone (latest wins → the wrong link is ended), or an admin sets the wrong link to **Unlinked** |
+| The rep's own phone | When the rep tries to link it, the link page says their user is already linked to another LINE account, so the rep notices and calls the admin |
+| Fix | An admin clicks **Revoke** on the wrong link; the rep then links their own phone (a new link record) |
 
-**Finding what was entered during the wrong period** — the LINE Link history shows when the wrong account was linked and
-unlinked; anything created in that window shows Created By = the rep and can be reviewed. The Sales Report Log also
+**Finding what was entered during the wrong period** — the wrong link's record shows when it was linked and revoked; anything created in that window shows Created By = the rep and can be reviewed. The Sales Report Log also
 records each link and unlink.
 
-**Possible extra safeguards (extra scope, BA to decide)**: send a LINE message to the old account when it is replaced
-(needs the Messaging API); or "first wins" (a second account is refused until an admin unlinks the first).
-The form already shows "Salesforce: <name>" on every open, so a rep on the wrong account sees whose name it is.
+**Possible extra safeguard (extra scope, BA to decide)**: notify the admin or the rep when a link attempt is refused.
+("First wins" — a second account is refused until an admin revokes the first — is now the rule, D-44.) The form already shows "Salesforce: <name>" on every open, so a rep on the wrong account sees whose name it is.
 
 ## 7. How do we disconnect a rep, or test the first-time login again?
 
-Open the **Sales Report LINE Links** tab, open the rep's link and set **Status = Unlinked**. The next time the rep opens
-the form in LINE the Salesforce login opens again in the phone's browser, and they log in once more. Reconnecting reuses the same link
-record, so its history (who, when, why it ended) stays in one place.
+Open the **Sales Report LINE Links** tab, open the rep's active link and click **Revoke** (you can change the reason in
+the dialog). The link gets Status **Revoked**, the reason, the time and your name, and it stops working at once. The
+next time the rep opens the form in LINE the Salesforce login opens again in the phone's browser, and after they log
+in a **new** link record is created — the revoked one stays as history (D-44). A revoked link can't be made active
+again (Salesforce refuses the edit); the rep simply links again.
 
-Deactivating a Salesforce user has the same effect automatically: the link ends the next time that LINE account is used.
+**Revoked vs Unlinked:** *Revoked* = ended by an administrator. *Unlinked* = ended automatically because the
+Salesforce user was deactivated (the link ends the next time that LINE account is used). BA to confirm this rule.
 
-**Testing it again on your own phone:** after unlinking, the phone's browser may still be logged in to Salesforce, so
+**Testing it again on your own phone:** after revoking, the phone's browser may still be logged in to Salesforce, so
 you go straight to the **Connect** step. To see the password screen again, open `https://<My Domain>/secur/logout.jsp`
 in that browser first.
 
 ## 8. What happens if we delete a LINE Link record instead?
 
-For the rep it looks the same as unlinking: next time they are asked to log in to Salesforce again. Nothing else is affected — Tasks
-and files they logged belong to their Salesforce user, not to the link. But the history is gone, reconnecting creates a
-new record, and restoring the old one from the Recycle Bin fails once the rep has reconnected (one link record per LINE
-account). So: **Unlinked** for normal work (leavers, new phones, tests); delete only for test data you don't need. Only
+For the rep it looks the same as revoking: next time they are asked to log in to Salesforce again. Nothing else is
+affected — Tasks and files they logged belong to their Salesforce user, not to the link. But the history is gone, and
+restoring an *active* link from the Recycle Bin fails once the rep has linked again (only one active link per user and
+LINE account). So: **Revoke** for normal work (leavers, new phones, tests); delete only for test data you don't need. Only
 admins with the *Sales Report Admin* permission set can do either — reps have no access to these records.
 

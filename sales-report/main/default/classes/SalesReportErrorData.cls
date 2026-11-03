@@ -1,6 +1,8 @@
 /**
- * Error response of every Sales Report endpoint: { "error": { "code": "...", "message": "...", "fields": {…} } }.
- * `fields` (field API name → message) is only present when the form can highlight fields.
+ * Error response of every Sales Report endpoint:
+ * { "error": { "code": "...", "message": "...", "fields": {…}, "reference": "..." } }.
+ * `fields` (field API name → message) is only present when the form can highlight fields. `reference` is the
+ * Salesforce request ID, the same as on the Sales Report Log entry, so support can find it (D-45).
  */
 public with sharing class SalesReportErrorData {
   public Detail error;
@@ -18,11 +20,13 @@ public with sharing class SalesReportErrorData {
     error.code = code;
     error.message = message;
     error.fields = fields;
+    error.reference = Request.getCurrent().getRequestId();
   }
 
   public class Detail {
     public String code;
     public String message;
     public Map<String, String> fields;
+    public String reference;
   }
 }

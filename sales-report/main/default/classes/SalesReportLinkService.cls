@@ -3,14 +3,15 @@
  *
  * `without sharing` with explicit SYSTEM_MODE (DATA-DICTIONARY §5.3, D-19, D-25): link codes are created from the Site
  * guest context and links are read there; links are written on behalf of the logged-in rep. Reps and the guest get
- * no object access, so mappings can only change through this class. Every LINE user ID used here comes from a
+ * no object access, so mappings can only change through this class (and administrators, D-44). Every successful
+ * link is a new record; the active keys and audit fields are kept by SalesReportLineLinkTriggerHandler. Every LINE user ID used here comes from a
  * verified ID token; every Salesforce User ID is the running user's own (link page).
  */
 public without sharing class SalesReportLinkService {
   public static final String STATUS_ACTIVE = 'Active';
   public static final String STATUS_UNLINKED = 'Unlinked';
+  public static final String STATUS_REVOKED = 'Revoked';
   public static final String REASON_DEACTIVATED = 'User deactivated';
-  public static final String REASON_REPLACED = 'Replaced by new LINE account';
   public static final String LINK_PAGE = 'SalesReport_Link';
   @TestVisible
   static final Integer MAX_CODE_LENGTH = 100;
@@ -66,8 +67,54 @@ public without sharing class SalesReportLinkService {
   }
 
   /**
-   * Consumes the code and links its LINE user to userId (the logged-in rep). Any other LINE account of the same
-   * User is unlinked (one active link per User); an existing link of this LINE user is moved to userId.
+   * Why a code can't be used: 'unknown', 'expired' or 'used'; null when it is usable. For the log only (never shown
+   * with the code itself).
+   */
+  public String codeProblem(String code) {
+    if (String.isBlank(code) || code.length() > MAX_CODE_LENGTH) {
+      return 'unknown';
+    }
+    List<SalesReport_Link_Code__c> rows = [
+      SELECT Expires_At__c, Used_At__c
+      FROM SalesReport_Link_Code__c
+      WHERE Code_Hash__c = :hash(code.trim())
+      WITH SYSTEM_MODE
+      LIMIT 1
+    ];
+    if (rows.isEmpty()) {
+      return 'unknown';
+    }
+    if (rows[0].Used_At__c != null) {
+      return 'used';
+    }
+    return rows[0].Expires_At__c > Datetime.now() ? null : 'expired';
+  }
+
+  /**
+   * Why this LINE user can't be linked to userId (D-44): ALREADY_LINKED when the User already has an active link to
+   * another LINE account, LINE_IN_USE when the LINE account is actively linked to another User; null when linking
+   * may go ahead (including when exactly this pair is already linked). Existing links are never changed here.
+   */
+  public String conflict(String lineUserId, Id userId) {
+    return conflictOf(
+      [
+        SELECT Id, Line_User_Id__c, User__c
+        FROM SalesReport_Line_Link__c
+        WHERE
+          Active_User_Key__c = :String.valueOf(userId)
+          OR Active_Line_Key__c = :lineUserId
+        WITH SYSTEM_MODE
+      ],
+      lineUserId,
+      userId
+    );
+  }
+
+  /**
+   * Consumes the code and links its LINE user to userId (the logged-in rep) with a new link record. Refused, with
+   * the code left unused and every existing link untouched, when the User or the LINE account is already actively
+   * linked to someone else (an administrator must revoke that link first). Linking a pair that is already linked
+   * only uses up the code.
    */
   public SalesReport_Line_Link__c consume(String code, Id userId) {
     SalesReport_Link_Code__c found = findUsableCode(code);
@@ -92,55 +139,86 @@ public without sharing class SalesReportLinkService {
         'The link code is unknown, expired or already used.'
       );
     }
+    List<SalesReport_Line_Link__c> active = [
+      SELECT Id, Line_User_Id__c, User__c
+      FROM SalesReport_Line_Link__c
+      WHERE
+        Active_User_Key__c = :String.valueOf(userId)
+        OR Active_Line_Key__c = :locked.Line_User_Id__c
+      WITH SYSTEM_MODE
+      FOR UPDATE
+    ];
+    throwIfConflict(conflictOf(active, locked.Line_User_Id__c, userId));
+
     Datetime now = Datetime.now();
     locked.Used_At__c = now;
     locked.Used_By__c = userId;
     Database.update(locked, AccessLevel.SYSTEM_MODE);
-
-    List<SalesReport_Line_Link__c> previous = [
-      SELECT Id, Status__c
-      FROM SalesReport_Line_Link__c
-      WHERE
-        Active_User_Key__c = :String.valueOf(userId)
-        AND Line_User_Id__c != :locked.Line_User_Id__c
-      WITH SYSTEM_MODE
-      FOR UPDATE
-    ];
-    for (SalesReport_Line_Link__c old : previous) {
-      old.Active_User_Key__c = null;
-      if (old.Status__c == STATUS_ACTIVE) {
-        old.Status__c = STATUS_UNLINKED;
-        old.Unlinked_At__c = now;
-        old.Unlink_Reason__c = REASON_REPLACED;
-        old.Unlinked_By__c = userId;
-      }
+    if (!active.isEmpty()) {
+      return active[0];
     }
-    Database.update(previous, AccessLevel.SYSTEM_MODE);
 
-    List<SalesReport_Line_Link__c> existing = [
-      SELECT Id
-      FROM SalesReport_Line_Link__c
-      WHERE Line_User_Id__c = :locked.Line_User_Id__c
-      WITH SYSTEM_MODE
-      FOR UPDATE
-    ];
-    SalesReport_Line_Link__c link = existing.isEmpty()
-      ? new SalesReport_Line_Link__c(Line_User_Id__c = locked.Line_User_Id__c)
-      : existing[0];
-    link.User__c = userId;
-    link.Status__c = STATUS_ACTIVE;
-    link.Active_User_Key__c = String.valueOf(userId);
-    link.Linked_At__c = now;
-    link.Line_Display_Name__c = locked.Line_Display_Name__c;
-    link.Unlinked_At__c = null;
-    link.Unlink_Reason__c = null;
-    link.Unlinked_By__c = null;
-    if (link.Id == null) {
-      Database.insert(link, AccessLevel.SYSTEM_MODE);
-    } else {
-      Database.update(link, AccessLevel.SYSTEM_MODE);
+    SalesReport_Line_Link__c link = new SalesReport_Line_Link__c(
+      Line_User_Id__c = locked.Line_User_Id__c,
+      User__c = userId,
+      Status__c = STATUS_ACTIVE,
+      Linked_At__c = now,
+      Line_Display_Name__c = locked.Line_Display_Name__c
+    );
+    Database.SaveResult result = Database.insert(
+      link,
+      false,
+      AccessLevel.SYSTEM_MODE
+    );
+    if (!result.isSuccess()) {
+      // A parallel Connect won the race for one of the unique active keys.
+      for (Database.Error e : result.getErrors()) {
+        if (e.getStatusCode() == StatusCode.DUPLICATE_VALUE) {
+          throwIfConflict(conflict(locked.Line_User_Id__c, userId));
+          SalesReport_Line_Link__c winner = findActiveLink(
+            locked.Line_User_Id__c
+          );
+          if (winner != null) {
+            return winner;
+          }
+        }
+      }
+      throw new DmlException(result.getErrors()[0].getMessage());
     }
     return link;
+  }
+
+  private static String conflictOf(
+    List<SalesReport_Line_Link__c> active,
+    String lineUserId,
+    Id userId
+  ) {
+    for (SalesReport_Line_Link__c link : active) {
+      if (link.User__c == userId && link.Line_User_Id__c != lineUserId) {
+        return SalesReportException.ALREADY_LINKED;
+      }
+      if (link.User__c != userId && link.Line_User_Id__c == lineUserId) {
+        return SalesReportException.LINE_IN_USE;
+      }
+    }
+    return null;
+  }
+
+  private static void throwIfConflict(String conflict) {
+    if (conflict == SalesReportException.ALREADY_LINKED) {
+      throw SalesReportException.of(
+        conflict,
+        409,
+        'This Salesforce user is already linked to another LINE account.'
+      );
+    }
+    if (conflict == SalesReportException.LINE_IN_USE) {
+      throw SalesReportException.of(
+        conflict,
+        409,
+        'This LINE account is already linked to another Salesforce user.'
+      );
+    }
   }
 
   /**
@@ -161,7 +239,7 @@ public without sharing class SalesReportLinkService {
         User__r.IsActive,
         User__r.TimeZoneSidKey
       FROM SalesReport_Line_Link__c
-      WHERE Line_User_Id__c = :lineUserId AND Status__c = :STATUS_ACTIVE
+      WHERE Active_Line_Key__c = :lineUserId
       WITH SYSTEM_MODE
       LIMIT 1
     ];
@@ -174,7 +252,6 @@ public without sharing class SalesReportLinkService {
         new SalesReport_Line_Link__c(
           Id = link.Id,
           Status__c = STATUS_UNLINKED,
-          Active_User_Key__c = null,
           Unlinked_At__c = Datetime.now(),
           Unlink_Reason__c = REASON_DEACTIVATED
         ),

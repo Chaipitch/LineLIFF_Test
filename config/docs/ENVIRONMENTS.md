@@ -26,7 +26,7 @@ Settings values are entered into `SalesReport_Settings__c` by an admin ([HUMAN])
 | JWT certificate | `SalesReport_JWT_Signing`, 2048-bit, expires 2027-10-29 — renew before then and re-upload to the ECA | Created by user | 2026-10-29 |
 | Scheduled job | "Sales Report cleanup", nightly 02:00 Asia/Bangkok, owner = the admin (wchaipitch) | `scripts/apex/schedule-cleanup.apex` | 2026-10-30 |
 | Platform Cache | Partition `SalesReportCache` deployed with 0 MB — the org has no free capacity; not used (D-36) | `FILE-INVENTORY.md` | 2026-10-30 |
-| Test users | Links (2026-11-02): LL-000000 LINE "Chaipitch" → TerraSky admin2Thailand (unlinked for a login retest; relinks on Connect); LL-000001 another LINE account → **Admin TestUser** (`testuserline@gmail.com`, System Administrator, both Sales Report permission sets). Candidate non-admin rep: Earth-Kanin (`lkanin@terrasky.co.th.dev5`, active, Platform licence, not yet given `SalesReport_User` — on hold). All 9 full Salesforce licences in use | Device QA (L8) | 2026-10-30 |
+| Test users | Links (2026-11-03): LL-000000 LINE "Chaipitch" → TerraSky admin2Thailand and LL-000001 another LINE account → **Admin TestUser** (`testuserline@gmail.com`, System Administrator, both Sales Report permission sets) — both **ended** (Unlinked, reason Admin; leftover keys cleared 2026-11-03). Linking again creates a new link record (D-44). Candidate non-admin rep: Earth-Kanin (`lkanin@terrasky.co.th.dev5`, active, Platform licence, not yet given `SalesReport_User` — on hold). All 9 full Salesforce licences in use | Device QA (L8) | 2026-10-30 |
 
 ## Production
 

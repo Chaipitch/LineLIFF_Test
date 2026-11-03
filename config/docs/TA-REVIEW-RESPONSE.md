@@ -1,7 +1,7 @@
 # Response to "LINE LIFF × Salesforce Architecture Design – Technical Architecture Review" (v1.0)
 
 Review of the BA's architecture document (24 pages) against what is built and documented in sandbox `dev5` (branch
-`main-9i8y8m`). Reviewed 2026-11-03. References: `DECISIONS.md` (D-xx), `REST-ENDPOINTS.md`, `DATA-DICTIONARY.md`,
+`main-9i8y8m`). Reviewed 2026-11-03. **Update 2026-11-03:** §1 and G1–G3 are now built (D-44, D-45). References: `DECISIONS.md` (D-xx), `REST-ENDPOINTS.md`, `DATA-DICTIONARY.md`,
 `BA-FAQ.md`, `BA-QUESTIONS.md`.
 
 **Summary:** most of the document matches the build. There is **one design conflict** (what happens when a second LINE
@@ -87,6 +87,7 @@ apply the corrections in §3.
 
 | Owner | Action |
 |---|---|
-| Development | Implement §1 (block + Revoke action) and §2 G1–G3; update the docs. |
+| Development | ~~Implement §1 (block + Revoke action) and §2 G1–G3; update the docs.~~ **Done 2026-11-03** (D-44, D-45), deployed to `dev5`; device test pending. |
+| Development | Keep Visualforce for the LIFF page (C3) — decided with the user, reasons in D-43. |
 | BA | Confirm the Revoked / Unlinked rule (G2); update the document for G4 and §3–§4. |
 | BA / Security | Confirm the reps' Salesforce verification method in production (passwords, MFA app, passkeys) — `BA-QUESTIONS.md` item 19. |

@@ -115,6 +115,8 @@ body {
 .sr-message {
   margin: 0;
   color: var(--sr-muted);
+  /* The support reference goes on its own line. */
+  white-space: pre-line;
 }
 
 .sr-button {

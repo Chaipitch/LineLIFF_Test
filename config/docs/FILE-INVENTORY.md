@@ -45,12 +45,13 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportConnectionController` | Controller | `GET /salesreport/v1/connection` | L2 | Done |
 | `SalesReportMeController`, `SalesReportMeData` | — | Renamed to `SalesReportConnectionController` / `SalesReportConnectionData`, endpoint `/me` → `/connection` (D-38); deleted from `dev5` 2026-11-02 | L2 | Removed (renamed) |
 | `SalesReportLinkController` | Controller | `POST /salesreport/v1/link/start` | L3 | Done |
-| `SalesReportLinkPageController` | Controller | VF page `SalesReport_Link`: confirm, then link the logged-in rep; return URL to the chosen form | L3 | Done |
+| `SalesReportLinkPageController` | Controller | VF page `SalesReport_Link`: confirm, then link the logged-in rep; return URL to the chosen form; already-linked / expired-code states logged via `logVisit()`; request ID on unexpected errors | L3, D-44/45 | Done |
 | `SalesReportAccountController` | Controller | `GET /salesreport/v1/accounts` | L4 | Done |
 | `SalesReportOpportunityController` | Controller | `GET` (list / form) and `POST` (update) `/salesreport/v1/opportunities` (D-39) | L5c | Done |
 | `SalesReportActivityController` | Controller | `GET` (form) / `POST` (create Task) `/salesreport/v1/activity` | L5a | Done |
 | `SalesReportIdentityService` | Service | Token → verified LINE user (linked User via `SalesReportLinkService`) | L2–L3 | Done |
-| `SalesReportLinkService` | Service | Link codes, consume/link, one active link per User, lazy unlink of deactivated users | L3 | Done |
+| `SalesReportLinkService` | Service | Link codes, consume/link (new record per link; refuses `ALREADY_LINKED` / `LINE_IN_USE`, D-44), code problem for the log, lazy unlink of deactivated users | L3, D-44 | Done |
+| `SalesReportLineLinkTriggerHandler` | Trigger handler | Active keys follow the status; audit fields when a link ends; ended links and link identities locked (D-44) | D-44 | Done |
 | `SalesReportAccountService` | Service | Account search: min chars, field-set fields, escaping, ranking, cap | L4 | Done |
 | `SalesReportOpportunityService` | Service | Open list, prefilled form, stage limits, update as the rep | L5c | Done |
 | `SalesReportFormService` | Service | Shared form engine: field set + UI API as the rep, required flags, value checks (Task + Opportunity) | L5a/L5c | Done |
@@ -72,7 +73,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportActivityData` | Data | `POST /activity` response (`id`, `subject`, `status`) | L5a | Done |
 | `SalesReportActivityFileData` | Data | `POST /activity/files` response (`id`, `name`, `size`) | L5b | Done |
 | `SalesReportFormData` | Data | Form definition (fields with label, type, required, default/current value, options); was `SalesReportActivityFormData` until L5c | L5a/L5c | Done |
-| `SalesReportErrorData` | Data | Error response (`code`, `message`, `fields`) | L2, L5a | Done |
+| `SalesReportErrorData` | Data | Error response (`code`, `message`, `fields`, `reference` = request ID, D-45) | L2, L5a, D-45 | Done |
 | `SalesReportNamespaceService` | Service | Namespace-safe REST and page paths (P6) | L3 | Done |
 | `SalesReportLinkStartData` | Data | `/link/start` response (`linkUrl`) | L3 | Done |
 | `SalesReportException` | Other | Typed exception, plain-language message | L2 | Done |
@@ -85,6 +86,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 
 | Trigger | Purpose | Milestone | Status |
 |---|---|---|---|
+| `SalesReportLineLinkTrigger` | Before insert/update on `SalesReport_Line_Link__c` → `SalesReportLineLinkTriggerHandler` (D-44) | D-44 | Done |
 | `SalesReportUserTrigger` | Not built: deactivated users are unlinked on their next request (`SalesReportLinkService.findActiveLink`), so no trigger on User is needed | L3 | Removed (not needed) |
 
 ## 4. Visualforce pages (`fa/pages/`)
@@ -108,7 +110,7 @@ One folder per object: `<Object>.object-meta.xml`, `fields/<Field>.field-meta.xm
 
 | Object | Fields (files under `fields/`) | Layout / tab | Milestone | Status |
 |---|---|---|---|---|
-| `SalesReport_Line_Link__c` | `Line_User_Id__c`, `User__c`, `Status__c`, `Active_User_Key__c`, `Linked_At__c`, `Unlinked_At__c`, `Unlink_Reason__c`, `Unlinked_By__c`, `Line_Display_Name__c` | Tab + list views "Active links", "All links" (layout auto-generated); field history on `User__c`, `Status__c` | L3 | Done |
+| `SalesReport_Line_Link__c` | `Line_User_Id__c` (not unique since D-44), `User__c`, `Status__c` (+ Revoked), `Active_User_Key__c`, `Active_Line_Key__c` (D-44), `Linked_At__c`, `Unlinked_At__c`, `Unlink_Reason__c` (+ Revoked by admin), `Unlinked_By__c`, `Line_Display_Name__c` | Tab + list views "Active links", "All links"; layout `SalesReport_Line_Link__c-Sales Report LINE Link Layout` and quick action `SalesReport_Line_Link__c.Revoke` in the repo (D-44); field history on `User__c`, `Status__c` | L3, D-44 | Done |
 | `SalesReport_Link_Code__c` | `Code_Hash__c`, `Line_User_Id__c`, `Line_Display_Name__c`, `Expires_At__c`, `Used_At__c`, `Used_By__c` | No tab (layout auto-generated) | L3 | Done |
 | `SalesReport_Log__c` | `Level__c`, `Source__c`, `Message__c`, `Request_Id__c`, `User__c`, `Line_User_Ref__c` | Tab + list views "All", "Errors today" (layout auto-generated) | L2 | Done |
 | `SalesReport_Rate_Limit__c` | `Key__c` (SHA-256 of the LINE user ID), `Window_Start__c`, `Request_Count__c` | No tab, no layout changes; admin read via `SalesReport_Admin` (D-36) | L7 | Done |

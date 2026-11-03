@@ -186,6 +186,21 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       Checked headless; 137 tests pass.
 - [ ] H+C · Same check on Android (Chrome).
 
+### Change after the BA architecture review (2026-11-03, D-43 – D-45)
+
+- [x] C · Keep Visualforce for the LIFF page, not LWC (D-43, user).
+- [x] C · Block a second LINE account per Salesforce user, and a LINE account already linked to another user, with
+      "contact your administrator"; existing link untouched; WARN logged (D-44).
+- [x] C · New link record per link; `Line_User_Id__c` no longer unique; new unique `Active_Line_Key__c` (D-44).
+- [x] C · Status **Revoked**; **Revoke** quick action on the layout; trigger keeps keys and audit fields and locks ended
+      links (D-44). Live check in `dev5`: Revoke via the action API, reactivation refused.
+- [x] C · Expired / used / unknown link codes logged with the reason (D-44).
+- [x] C · Request ID returned with every error and shown as "Reference: …" on server errors (D-45).
+- [x] C · `dev5` data: cleared the leftover user keys on the two ended links (LL-000000, LL-000001).
+- [ ] H · Device test (`SETUP-GUIDE.md` Part I, "Test the link rules"): block screen on a second LINE account, Revoke,
+      relink.
+- [ ] BA · Confirm Revoked vs Unlinked (Q-L9).
+
 ## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)
 
 - [ ] C · Labels via Custom Labels `SalesReport_*` in the agreed languages (JA / EN / TH — BA), picked from LINE/browser language.
@@ -212,7 +227,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 
 - [~] H · Provide test rep user(s) (full Salesforce licence — D-13) and test LINE accounts. Candidate found 2026-10-30: Earth-Kanin (`lkanin@terrasky.co.th.dev5`, active, Platform licence, no `SalesReport_User` yet — on hold); all 9 full licences are in use.
 - [ ] H · Production: schedule the nightly cleanup once (`scripts/apex/schedule-cleanup.apex`, D-37) and decide the Attachments Enabled setting.
-- [ ] H+C · Device QA on iOS and Android LINE: link, search, both forms, expiry, unlink.
+- [ ] H+C · Device QA on iOS and Android LINE: link, search, both forms, expiry, revoke, second-account block.
 - [ ] BA · UAT against the acceptance scenarios (`L0-SPEC.md` §9).
 - [ ] H · Switch the LINE Login channel from Developing to **Published** (LINE-SETUP.md §6).
 - [~] C · `config/docs/SETUP-GUIDE.md` (admin; written and kept up to date since L2) and `config/docs/USER-GUIDE.md` (rep; to do).

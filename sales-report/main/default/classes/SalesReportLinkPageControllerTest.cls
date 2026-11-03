@@ -161,4 +161,118 @@ private class SalesReportLinkPageControllerTest {
       'Unknown form ignored'
     );
   }
+
+  private static List<SalesReport_Log__c> logs() {
+    return [
+      SELECT Level__c, Source__c, Message__c
+      FROM SalesReport_Log__c
+      WITH SYSTEM_MODE
+      ORDER BY Id
+    ];
+  }
+
+  @IsTest
+  static void repAlreadyLinkedToAnotherLineAccountIsToldToAskAnAdmin() {
+    SalesReportTestFactory.settings();
+    User rep = SalesReportTestFactory.rep('linked', true);
+    SalesReportTestFactory.link(
+      'U' + 'z'.repeat(32),
+      rep.Id,
+      SalesReportLinkService.STATUS_ACTIVE
+    );
+    String code = newCode();
+
+    System.runAs(rep) {
+      SalesReportLinkPageController controller = open(code);
+      Assert.areEqual(
+        SalesReportLinkPageController.STATE_ALREADY_LINKED,
+        controller.state,
+        'Refused before Connect'
+      );
+      Assert.isTrue(controller.hasRefusal, 'Page will log the refusal');
+      Assert.isNull(controller.logVisit(), 'Stays on the page');
+      controller.logVisit();
+      Assert.isFalse(controller.hasRefusal, 'Logged once');
+      // A Connect posted anyway (e.g. an old tab) is refused too.
+      controller.confirm();
+      Assert.areEqual(
+        SalesReportLinkPageController.STATE_ALREADY_LINKED,
+        controller.state,
+        'Still refused'
+      );
+    }
+    List<SalesReport_Log__c> rows = logs();
+    Assert.areEqual(2, rows.size(), 'Both refusals logged');
+    Assert.areEqual('WARN', rows[0].Level__c, 'WARN');
+    Assert.isTrue(
+      rows[0].Message__c.startsWith(SalesReportException.ALREADY_LINKED),
+      rows[0].Message__c
+    );
+    Assert.areEqual(
+      1,
+      [SELECT COUNT() FROM SalesReport_Line_Link__c WITH SYSTEM_MODE],
+      'Existing link kept, nothing added'
+    );
+  }
+
+  @IsTest
+  static void lineAccountLinkedToSomeoneElseIsRefused() {
+    SalesReportTestFactory.settings();
+    User other = SalesReportTestFactory.rep('owner', true);
+    SalesReportTestFactory.link(
+      SalesReportTestFactory.LINE_USER_ID,
+      other.Id,
+      SalesReportLinkService.STATUS_ACTIVE
+    );
+    User rep = SalesReportTestFactory.rep('second', true);
+    String code = newCode();
+
+    System.runAs(rep) {
+      Assert.areEqual(
+        SalesReportLinkPageController.STATE_LINE_IN_USE,
+        open(code).state,
+        'Refused'
+      );
+    }
+  }
+
+  @IsTest
+  static void expiredOrUsedCodesAreLoggedWithTheReason() {
+    User rep = SalesReportTestFactory.rep('late', true);
+    String code = newCode();
+    SalesReport_Link_Code__c row = [
+      SELECT Id
+      FROM SalesReport_Link_Code__c
+      WITH SYSTEM_MODE
+    ];
+    row.Expires_At__c = Datetime.now().addSeconds(-1);
+    Database.update(row, AccessLevel.SYSTEM_MODE);
+
+    System.runAs(rep) {
+      SalesReportLinkPageController controller = open(code);
+      controller.logVisit();
+      open(null).logVisit();
+    }
+    List<SalesReport_Log__c> rows = logs();
+    Assert.areEqual(2, rows.size(), 'Both visits logged');
+    Assert.isTrue(rows[0].Message__c.endsWith('expired'), rows[0].Message__c);
+    Assert.isTrue(
+      rows[1].Message__c.endsWith('missing or malformed'),
+      rows[1].Message__c
+    );
+    Assert.isFalse(
+      rows[0].Message__c.contains(code),
+      'The code itself is never logged'
+    );
+  }
+
+  @IsTest
+  static void normalVisitWritesNoLog() {
+    User rep = SalesReportTestFactory.rep('fine', true);
+    String code = newCode();
+    System.runAs(rep) {
+      open(code).logVisit();
+    }
+    Assert.areEqual(0, logs().size(), 'Nothing to log');
+  }
 }

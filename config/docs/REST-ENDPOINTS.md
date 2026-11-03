@@ -2,7 +2,7 @@
 
 How the Apex REST endpoints of LINE Sales Reporting handle a request, step by step. Contract summary (paths, request
 and response shapes, error codes): `L0-SPEC.md` §4. Classes: `L0-SPEC.md` §5a. Decisions: `DECISIONS.md` (D-xx).
-Last updated 2026-11-02 (L5c added).
+Last updated 2026-11-03 (link rules D-44, support reference D-45).
 
 Base URL (sandbox `dev5`):
 `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/services/apexrest/salesreport/v1/…`
@@ -30,7 +30,9 @@ LIFF page ──(X-Line-Id-Token: <LINE ID token>)──▶ Controller
 **Controllers stay thin.** Each one only calls a service and turns the result or error into JSON
 (`SalesReportRestService`).
 
-**Errors** always come back as `{ "error": { "code", "message", "fields"? } }`:
+**Errors** always come back as `{ "error": { "code", "message", "fields"?, "reference" } }`. `reference` is the
+Salesforce request ID — the same as `Request_Id__c` on the Sales Report Log entry — and LINE shows it as
+"Reference: …" under server errors (5xx), so a rep can quote it to support (D-45).
 
 | Code | HTTP status | Meaning |
 |---|---|---|
@@ -80,8 +82,16 @@ LIFF page ──(X-Line-Id-Token: <LINE ID token>)──▶ Controller
 
 **Not a REST endpoint, but part of the same flow:** the Visualforce page `SalesReport_Link`, which requires a Salesforce
 login and the custom permission `SalesReport_Access`. It shows the LINE name, and on **Connect** (a CSRF-protected POST)
-checks the code (unused, not expired, matching hash), marks it used, and creates or updates the
-`SalesReport_Line_Link__c` for the logged-in rep. The newest link wins (D-27, `BA-FAQ.md` §4).
+checks the code (unused, not expired, matching hash), marks it used, and creates a **new**
+`SalesReport_Line_Link__c` for the logged-in rep (D-44). Refused instead — no Connect button, existing link untouched,
+code left unused, WARN logged:
+
+- `ALREADY_LINKED`: the rep's Salesforce user already has an active link to another LINE account;
+- `LINE_IN_USE`: this LINE account is actively linked to another Salesforce user.
+
+An administrator ends the old link with **Revoke**. If exactly this pair is already linked, Connect just uses up the
+code and returns to LINE. Opening the page with an expired, used or unknown code is logged with the reason (never the
+code), by a CSRF-protected postback right after the page loads (a page may not write records while loading).
 
 ## 3. `GET /accounts?q=…` — Account search
 

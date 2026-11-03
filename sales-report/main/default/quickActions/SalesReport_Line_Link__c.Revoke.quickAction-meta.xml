@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Ends an active LINE link (D-44): Status Revoked; the trigger fills Unlinked At / By and clears the active keys. The rep links again from LINE, which creates a new link record.</description>
+    <fieldOverrides>
+        <field>Status__c</field>
+        <literalValue>Revoked</literalValue>
+    </fieldOverrides>
+    <fieldOverrides>
+        <field>Unlink_Reason__c</field>
+        <literalValue>Revoked by admin</literalValue>
+    </fieldOverrides>
+    <label>Revoke</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <quickActionLayout>
+        <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
+        <quickActionLayoutColumns>
+            <quickActionLayoutItems>
+                <emptySpace>false</emptySpace>
+                <field>Unlink_Reason__c</field>
+                <uiBehavior>Edit</uiBehavior>
+            </quickActionLayoutItems>
+        </quickActionLayoutColumns>
+        <quickActionLayoutColumns />
+    </quickActionLayout>
+    <type>Update</type>
+</QuickAction>
