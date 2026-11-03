@@ -54,6 +54,7 @@ sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex
 | `IMPLEMENTATION-PLAN.md` | Everyone | Milestones L0–L8, task status, dependencies |
 | `DATA-DICTIONARY.md` | Admins, developers | Objects, fields, settings, labels, permissions, Site/ECA settings |
 | `FILE-INVENTORY.md` | Developers | Every file and org component, with status |
+| `TA-REVIEW-RESPONSE.md` | BA, architects | Review of the BA's architecture document against the build |
 | `BA-QUESTIONS.md` | BA | Open questions with recommendations; Thai checklist at the end |
 | `BA-FAQ.md` | BA, non-technical readers | Plain-language answers (objects, linking, unlinking) |
 | `COEXISTENCE.md` | Developers | No clash with the LINE Connect package; packaging rules |

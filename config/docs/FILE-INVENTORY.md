@@ -27,6 +27,7 @@ Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own p
 | `COEXISTENCE.md` | No-clash check with LINE Connect, packaging-readiness rules | L0 | Done (living) |
 | `ENVIRONMENTS.md` | Non-secret configuration values per environment (channel IDs, OA ID, LIFF ID, URLs) | L1 | Done (living) |
 | `MOCKUP-REVIEW.md` | Concept mockups vs plan: aligned items and gaps G1–G8 | L0 | Done |
+| `TA-REVIEW-RESPONSE.md` | Response to the BA's architecture document (TA review v1.0): conflict, gaps, corrections | L8 | Done |
 | `REST-ENDPOINTS.md` | How each Apex REST endpoint handles a request, step by step; checklist for adding one | L7 | Done (living) |
 | `BA-FAQ.md` | Plain-language answers to BA questions (mapping storage, objects, linking rules, link code) | L3 | Done (living) |
 | `BA-QUESTIONS.md` | Questions for the BA session, with recommendations and answer column; Thai checklist at the end (2026-11-02) | L0 | Done (living; answers pending) |
