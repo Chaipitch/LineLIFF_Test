@@ -211,9 +211,9 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       (user).
 - [ ] H · When switching on: tick *Update Opportunity Enabled*, device-test with a **test** Opportunity (Slack alerts).
 
-## L6 — Mobile UI polish + i18n (2–3 d) — later (user, 2026-11-02)
+## L6 — Mobile UI polish (1 d) — later (user, 2026-11-02); languages dropped: English only (D-47)
 
-- [ ] C · Labels via Custom Labels `SalesReport_*` in the agreed languages (JA / EN / TH — BA), picked from LINE/browser language.
+- [x] ~~C · Labels in JA / EN / TH~~ — not needed: English only (D-47). Text stays in Custom Labels `SalesReport_*` (admins edit it in Setup).
 - [~] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states — loading, token-expired reload, rate-limit and error messages and the success screen with Close exist; offline/empty states still to do.
 - [ ] C · Accessibility basics (tap targets, contrast, font scaling).
 
@@ -258,5 +258,5 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 | L5c device test | H: guest-profile class access; a test Opportunity |
 | L5c final fields | BA: Q-O1–Q-O7, D-12 (Setup changes only); D-13 licences |
 | L7 rate limiting | — (custom-object fallback, D-36) |
-| L6 | User: start; BA/user: check the Thai and Japanese wording |
+| L6 | User: start (UI polish only, English, D-47) |
 | L8 | H: test users and LINE accounts; BA: go-live date, UAT owner |

@@ -380,7 +380,7 @@ the rest are edits to the front-end source, followed by a rebuild and a deploy o
 
 | You want to change | Where | Takes effect |
 |---|---|---|
-| Any button or message text ("Save", "Log another activity", error texts) | Setup → **Custom Labels** → `SalesReport_*` (translations here too, L6) | Next time the form opens |
+| Any button or message text ("Save", "Log another activity", error texts) | Setup → **Custom Labels** → `SalesReport_*` (English only, D-47) | Next time the form opens |
 | Which fields a form shows, and their order | Object Manager → Task / Opportunity → **Field Sets** → *Sales Report Activity Form* / *Sales Report Opportunity Form* | Next open |
 | A field's label (e.g. "Due Date Only" → "Date") | Object Manager → the field → Edit the label | Next open |
 | Which fields are required | The Task / Opportunity **page layout** of the reps' profile, or *Required* in the field set (D-31) | Next open |

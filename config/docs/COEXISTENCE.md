@@ -61,7 +61,7 @@ Connect namespace or Dev Hub).
 | P8 | Tests create all their own data (`SeeAllData=false`), mock all callouts, and don't depend on this org's validation rules; VR-failure tests create their own failure (e.g. invalid value) or skip gracefully when no VR exists | Subscriber orgs run package tests with their own rules. |
 | P9 | Standard-object DML through the org REST API reports per-record errors (HANDOFF §6 "unknown orgs") | Subscriber VRs/triggers vary. |
 | P10 | Org-specific setup (Site, guest profile, certificate, ECA consumer key, settings values, cache allocation) is **[HUMAN] setup**, documented in `SETUP-GUIDE.md`, not deployed metadata | These can't (or shouldn't) be packaged. |
-| P11 | Custom Labels for all UI text; no text hardcoded in JS | Translations ship with the package. |
+| P11 | Custom Labels for all UI text; no text hardcoded in JS | Translations ship with the package; here also lets admins reword in Setup. This org: English only (D-47). |
 | P12 | Keep the dependency list empty: no dependency on LINE Connect or any other package | Cross-package dependencies would force install order and the other package's Dev Hub. |
 
 What would still be needed to package later (estimate in HANDOFF §7: ~8–10 days): choose package type, register a

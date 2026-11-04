@@ -2,7 +2,7 @@
 
 **Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, **switched off** for now), L5c (Update
 Opportunity — built with the proposed defaults, D-39, **switched off** for now) and L7 (hardening) done. Since
-2026-11-02 the one-time login opens in the phone's browser right away and returns to the form (D-42, device-tested on iOS). L6 (languages, UI states) and L8 (QA,
+2026-11-02 the one-time login opens in the phone's browser right away and returns to the form (D-42, device-tested on iOS). L6 (UI polish; English only, D-47) and L8 (QA,
 go-live) later. Open BA questions: `BA-QUESTIONS.md`.
 Written in L0, kept up to date since.
 **Background:** `HANDOFF.md` (original brief). **Decisions:** `DECISIONS.md` (D-xx). **Progress:** `IMPLEMENTATION-PLAN.md`.
@@ -251,7 +251,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
 | L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; **switched off** 2026-11-02 (`Opportunity_Form_Enabled__c`); BA answers = Setup changes |
-| L6 Languages + UI states | Later (user, 2026-11-02) |
+| L6 UI polish | Later (user, 2026-11-02); English only, no translations (D-47) |
 | L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
 | BA architecture review | Done (2026-11-03): link rules D-44 (block, Revoke, history, Revoked status) and support reference D-45 — deployed to `dev5`, device test pending |
 | L8 QA, UAT, go-live | Not started |

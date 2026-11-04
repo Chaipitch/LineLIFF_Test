@@ -160,7 +160,7 @@ for Tasks also `Subject`, `Priority` and (unless `Status` is in the field set) `
 
 ## 4. Custom Labels (`SalesReport_*`)
 
-Category `SalesReport`. English only so far; JA / TH translations in L6 (BA Q-S3). The LIFF page gets them through
+Category `SalesReport`. **English only** (D-47, Q-S3) — no translations; admins can change any wording in Setup → Custom Labels without a deploy. The LIFF page gets them through
 `SalesReportLiffPageController` (no text hardcoded in JS, P11); the link page uses `$Label` directly.
 
 | Label | English value | Used on | Milestone |

@@ -16,7 +16,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 |---|---|---|---|---|
 | Q-S1 ⚑ | Which reps will use the tool, and how many? | Every rep needs an active Salesforce user. **Opportunities need a full "Salesforce" licence**: the org has 9 active Salesforce and 18 "Salesforce Platform" users; Platform users can log activities but **cannot see or update Opportunities** (D-13). | List the users; confirm each has a Salesforce licence if they need Update Opportunity | |
 | Q-S2 | Target go-live date and who signs off? | Plan is 20–26 working days after L1 values arrive. | | |
-| Q-S3 | UI languages? | JA / EN / TH. Org default locale is ja_JP, users in Thailand. | All three, following the phone's LINE language | |
+| Q-S3 | UI languages? | JA / EN / TH. Org default locale is ja_JP, users in Thailand. | All three, following the phone's LINE language | **Answered 2026-11-04 (user): English only** (D-47). |
 | Q-S4 | Internal only in this phase? | Built unpackaged but packaging-ready (D-06). | Yes, internal only | |
 | Q-S5 | Confirm the 5 acceptance scenarios | Draft in `L0-SPEC.md` §9 (link once; search; log activity; VR error shown; unlink). | Confirm / add | |
 
@@ -145,7 +145,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
     ☐ **ยืนยันความหมายสถานะ:** Revoked = admin ยกเลิก, Unlinked = ระบบยกเลิกอัตโนมัติเพราะ user ถูก deactivate — โอเคไหม? (Q-L9)
 16. ✅ ตอบแล้ว (3 พ.ย.): **admin เป็นคนยกเลิกการผูก** ด้วยปุ่ม **Revoke** ในแท็บ Sales Report LINE Links (Q-L2, D-44)
 17. ☐ ค้นหา Account ด้วย**ชื่อเท่านั้น** และแสดงทุก Account ที่ Rep มีสิทธิ์เห็น — ต้องค้นด้วยชื่อภาษาไทย/รหัสลูกค้าด้วยไหม? (Q-C1, Q-C2)
-18. ☐ ภาษาหน้าจอ: ไทย / อังกฤษ / ญี่ปุ่น — ต้องครบทั้งสามไหม? (Q-S3)
+18. ✅ ตอบแล้ว (4 พ.ย.): ภาษาหน้าจอ **อังกฤษอย่างเดียว** (Q-S3, D-47)
 
 ### 🔵 Security / นโยบาย (ตอบก่อนขึ้น production)
 
