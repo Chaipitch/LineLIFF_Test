@@ -2,7 +2,7 @@
 
 How the Apex REST endpoints of LINE Sales Reporting handle a request, step by step. Contract summary (paths, request
 and response shapes, error codes): `L0-SPEC.md` §4. Classes: `L0-SPEC.md` §5a. Decisions: `DECISIONS.md` (D-xx).
-Last updated 2026-11-04 (settings trimmed, D-48; link rules D-44, support reference D-45, BA's Opportunity fields and lookup search D-46).
+Last updated 2026-11-04 (link rules D-44, support reference D-45, Opportunity fields and lookup search D-46, settings trimmed D-48, Update Opportunity always on D-49, rate limit in Platform Cache D-51).
 
 Base URL (sandbox `dev5`):
 `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/services/apexrest/salesreport/v1/…`

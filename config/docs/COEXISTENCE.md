@@ -2,7 +2,7 @@
 
 **Purpose:** prove this feature does not clash with the LINE Connect managed package (`tsthlineoa`) in the target org, and
 keep it ready to be packaged later without rework. Checked 2026-10-28 against sandbox `dev5` (LINE Connect 0.1.0.10)
-(component list brought up to date 2026-11-02: Task instead of Event, rate-limit object, cleanup job) and the LINE Connect source (`Chaipitch/lineOA`, read-only). Re-run §4 before every production deploy and after any
+(component list brought up to date 2026-11-04: Task instead of Event, cleanup job, link trigger, rate limit in Platform Cache) and the LINE Connect source (`Chaipitch/lineOA`, read-only). Re-run §4 before every production deploy and after any
 LINE Connect upgrade.
 
 ---
@@ -15,11 +15,11 @@ the things a namespace does **not** separate (URLs, Sites, shared standard objec
 
 | Area | LINE Connect (`tsthlineoa`) in the org | This feature | Clash? |
 |---|---|---|---|
-| Custom objects | `LINE_Conversation__c`, `LINE_Message__c`, `LINE_OA_Configuration__c`, `LINE_Error_Log__c`, `LINE_Settings__c`, `LINE_Webhook_Event__e` | `SalesReport_Line_Link__c`, `SalesReport_Link_Code__c`, `SalesReport_Log__c`, `SalesReport_Rate_Limit__c`, `SalesReport_Settings__c` | No — different names and labels; we never read or write theirs. |
+| Custom objects | `LINE_Conversation__c`, `LINE_Message__c`, `LINE_OA_Configuration__c`, `LINE_Error_Log__c`, `LINE_Settings__c`, `LINE_Webhook_Event__e` | `SalesReport_Line_Link__c`, `SalesReport_Link_Code__c`, `SalesReport_Log__c`, `SalesReport_Settings__c` (the rate-limit object was removed 2026-11-04, D-51) | No — different names and labels; we never read or write theirs. |
 | Fields on standard objects | Contact: `LINE_User_Id__c`, `LINE_OA_Configuration__c`, `LINE_Invite_*`, `LINE_Auto_Created__c`. Event/Task: `LINE_Conversation__c`, `LINE_Sync_Key__c` | **None** added. We write standard Task fields (D-11), Salesforce Files on the Task (when attachments are on) and the Opportunity fields in our field set (L5c). | No |
 | Apex classes | 47 `Line*` classes (e.g. `LineLinkService`, `LineLogger`) | `SalesReport*` only | No — and no unpackaged `SalesReport*`/`Line*` classes exist in the org. |
 | Apex REST URL | `LineWebhookResource` → `/services/apexrest/tsthlineoa/line/webhook` | `/services/apexrest/salesreport/v1/...` (D-20) | No. Unpackaged URL mappings in the org: `/lic-check/*`, `/WebFormLead/*` — no overlap. |
-| Triggers | Only on its own `LINE_OA_Configuration__c` and `LINE_Webhook_Event__e` | None (no trigger on User either — deactivated users are unlinked on their next request) | No — package has no trigger on User, Event, Task, Account or Opportunity. |
+| Triggers | Only on its own `LINE_OA_Configuration__c` and `LINE_Webhook_Event__e` | `SalesReportLineLinkTrigger` on our own `SalesReport_Line_Link__c` only (D-44); no trigger on User — deactivated users are unlinked on their next request | No — package has no trigger on User, Event, Task, Account or Opportunity. |
 | Flows / scheduled jobs | none packaged; batch `LineDailyEventSyncBatch` | No flows; scheduled job "Sales Report cleanup" (D-37), touches only `SalesReport_*` objects | No |
 | Event records | `LineDailyEventSyncBatch` creates one Event per conversation per day (Who = Contact, What = Account) and only finds/rebuilds Events by its own `LINE_Sync_Key__c` | We create **Tasks**, not Events (D-11), and never set `tsthlineoa__*` fields on them | No — the batch only creates/finds Events by its own sync key. Both appear in the Account's activity timeline; LINE Connect's are Events with a LINE Conversation, ours are Tasks with Subject "<Type> – <Account>". |
 | Sites | `LineWebhook` (path `/linewebhook`), guest permission set `LINE_Webhook_Guest` | Own Site `SalesReport_Site` (path `salesreport`), own guest profile settings | No — separate Site and guest user; we never assign `LINE_Webhook_Guest` or grant anything to their guest. |
@@ -28,7 +28,7 @@ the things a namespace does **not** separate (URLs, Sites, shared standard objec
 | Remote sites | `tsthlineoa__LINE_API`, `tsthlineoa__LINE_API_DATA` (+ an unpackaged `LINE_Messaging_API`) | `SalesReport_LINE_API` | No — two remote sites for the same URL are allowed; we depend on none of theirs (D-10). |
 | Custom settings / labels | `tsthlineoa__LINE_Settings__c`, `tsthlineoa__LINE_*` labels | `SalesReport_Settings__c`, `SalesReport_*` labels | No |
 | Static resources | `tsthlineoa__qrcode` | `SalesReport_LiffApp` | No |
-| Platform Cache | none | `SalesReportCache` (0 MB, unused — D-36) | No |
+| Platform Cache | none (package `pkgviz` uses 3 MB; `mitoco` partition 0 MB) | `SalesReportCache`, 1 MB org cache: rate-limit counters (D-50, D-51) | No — own partition |
 | LINE OA / channels | Each rep's own OA, registered as `LINE_OA_Configuration__c`, with LINE Connect's webhook | Separate "Sales Reporting" OA, **not** registered in LINE Connect, no webhook (`LINE-SETUP.md` §2) | No, as long as nobody registers our OA in LINE Connect. |
 | LINE API quotas | Per channel (their OAs' channels) | Our own channels; ID-token verify only | No shared LINE quota. |
 | Shared org limits | Uses Apex callouts, async jobs, API requests, Site bandwidth of `LineWebhook` | Uses API requests, callouts, our own Site's bandwidth, one scheduled job | **Shared pool**: daily API requests (5M in sandbox) and per-org async limits are common to both. Low volume expected; measured in L2 (§6 of `L0-SPEC.md`). |

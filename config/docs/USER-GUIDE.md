@@ -74,8 +74,8 @@ Salesforce user."*
 The activity appears in Salesforce on the Account's activity timeline, with you as the creator. Its subject is the
 type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 
-> **Photos and files** (when switched on by your administrator): after filling in the form, tap **Add photo or file**
-> — up to 5 files, 4 MB each, photos or PDF. Photos are shrunk automatically. If a file fails after the activity was
+> **Photos and files**: after filling in the form, tap **Add photo or file**. The red line under *Photos and files*
+> shows the limits — up to 5 files, 4 MB each, JPG, PNG or PDF. Photos are shrunk automatically. If a file fails after the activity was
 > saved, tap **Try again**; the activity itself is already safe.
 
 ---

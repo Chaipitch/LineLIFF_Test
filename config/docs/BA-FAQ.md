@@ -1,7 +1,7 @@
 # BA FAQ — LINE Sales Reporting
 
 Plain-language answers to questions from the BA. Technical detail: `DATA-DICTIONARY.md` (objects and fields),
-`DECISIONS.md` (D-xx). Last updated 2026-11-03 (link rules from the BA's architecture review: block, Revoke, history, D-44).
+`DECISIONS.md` (D-xx). Last updated 2026-11-04 (rate limit in Platform Cache, D-51; link rules D-44).
 
 ---
 

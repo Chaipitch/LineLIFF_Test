@@ -7,9 +7,10 @@ Work one milestone at a time. Keep `FILE-INVENTORY.md` up to date in the same co
 
 Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason given).
 
-**Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched on again 2026-11-04 (setting *Attachments Enabled*) · L5c built
-with the proposed defaults, switched off for now · login in the phone's browser, straight back to the form (D-42) done on iOS · L6 later (user) · L7 done ·
-L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
+**Where we are (2026-11-04):** L0–L7 done · L5a Log Activity and L5b attachments **on** · L5c Update Opportunity with the
+BA's fields (D-46), **always on** (D-49) · login in the phone's browser (D-42) · BA review changes D-43–D-45 done · settings
+trimmed to 7 (D-48) · rate limit in Platform Cache (D-51) · L6 polish done (English only, D-47) · L8: user guide and go-live
+checklist written; device QA (Android), UAT and go-live open. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
 
 ---
 

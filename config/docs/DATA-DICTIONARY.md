@@ -2,7 +2,7 @@
 
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
-**State (2026-11-03): everything below is built and deployed to sandbox `dev5`** (L2–L5c, L7, link rules D-44/D-45). Update Opportunity (L5c)
+**State (2026-11-04): everything below is built and deployed to sandbox `dev5`** (L2–L7, D-44–D-51). Update Opportunity (L5c)
 has the BA's fields (D-46) and is **always on** since 2026-11-04 (switch removed, D-49). Attachments (L5b) are **switched on** in `dev5` 2026-11-04 (user) (`Attachments_Enabled__c`).
 Update this file in the same commit whenever a field or setting changes.
 

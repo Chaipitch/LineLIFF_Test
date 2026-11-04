@@ -1,7 +1,7 @@
 # Spec — LINE Sales Reporting (LIFF → Salesforce)
 
-**Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, on since 2026-11-04), L5c (Update
-Opportunity — built with the proposed defaults, D-39, **switched off** for now) and L7 (hardening) done. Since
+**Status (2026-11-04):** L0–L4, L5a (Log Activity), L5b (attachments — on), L5c (Update Opportunity — the BA's fields,
+D-46, always on, D-49), L6 (UI polish) and L7 (hardening) done; L8 guides written, QA / go-live open. Since
 2026-11-02 the one-time login opens in the phone's browser right away and returns to the form (D-42, device-tested on iOS). L6 (UI polish; English only, D-47) and L8 (QA,
 go-live) later. Open BA questions: `BA-QUESTIONS.md`.
 Written in L0, kept up to date since.
@@ -74,7 +74,7 @@ LINE's browser can't do passkeys, D-41.)
 
 Step-by-step walkthrough of each endpoint: **`REST-ENDPOINTS.md`**.
 
-All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count towards the per-LINE-user rate limit (D-36). Responses are JSON, never cached; errors use
+All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count towards the per-LINE-user rate limit (D-36; counter in Platform Cache since D-51). Responses are JSON, never cached; errors use
 `{ "error": { "code": "...", "message": "<plain-language>", "fields": { … }, "reference": "<request ID>" } }` (`fields` only on form errors; `reference` = Salesforce request ID, same as the Sales Report Log entry, shown in LINE on server errors — D-45). Error codes: `TOKEN_MISSING`,
 `TOKEN_INVALID`, `TOKEN_EXPIRED` (401 — page reloads once), `NOT_LINKED` (403 — page shows Connect), `NOT_AUTHORIZED`
 (403), `QUERY_TOO_SHORT` (400), `INVALID_INPUT` / `SAVE_FAILED` (400, with `fields`: field API name → message; L5), `RATE_LIMITED` (429; L7), `NO_ACCESS` (403 — the rep can't read that object/field, e.g. Opportunity on a Platform licence; L5c), `UNAVAILABLE` / `CONFIG_MISSING` (503), `LINE_ERROR` / `SESSION_ERROR` (502), `INTERNAL` (500).
@@ -226,7 +226,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
   suggestion for the per-request rep session).
 - No secrets in code, JS, logs or docs. LINE channel ID and ECA consumer key are configuration, not secrets; the JWT
   private key stays in the certificate store.
-- Rate limit per verified LINE user, 60/min by default (D-36); nightly cleanup of codes, logs and counters (D-37).
+- Rate limit per verified LINE user, 60/min (D-36, counter in Platform Cache D-51); nightly cleanup of codes and logs (D-37).
   Never trust a LINE user ID sent as data.
 
 ## 9. Draft acceptance scenarios (for BA to confirm)
@@ -252,6 +252,6 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L4 Account search | Done — search works on the phone |
 | L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **on** since 2026-11-04 (Android check pending); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; BA's fields (D-46); **always on** since 2026-11-04 (switch removed, D-49) |
 | L6 UI polish | Done 2026-11-04 (offline / retry on Save, tap targets, focus); English only (D-47); phone check pending |
-| L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
+| L7 Hardening | Done (2026-10-30): rate limit (in Platform Cache since 2026-11-04, D-51), nightly cleanup, audits |
 | BA architecture review | Done (2026-11-03): link rules D-44 (block, Revoke, history, Revoked status) and support reference D-45 — deployed to `dev5`, device test pending |
-| L8 QA, UAT, go-live | Not started |
+| L8 QA, UAT, go-live | User guide and go-live checklist written (2026-11-04); device QA, UAT and go-live open |

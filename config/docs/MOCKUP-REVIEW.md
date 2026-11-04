@@ -1,7 +1,7 @@
 # Mockup review — 2026-10-29
 
 Review of the two concept images against the plan (2026-10-29). Each gap is recorded here and turned into a question in
-`BA-QUESTIONS.md`. G4 and G6 were settled by the L3 build; the form gaps (G1–G3) still wait on the BA. Once the BA
+`BA-QUESTIONS.md`. G4 and G6 were settled by the L3 build; G1–G2 by L5a and G3 by the BA's field list (D-46, 2026-11-03). Once the BA
 answers, the spec, decisions log, data dictionary and field sets are updated together.
 
 | Image | File |
@@ -30,7 +30,7 @@ answers, the spec, decisions log, data dictionary and field sets are updated tog
 |---|---|---|---|---|---|---|
 | G1 | Activity object (D-11) | **Task**, Type "Customer Visit", Due Date, Comments | Leaning Event | Task `Type` has only call outcomes, no "Customer Visit"; Event `Type` has "On-site / Visit". The Task flow `Auto_Generate_Call_Subject` only runs for `TaskSubtype = Call`, so it won't overwrite our subject. | **Decided 2026-10-30: Task** (D-11), Subtype `Task`, Status from the date (D-32); admin adds visit types to Task `Type` | Q-A1, Q-A2 |
 | G2 | Log Activity fields | Account, Activity Type, Date, Comments | Event fields incl. start time / duration | — | **Built (L5a):** Type, Date (`ActivityDate`, no time), Comments (`Description`) from field set `SalesReport_Activity_Form`; required flags follow Salesforce (D-31). Labels show as Salesforce's ("Due Date Only", "Description") until an admin renames them | Q-A3 |
-| G3 | Update Opportunity fields | Stage, Amount, Next Step | + Win Confidence, Close Date, Next Step Due Date | Stage values are `01. Before 1st MTG`, `02. Early Stage`, `03. Final Proposal`, `08.Closed Won/Lost` (no "Proposal"); Stage ≥ 02 requires `PreSales_Engineer__c` (active VR); two "Next Step" fields (D-12) | Start the field set with Stage, Amount, Next Step; add PreSales Engineer (else reps hit the VR) and Close Date if agreed — **built 2026-11-02 with Stage, Amount, Next Step, Close Date (D-39), switched off until the BA confirms**; PreSales Engineer is a lookup the form can't show yet | Q-O1 … Q-O4 |
+| G3 | Update Opportunity fields | Stage, Amount, Next Step | + Win Confidence, Close Date, Next Step Due Date | Stage values are `01. Before 1st MTG`, `02. Early Stage`, `03. Final Proposal`, `08.Closed Won/Lost` (no "Proposal"); Stage ≥ 02 requires `PreSales_Engineer__c` (active VR); two "Next Step" fields (D-12) | Start the field set with Stage, Amount, Next Step; add PreSales Engineer (else reps hit the VR) and Close Date if agreed — **BA answered 2026-11-03: Stage, Amount, Main PreSales Engineer (searchable lookup), Next Step (custom), Next Step Due Date — built (D-46), always on (D-49)** | Q-O1 … Q-O4 |
 | G4 | Where the login page opens (D-15) | Entirely inside LINE, ends on "Successfully connected!" | External browser first | — | **2026-11-02:** in-LINE login tried (D-40) but LINE's browser can't do passkeys (D-41) → login opens in the phone's browser right away, and Connect returns to the form in LINE (D-42) | Q-L3 |
 | G5 | "OAuth" / "re-authentication when session expires" wording | Mockup implies an OAuth session that can expire | One normal Salesforce login to link; afterwards a fresh session is minted per request (JWT, D-16); nothing stored | — | Reword slide: re-login only if unlinked, deactivated or permission removed | Q-L4 (info) |
 | G6 | "Connected" screen shows raw LINE User ID | `U1234567890 ↔ Roj` | — | — | **Built that way in L3:** the confirm page shows the LINE display name and the Salesforce name; the raw ID is never shown | Q-L5 |

@@ -3,15 +3,15 @@
 Sales reps open a small form from a LINE Official Account's rich menu and record their work in Salesforce without
 leaving LINE:
 
-- **Log Activity** — a Task on the chosen Account (photos/files supported, switched off for now).
-- **Update Opportunity** — pick one of the Account's open Opportunities and update its fields (L5c, proposed defaults; switched off for now).
+- **Log Activity** — a Task on the chosen Account, with photos/files (up to 5 × 4 MB).
+- **Update Opportunity** — pick one of the Account's open Opportunities and update Stage, Amount, Main PreSales Engineer,
+  Next Step and Next Step Due Date (the BA's list).
 
 Reps log in to Salesforce once; after that every save runs **as the rep** (JWT bearer, "Option B"), so sharing,
 field-level security, validation rules and "Created By" are Salesforce's own. No middleware: LINE app → LIFF page on a
 public Salesforce Site → Apex REST → LINE ID-token verify + the org's REST API as the rep.
 
-Status, 2026-11-02: L0–L5c and L7 built in sandbox `dev5`; Update Opportunity and attachments switched off for now;
-the one-time Salesforce login opens in the phone's browser and returns to the form in LINE. L6 and L8 to come (`config/docs/IMPLEMENTATION-PLAN.md`).
+Status, 2026-11-04: L0–L8 development done in sandbox `dev5` (151 Apex tests, 97% coverage). Both forms and attachments are on; the one-time Salesforce login opens in the phone's browser and returns to the form in LINE. Waiting on: device tests (Android), BA answers (`BA-QUESTIONS.md`), then production via `config/docs/GO-LIVE-CHECKLIST.md`.
 
 ## Folders
 
@@ -52,7 +52,7 @@ sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex
 | `GO-LIVE-CHECKLIST.md` | Admins, developers, BA | Ordered steps to set up production, smoke test and rollback |
 | `L0-SPEC.md` | Developers | Scope, org findings, architecture, API, data model, classes, security |
 | `REST-ENDPOINTS.md` | Developers, admins | How each REST endpoint works step by step; checklist for adding one |
-| `DECISIONS.md` | Everyone | Decision log D-01 … D-48 and what is still open |
+| `DECISIONS.md` | Everyone | Decision log D-01 … D-51 and what is still open |
 | `IMPLEMENTATION-PLAN.md` | Everyone | Milestones L0–L8, task status, dependencies |
 | `DATA-DICTIONARY.md` | Admins, developers | Objects, fields, settings, labels, permissions, Site/ECA settings |
 | `FILE-INVENTORY.md` | Developers | Every file and org component, with status |

@@ -93,7 +93,7 @@ Production: follow **`GO-LIVE-CHECKLIST.md`** (validate, then quick-deploy, then
 On a brand-new org, deploy `sales-report/main/default/objects` first: Apex tests can't see brand-new fields during the
 same check-only validation. After the first deploy to a new org, schedule the nightly cleanup once (Part H).
 
-**Status:** deployed to `dev5` (L2–L5c, L7, D-44–D-48; latest 2026-11-04, 24 test classes, 150 tests).
+**Status:** deployed to `dev5` (L2–L7, D-44–D-51; latest 2026-11-04, 24 test classes, 151 tests).
 
 ---
 
@@ -379,7 +379,7 @@ the rest are edits to the front-end source, followed by a rebuild and a deploy o
 | A field's label (e.g. "Due Date Only" → "Date") | Object Manager → the field → Edit the label | Next open |
 | Which fields are required | The Task / Opportunity **page layout** of the reps' profile, or *Required* in the field set (D-31) | Next open |
 | Picklist values (Activity Type, Stage) | Object Manager → the field → Values | Next open |
-| Limits and switches (attachments on/off, stages, search length, rate limit) | Custom Settings → **Sales Report Settings** (Part C) | Immediately |
+| Attachments on/off, log level | Custom Settings → **Sales Report Settings** (Part C). Limits (files, sizes, search length, rate limit, stages) are fixed in code (D-48) | Immediately |
 
 ### J2. Where the code lives
 
@@ -451,6 +451,6 @@ because the page controller's test counts the labels — update that count too.
 | Switch everything off | Setup → Sites → *SalesReport_Site* → Deactivate (D-48). Attachments: Part C switch. |
 | Switch attachments on/off | Sales Report Settings → *Attachments Enabled*. |
 | Hide Update Opportunity | No setting any more (D-49): remove its tile from the rich menu (LINE Official Account Manager). |
-| "Too many requests" for a rep | Wait a minute; if it happens in normal use, raise *Rate Limit per Minute*. |
+| "Too many requests" for a rep | Wait a minute. The limit (60 a minute) is fixed in code (D-48); if normal use hits it, ask a developer. |
 | Check the nightly cleanup ran | Setup → Scheduled Jobs → "Sales Report cleanup"; the *Sales Report Logs* tab shows an INFO line when Log Level is INFO. |
 | Yearly | Renew the certificate before it expires (part G) and upload it to the app. |

@@ -6,7 +6,7 @@ must be answered before the forms are built; the rest can follow. Where we have 
 can simply confirm. Context: `L0-SPEC.md`, `DECISIONS.md` (D-xx), `MOCKUP-REVIEW.md` (G-x, with the two mockup images).
 
 Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-10-28.
-**ภาษาไทย:** a Thai checklist of the open questions, in priority order, is at the end of this file (updated 2026-11-02).
+**ภาษาไทย:** a Thai checklist of the open questions, in priority order, is at the end of this file (updated 2026-11-04).
 
 ---
 
@@ -129,7 +129,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 8. ☐ **Activity Type ให้เลือกค่าอะไรบ้าง?** ตอนนี้มีแต่ผลการโทร (เช่น "Connected - Busy / Call Back")
    ทำให้หัวเรื่อง Task ออกมาเป็น "Connected - Busy / Call Back – ชื่อลูกค้า"
    → เสนอ: Customer Visit, Online Meeting, Phone Call, Demo, Other — admin เพิ่มค่าใน Salesforce (Q-A2)
-9. ☐ **แนบไฟล์:** ตอนนี้ตั้งไว้ **ไม่เกิน 5 ไฟล์ ไฟล์ละไม่เกิน 4 MB** (รูปถูกย่อบนมือถือก่อนส่ง) รองรับ jpg / png / pdf
+9. ☐ (เปิดใช้งานแล้ว 4 พ.ย.) **แนบไฟล์:** ตอนนี้ตั้งไว้ **ไม่เกิน 5 ไฟล์ ไฟล์ละไม่เกิน 4 MB** (รูปถูกย่อบนมือถือก่อนส่ง) รองรับ jpg / png / pdf
    → ใช้ตามนี้ได้ไหม? (ตอนนี้กำหนดตายตัวในโค้ด D-48 — ถ้าต้องการเปลี่ยนต้องแก้โค้ด; 4 MB คือค่าสูงสุดที่ระบบรองรับ) (Q-A6a)
 10. ☐ **ชื่อฟิลด์ในฟอร์ม:** ตอนนี้แสดงตาม Salesforce คือ "Due Date Only" และ "Description"
     → ให้ admin เปลี่ยนชื่อเป็น "Date" / "Comments" ไหม? และ**เพิ่มฟิลด์ Activity Purpose** (มีอยู่แล้วใน org) ในฟอร์มไหม?
