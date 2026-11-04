@@ -221,9 +221,9 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 ## L7 — Hardening (3 d) — done 2026-10-30
 
 - [x] H · Platform Cache: still 0 MB in `dev5` → custom-object fallback chosen (D-36). No token-hash cache (nothing to cache in).
-- [x] C · Per-LINE-user rate limit: `SalesReportRateLimitService` + `SalesReport_Rate_Limit__c`, 60/min default, `RATE_LIMITED` (429)
+- [x] C · Per-LINE-user rate limit: `SalesReportRateLimitService`, 60/min, `RATE_LIMITED` (429); counter moved from `SalesReport_Rate_Limit__c` to Platform Cache 2026-11-04 (D-51)
       with its own message in LINE; count written in `SalesReportRestService.finish()` after all callouts.
-- [x] C · Nightly cleanup `SalesReportCleanupService`: expired link codes (+24 h), logs older than 30 days, old counters;
+- [x] C · Nightly cleanup `SalesReportCleanupService`: expired link codes (+24 h), logs older than 30 days (counters: none since D-51);
       scheduled in `dev5` (`scripts/apex/schedule-cleanup.apex`, next run 02:00 Bangkok). First run: nothing old enough yet.
 - [x] C · Code Analyzer (Recommended): 0 Critical/High. Every class declares sharing; the four `without sharing` services
       (Link, Log, RateLimit, Cleanup) state why in their header and in DATA-DICTIONARY §5.3.

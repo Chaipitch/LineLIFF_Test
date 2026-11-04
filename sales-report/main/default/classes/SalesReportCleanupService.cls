@@ -1,6 +1,7 @@
 /**
  * Nightly housekeeping (L7), scheduled with schedule(): deletes one-time link codes a day after they expired, logs
- * older than Log Retention (days), and rate-limit counters older than a day. Up to MAX_ROWS rows of each kind per run;
+ * older than Log Retention (days). Up to MAX_ROWS rows of each kind per run (rate-limit counters live in Platform
+ * Cache and expire on their own, D-51);
  * anything left over goes the next night.
  *
  * `without sharing` with explicit SYSTEM_MODE (DATA-DICTIONARY §5.3): these rows are owned by the Site guest / default
@@ -48,15 +49,6 @@ public without sharing class SalesReportCleanupService implements Schedulable {
           SELECT Id
           FROM SalesReport_Log__c
           WHERE CreatedDate < :logCutoff
-          WITH SYSTEM_MODE
-          LIMIT :MAX_ROWS
-        ]
-      ),
-      'rateLimits' => remove(
-        [
-          SELECT Id
-          FROM SalesReport_Rate_Limit__c
-          WHERE Window_Start__c < :dayAgo
           WITH SYSTEM_MODE
           LIMIT :MAX_ROWS
         ]

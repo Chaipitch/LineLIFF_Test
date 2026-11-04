@@ -34,10 +34,11 @@ to the User page layout — no data change needed.
 | **Sales Report LINE Link** | The **contact book**: "this LINE account belongs to this Salesforce user". Created once, the first time a rep logs in to Salesforce from LINE; checked every time the rep opens the form, so they never log in again. | System every request; admins to see or disconnect reps |
 | **Sales Report Link Code** | The **one-time ticket** used during that first login to connect it to the rep's LINE account. Works once, expires after 5 minutes, stored only as a scrambled fingerprint. Old ones are cleaned up automatically. | System only, in the background |
 | **Sales Report Log** | The **logbook** of errors and warnings, for when something goes wrong. Never stores passwords, tokens or full LINE IDs. Old entries are deleted after 30 days. | Admins when investigating a problem |
-| **Sales Report Rate Limit** | A **tally counter**: how many requests each LINE user made this minute, so one stuck phone or a misuse can't flood Salesforce (limit 60 a minute). Stores only a scrambled fingerprint of the LINE ID; old counters are deleted every night. | System only, in the background |
 
-In one line: the **Link Code** proves who you are once, the **LINE Link** remembers you, the **Log** records problems,
-the **Rate Limit** stops floods.
+In one line: the **Link Code** proves who you are once, the **LINE Link** remembers you, the **Log** records problems.
+(The **rate limit** — at most 60 requests a minute per LINE user, so a stuck phone can't flood Salesforce — keeps its
+tally in Salesforce's short-term memory, Platform Cache, not in an object; tallies vanish by themselves after 5
+minutes. D-51.)
 
 ## 3. Why can't we combine the LINE Link and the Link Code?
 

@@ -42,7 +42,7 @@ apply the corrections in §3.
 
 | # | Section | Document says | Built (please update the document) |
 |---|---|---|---|
-| C1 | §1.1, §2, §5.3 | Three custom objects. | **Four** custom objects: also `SalesReport_Rate_Limit__c` (request counter per LINE user, D-36). Plus custom setting **Sales Report Settings** (`SalesReport_Settings__c`) and two **field sets** (`SalesReport_Activity_Form` on Task, `SalesReport_Opportunity_Form` on Opportunity). |
+| C1 | §1.1, §2, §5.3 | Three custom objects. | Three custom objects, as the document says (a fourth, `SalesReport_Rate_Limit__c`, was replaced by Platform Cache partition `SalesReportCache` on 2026-11-04, D-51). Plus custom setting **Sales Report Settings** (`SalesReport_Settings__c`) and two **field sets** (`SalesReport_Activity_Form` on Task, `SalesReport_Opportunity_Form` on Opportunity). |
 | C2 | §2.6 Configuration Model | No settings object. | Add **Sales Report Settings**: LINE Login channel ID, LIFF ID, ECA consumer key, certificate name, Attachments switch, log level and retention (trimmed 2026-11-04, D-48/D-49; was: link-code TTL, Account search limits, Attachments Enabled + limits, Update Opportunity Enabled, Opportunity Stages, rate limit, log level and retention, kill switch) |
 | C3 | §5 Figure 5 | "LIFF Web Application (LWC)", "Log Activity Page (LWC)", "Update Opportunity Page (LWC)". | One **Visualforce page** (`SalesReport_Liff`) loading a bundled JavaScript app (static resource `SalesReport_LiffApp`, LIFF SDK included). |
 | C4 | §5 Figure 5 | Endpoints `/auth/link`, `/account/search`, `/task/create`, `/opportunity/update`. | `GET /connection`, `POST /link/start`, `GET /accounts`, `GET`/`POST /activity`, `POST /activity/files`, `GET`/`POST /opportunities` (base `/services/apexrest/salesreport/v1`). Details: `REST-ENDPOINTS.md`. |
@@ -59,7 +59,7 @@ apply the corrections in §3.
 | Topic | Build |
 |---|---|
 | Rate limiting | 60 requests per minute per verified LINE user (setting), "Too many requests" message (D-36). |
-| Housekeeping | Nightly job deletes link codes 24 h after expiry, logs after 30 days (setting), old rate counters (D-37). |
+| Housekeeping | Nightly job deletes link codes 24 h after expiry, logs after 30 days (setting) (D-37); rate-limit counters expire in Platform Cache by themselves (D-51). |
 | Attachments | Photos / files on Log Activity: built, **switched off** (setting) until the BA confirms limits (D-34, Q-A6a). |
 | Update Opportunity | Built with the proposed fields (Stage, Amount, Next Step, Close Date; open stages only), **switched off** (setting) until the BA confirms the fields (D-39, Q-O1–Q-O7). |
 | Licences | Reps on a Salesforce Platform licence can log activities but cannot see Opportunities (D-13); they get a clear "no access" message. |

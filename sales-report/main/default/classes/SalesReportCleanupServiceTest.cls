@@ -14,16 +14,6 @@ private class SalesReportCleanupServiceTest {
           Code_Hash__c = 'b'.repeat(64),
           Line_User_Id__c = SalesReportTestFactory.LINE_USER_ID,
           Expires_At__c = now.addMinutes(-5)
-        ),
-        new SalesReport_Rate_Limit__c(
-          Key__c = 'c'.repeat(64),
-          Window_Start__c = now.addDays(-2),
-          Request_Count__c = 3
-        ),
-        new SalesReport_Rate_Limit__c(
-          Key__c = 'd'.repeat(64),
-          Window_Start__c = now,
-          Request_Count__c = 1
         )
       },
       AccessLevel.SYSTEM_MODE
@@ -44,7 +34,10 @@ private class SalesReportCleanupServiceTest {
 
     Assert.areEqual(1, deleted.get('linkCodes'), 'Expired code');
     Assert.areEqual(1, deleted.get('logs'), 'Old log');
-    Assert.areEqual(1, deleted.get('rateLimits'), 'Old counter');
+    Assert.isFalse(
+      deleted.containsKey('rateLimits'),
+      'Counters are in the cache'
+    );
     Assert.areEqual(
       'b'.repeat(64),
       [SELECT Code_Hash__c FROM SalesReport_Link_Code__c WITH SYSTEM_MODE]
@@ -60,11 +53,6 @@ private class SalesReportCleanupServiceTest {
         WITH SYSTEM_MODE
       ],
       'New log kept'
-    );
-    Assert.areEqual(
-      'd'.repeat(64),
-      [SELECT Key__c FROM SalesReport_Rate_Limit__c WITH SYSTEM_MODE].Key__c,
-      'Current counter kept'
     );
   }
 
@@ -94,6 +82,6 @@ private class SalesReportCleanupServiceTest {
     Map<String, Integer> deleted = new SalesReportCleanupService().run();
     Assert.areEqual(0, deleted.get('linkCodes'), 'Codes');
     Assert.areEqual(0, deleted.get('logs'), 'Logs');
-    Assert.areEqual(0, deleted.get('rateLimits'), 'Counters');
+    Assert.areEqual(2, deleted.size(), 'Only codes and logs (counters expire in the cache)');
   }
 }

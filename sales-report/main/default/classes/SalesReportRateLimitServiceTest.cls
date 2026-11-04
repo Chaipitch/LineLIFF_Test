@@ -2,22 +2,25 @@
 private class SalesReportRateLimitServiceTest {
   private static final String LINE_USER = SalesReportTestFactory.LINE_USER_ID;
 
-  private static void limitTo(Integer perMinute) {
-    SalesReportSettingsService.requestsPerMinute = perMinute;
+  /** Counters in memory: Platform Cache is shared across tests and not rolled back. */
+  private static SalesReportRateLimitService.MemoryStore memory() {
+    SalesReportRateLimitService.MemoryStore store = new SalesReportRateLimitService.MemoryStore();
+    SalesReportRateLimitService.store = store;
+    return store;
   }
 
-  private static SalesReport_Rate_Limit__c row() {
-    return [
-      SELECT Window_Start__c, Request_Count__c
-      FROM SalesReport_Rate_Limit__c
-      WHERE Key__c = :SalesReportRateLimitService.keyFor(LINE_USER)
-      WITH SYSTEM_MODE
-    ];
+  private static List<Object> counter(
+    SalesReportRateLimitService.MemoryStore store
+  ) {
+    return (List<Object>) store.values.get(
+      SalesReportRateLimitService.keyFor(LINE_USER)
+    );
   }
 
   @IsTest
   static void countsRequestsAndRefusesOverTheLimit() {
-    limitTo(2);
+    SalesReportRateLimitService.MemoryStore store = memory();
+    SalesReportSettingsService.requestsPerMinute = 2;
     SalesReportRateLimitService.testNow = Datetime.newInstanceGmt(
       2026,
       10,
@@ -38,22 +41,23 @@ private class SalesReportRateLimitServiceTest {
       refused = e;
     }
 
-    Assert.areEqual(2, row().Request_Count__c, 'Two counted');
+    Assert.areEqual(2, counter(store)[1], 'Two counted');
     Assert.areEqual(
-      Datetime.newInstanceGmt(2026, 10, 30, 9, 15, 0),
-      row().Window_Start__c,
+      SalesReportRateLimitService.currentMinute(),
+      counter(store)[0],
       'Minute window'
     );
     Assert.isNotNull(refused, 'Third request refused');
     Assert.areEqual(SalesReportException.RATE_LIMITED, refused.code, 'Code');
     Assert.areEqual(429, refused.statusCode, 'Status');
     SalesReportRateLimitService.flush();
-    Assert.areEqual(2, row().Request_Count__c, 'Refused request not counted');
+    Assert.areEqual(2, counter(store)[1], 'Refused request not counted');
   }
 
   @IsTest
   static void newMinuteStartsAgain() {
-    limitTo(1);
+    SalesReportRateLimitService.MemoryStore store = memory();
+    SalesReportSettingsService.requestsPerMinute = 1;
     SalesReportRateLimitService.testNow = Datetime.newInstanceGmt(
       2026,
       10,
@@ -71,44 +75,73 @@ private class SalesReportRateLimitServiceTest {
     SalesReportRateLimitService.check(LINE_USER);
     SalesReportRateLimitService.flush();
 
-    Assert.areEqual(1, row().Request_Count__c, 'Count reset');
-    Assert.areEqual(
-      Datetime.newInstanceGmt(2026, 10, 30, 9, 16, 0),
-      row().Window_Start__c,
-      'Next minute'
-    );
+    Assert.areEqual(1, counter(store)[1], 'Count reset');
   }
 
   @IsTest
-  static void keyIsAHashNotTheLineUserId() {
+  static void keyIsShortAlphanumericAndHidesTheLineUserId() {
     String key = SalesReportRateLimitService.keyFor(LINE_USER);
-    Assert.areEqual(64, key.length(), 'SHA-256 hex');
+    Assert.areEqual(42, key.length(), 'rl + 40 hex');
+    Assert.isTrue(key.isAlphanumeric(), 'Cache keys are alphanumeric');
     Assert.isFalse(key.contains(LINE_USER), 'No LINE user ID');
   }
 
   @IsTest
   static void blankUserAndEmptyFlushDoNothing() {
+    SalesReportRateLimitService.MemoryStore store = memory();
     SalesReportRateLimitService.check(' ');
     SalesReportRateLimitService.flush();
-    Assert.areEqual(
-      0,
-      [SELECT COUNT() FROM SalesReport_Rate_Limit__c WITH SYSTEM_MODE],
-      'Nothing written'
+    Assert.isTrue(store.values.isEmpty(), 'Nothing written');
+  }
+
+  @IsTest
+  static void brokenCacheNeverBlocksTheRequest() {
+    SalesReportRateLimitService.store = new FailingStore();
+    SalesReportSettingsService.requestsPerMinute = 1;
+
+    SalesReportRateLimitService.check(LINE_USER);
+    SalesReportRateLimitService.flush();
+    SalesReportRateLimitService.check(LINE_USER);
+    SalesReportRateLimitService.flush();
+
+    SalesReportLogService.flush();
+    Assert.isTrue(
+      [SELECT COUNT() FROM SalesReport_Log__c WITH SYSTEM_MODE] > 0,
+      'Cache problems are logged as WARN, never thrown'
+    );
+  }
+
+  @IsTest
+  static void realCacheRoundTripDoesNotThrow() {
+    // Uses the real partition; with no capacity the value is simply not kept (fail open).
+    // A random LINE user, so other runs can't have counted it. Limit 1: the second request is refused when the
+    // cache kept the count, and allowed when it didn't — either way, nothing else may go wrong.
+    String lineUser =
+      'U' + EncodingUtil.convertToHex(Crypto.generateAesKey(128));
+    SalesReportSettingsService.requestsPerMinute = 1;
+    SalesReportRateLimitService.check(lineUser);
+    SalesReportRateLimitService.flush();
+    String outcome = 'allowed';
+    try {
+      SalesReportRateLimitService.check(lineUser);
+    } catch (SalesReportException e) {
+      outcome = e.code;
+    }
+    Assert.isTrue(
+      outcome == 'allowed' || outcome == SalesReportException.RATE_LIMITED,
+      outcome
     );
   }
 
   @IsTest
   static void endpointAnswers429WhenOverTheLimit() {
+    SalesReportRateLimitService.MemoryStore store = memory();
     SalesReportTestFactory.settings();
     SalesReportSettingsService.requestsPerMinute = 1;
     SalesReportRateLimitService.testNow = Datetime.now();
-    Database.insert(
-      new SalesReport_Rate_Limit__c(
-        Key__c = SalesReportRateLimitService.keyFor(LINE_USER),
-        Window_Start__c = SalesReportRateLimitService.currentWindow(),
-        Request_Count__c = 1
-      ),
-      AccessLevel.SYSTEM_MODE
+    store.values.put(
+      SalesReportRateLimitService.keyFor(LINE_USER),
+      new List<Object>{ SalesReportRateLimitService.currentMinute(), 1 }
     );
     Test.setMock(
       HttpCalloutMock.class,
@@ -129,5 +162,15 @@ private class SalesReportRateLimitServiceTest {
         .contains(SalesReportException.RATE_LIMITED),
       'Error code'
     );
+  }
+
+  private class FailingStore implements SalesReportRateLimitService.Store {
+    public Object get(String key) {
+      throw new NullPointerException();
+    }
+
+    public void put(String key, Object value, Integer ttlSeconds) {
+      throw new NullPointerException();
+    }
   }
 }

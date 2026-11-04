@@ -18,13 +18,13 @@ follow the same pattern.
 LIFF page ──(X-Line-Id-Token: <LINE ID token>)──▶ Controller
   1. identify()      checks: channel ID set, token present
                      → POST api.line.me/oauth2/v2.1/verify   (LINE: "who is this?")
-                     → rate-limit check for that LINE user (60/min, D-36)
+                     → rate-limit check for that LINE user (60/min, Platform Cache, D-51)
   2. [repSession()]  only for business-data endpoints:
                      LINE user → active SalesReport_Line_Link__c → rep's username
                      → JWT bearer exchange → short-lived access token for the rep (D-02, D-16)
   3. the endpoint's own work (as the rep, via the org REST API)
   4. ok(body) or fail(error) → JSON, Cache-Control: no-store
-  5. finally finish() → write the rate-limit count + flush the log (after all callouts)
+  5. finally finish() → write the rate-limit count (cache) + flush the log (after all callouts)
 ```
 
 **Controllers stay thin.** Each one only calls a service and turns the result or error into JSON

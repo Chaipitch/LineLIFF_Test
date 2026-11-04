@@ -61,8 +61,8 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportActivityService` | Service | Form from field set + UI API as the rep; Task create, Subject/Status rules, input checks | L5a | Done |
 | `SalesReportSettingsService` | Service | Only reader of `SalesReport_Settings__c` | L2 | Done |
 | `SalesReportLogService` | Service | Buffered logging, `flush()`, never throws | L2 | Done |
-| `SalesReportRateLimitService` | Service | Per-LINE-user rate limit (custom-object counter, D-36) | L7 | Done |
-| `SalesReportCleanupService` | Service | Schedulable: delete expired link codes, old logs, old counters (D-37) | L7 | Done |
+| `SalesReportRateLimitService` | Service | Per-LINE-user rate limit, counter in Platform Cache (D-51; was a custom object, D-36) | L7, D-51 | Done |
+| `SalesReportCleanupService` | Service | Schedulable: delete expired link codes and old logs (D-37) | L7 | Done |
 | `SalesReportLineCalloutService` | CalloutService | LINE ID-token verify | L2 | Done |
 | `SalesReportSessionCalloutService` | CalloutService | JWT bearer exchange (Option B) | L3 | Done |
 | `SalesReportOrgApiCalloutService` | CalloutService | Org REST API calls as the rep: userinfo, SOQL, UI API, create, file upload (save errors → `SAVE_FAILED` with fields), rep's today and User ID | L3–L5 | Done |
@@ -115,7 +115,7 @@ One folder per object: `<Object>.object-meta.xml`, `fields/<Field>.field-meta.xm
 | `SalesReport_Line_Link__c` | `Line_User_Id__c` (not unique since D-44), `User__c`, `Status__c` (+ Revoked), `Active_User_Key__c`, `Active_Line_Key__c` (D-44), `Linked_At__c`, `Unlinked_At__c`, `Unlink_Reason__c` (+ Revoked by admin), `Unlinked_By__c`, `Line_Display_Name__c` | Tab + list views "Active links", "All links"; layout `SalesReport_Line_Link__c-Sales Report LINE Link Layout` and quick action `SalesReport_Line_Link__c.Revoke` in the repo (D-44); field history on `User__c`, `Status__c` | L3, D-44 | Done |
 | `SalesReport_Link_Code__c` | `Code_Hash__c`, `Line_User_Id__c`, `Line_Display_Name__c`, `Expires_At__c`, `Used_At__c`, `Used_By__c` | No tab (layout auto-generated) | L3 | Done |
 | `SalesReport_Log__c` | `Level__c`, `Source__c`, `Message__c`, `Request_Id__c`, `User__c`, `Line_User_Ref__c` | Tab + list views "All", "Errors today" (layout auto-generated) | L2 | Done |
-| `SalesReport_Rate_Limit__c` | `Key__c` (SHA-256 of the LINE user ID), `Window_Start__c`, `Request_Count__c` | No tab, no layout changes; admin read via `SalesReport_Admin` (D-36) | L7 | Done |
+| `SalesReport_Rate_Limit__c` | (was `Key__c`, `Window_Start__c`, `Request_Count__c`) | Replaced by Platform Cache (D-51) | L7 | **Removed 2026-11-04** (deleted from `dev5`) |
 | `SalesReport_Settings__c` (hierarchy custom setting) | `Line_Login_Channel_Id__c`, `Liff_Id__c`, `Eca_Consumer_Key__c`, `Jwt_Certificate_Name__c`, `Attachments_Enabled__c`, `Log_Level__c`, `Log_Retention_Days__c` (7 fields; 10 others deleted 2026-11-04, D-48/D-49) | — | L2–L7, trimmed D-48/D-49 | Done |
 
 No fields are added to standard objects. Standard fields read/written as the rep: `DATA-DICTIONARY.md` §3.
@@ -131,7 +131,7 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | Path | Component | Purpose | Milestone | Status |
 |---|---|---|---|---|
 | `fa/permissionsets/SalesReport_User.permissionset-meta.xml` | Permission set | Reps: link page (L3); no object access (D-19); pre-authorises the ECA (L3) | L2–L3 | Done |
-| `fa/permissionsets/SalesReport_Admin.permissionset-meta.xml` | Permission set | Admins: logs (L2), settings view (L2), manage links and link codes (L3), rate-limit counters (L7) | L2–L7 | Done |
+| `fa/permissionsets/SalesReport_Admin.permissionset-meta.xml` | Permission set | Admins: logs (L2), settings view (L2), manage links and link codes (L3) | L2–L7 | Done |
 | `fa/remoteSiteSettings/SalesReport_LINE_API.remoteSite-meta.xml` | Remote Site | `https://api.line.me` (D-10) | L2 | Done |
 | `fa/remoteSiteSettings/SalesReport_Org_Domain.remoteSite-meta.xml` | Remote Site | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) | L3 | Removed (not needed) |
 | `fa/cachePartitions/SalesReportCache.cachePartition-meta.xml` | Platform Cache partition | For the link-code comparison (D-30; the object stays). **1 MB org cache** since 2026-11-04 (D-50: the org had free capacity after all); not used yet — rate limit planned to move here | L3/L7, D-50 | Done (1 MB) |

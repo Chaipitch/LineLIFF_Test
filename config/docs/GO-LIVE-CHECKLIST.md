@@ -34,6 +34,8 @@ Tick each box as you go. Values marked `<…>` go into `ENVIRONMENTS.md` → Pro
 - [ ] **C** · The Opportunity validation rule `Require_Main_PreSales_Engineer_When_Stag` — if it also crashes on old
       unnumbered stages in production, give the admin the suggested fix (`IMPLEMENTATION-PLAN.md`, L5c).
 - [ ] **H** · Production has **My Domain** deployed and a free **Site** (Setup → Sites shows the domain).
+- [ ] **H** · Setup → **Platform Cache** shows at least **1 MB free org cache** (2026-11-04: ~7 MB free). The deploy
+      allocates 1 MB to partition `SalesReportCache` for the rate limit (D-50, D-51); without free capacity it fails.
 
 ## 2. Deploy the program
 
@@ -50,7 +52,7 @@ sf project deploy validate -o <prod-alias> --source-dir sales-report --test-leve
 - [ ] **C** · On a brand-new org, deploy `sales-report/main/default/objects` first (tests can't see brand-new fields
       in the same check-only run), then validate again.
 - [ ] **C** · Quick-deploy the validated run: `sf project deploy quick -o <prod-alias> --job-id <id>`.
-- [ ] **Check** · Setup → Apex Classes shows the `SalesReport*` classes; Custom Labels `SalesReport_*` (61) exist.
+- [ ] **Check** · Setup → Apex Classes shows the `SalesReport*` classes; Custom Labels `SalesReport_*` exist; Setup → Platform Cache shows `SalesReportCache` with 1 MB.
 
 ## 3. Certificate and External Client App (Setup, H)
 

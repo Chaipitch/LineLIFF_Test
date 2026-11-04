@@ -76,7 +76,7 @@ container in LINE), so the same person has the same LINE ID in both.
 ## Part B — Deploy the program (L2-1, L3-1, L4-1, L5, L7)
 
 **What it is for.** Installs everything that is code or configuration in the repo: the form page, the "doors"
-(endpoints), the LINE Link / Link Code / Log / Rate Limit objects, labels, permission sets, the LINE remote site, settings
+(endpoints), the LINE Link / Link Code / Log objects, the Platform Cache partition (1 MB), labels, permission sets, the LINE remote site, settings
 fields, the three field sets, the link trigger, layout and Revoke action. Done by Claude; an admin only needs this when moving to another org (e.g. production).
 
 ```bash
@@ -297,7 +297,8 @@ Create, then:
   minute before seeing "Too many requests. Please wait a minute". *Why:* stops a stuck phone or a misuse from flooding
   Salesforce. Normal use (search, save, a few photos) stays far below 60.
 - **Nightly cleanup (L7).** Scheduled job *Sales Report cleanup* (Setup → Scheduled Jobs) runs every night at 02:00 and
-  deletes used-up one-time codes, logs older than *Log Retention (days)* (blank = 30) and old rate-limit counters.
+  deletes used-up one-time codes, logs older than *Log Retention (days)* (blank = 30). Rate-limit counters live in Platform Cache and expire
+  on their own (D-51).
   *Why:* keeps temporary data from piling up. In a new org (e.g. production) schedule it once:
   `sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex` (run it as an admin in the Bangkok time zone).
 - **Fields on the Update Opportunity form (L5c).** Object Manager → Opportunity → **Field Sets** → *Sales Report

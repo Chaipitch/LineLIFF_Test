@@ -110,7 +110,7 @@ field history on User and Status. A second LINE account is refused until an admi
 **`SalesReport_Link_Code__c`** — `Code_Hash__c` (SHA-256, unique), `Line_User_Id__c`, `Line_Display_Name__c`, `Expires_At__c`,
 `Used_At__c`, `Used_By__c`.
 **`SalesReport_Log__c`** — application log (D-18).
-**`SalesReport_Rate_Limit__c`** — per-LINE-user request counter for the rate limit (L7, D-36); key = SHA-256 of the LINE user ID.
+**Rate-limit counters** — in Platform Cache partition `SalesReportCache` (1 MB), not an object (D-51; the L7 object `SalesReport_Rate_Limit__c` was removed 2026-11-04).
 **Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, Update Opportunity and
 attachments switches, log level and retention (D-48; limits are fixed in code, no kill switch). No secrets are stored in
 it (unpackaged "Protected" visibility has no effect); the JWT private key stays in the certificate store.
@@ -217,7 +217,7 @@ active validation rule (Stage ≥ 02 needs it) shows its message on the form ins
 Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 
 - Every class declares sharing. Controllers, most services and the link trigger handler are `with sharing`; only `SalesReportLinkService`,
-  `SalesReportLogService`, `SalesReportRateLimitService` and `SalesReportCleanupService` are `without sharing` and state
+  `SalesReportLogService` and `SalesReportCleanupService` are `without sharing` and state
   system mode explicitly (D-25), with written justifications (`DATA-DICTIONARY.md` §5.3). All business-data reads/writes
   go through the rep's own session (Option B).
 - Guest profile: our 5 Apex REST controllers + LIFF VF page only, **no object permissions** (audited 2026-10-30, L7).

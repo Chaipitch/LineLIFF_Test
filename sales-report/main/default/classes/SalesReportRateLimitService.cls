@@ -1,37 +1,52 @@
 /**
- * Per-LINE-user rate limit (L7, D-14, D-36): at most Rate Limit per Minute requests per verified LINE user in each
+ * Per-LINE-user rate limit (L7, D-36, D-51): at most rateLimitPerMinute() requests per verified LINE user in each
  * calendar minute. check() runs right after the LINE token is verified and refuses with RATE_LIMITED (429); the count
- * is written by flush() at the end of the request, after all callouts (a callout after DML would fail).
- * Approximate under concurrency (two requests can read the same count), which is fine for abuse protection.
+ * is written by flush() at the end of the request. Approximate under concurrency (two requests can read the same
+ * count), which is fine for abuse protection.
  *
- * `without sharing` with explicit SYSTEM_MODE (DATA-DICTIONARY §5.3, D-25): the counter is read and written for the
- * Site guest user, which has no object access by design. Only a SHA-256 of the LINE user ID is stored.
+ * The counter lives in Platform Cache, partition SalesReportCache (org cache, 1 MB): key "rl" + 40 hex characters of
+ * the SHA-256 of the LINE user ID (the LINE user ID itself is never stored), value [minute, count], kept 5 minutes
+ * (the cache's minimum) so it expires on its own — no cleanup job. If the cache is unavailable or drops the entry,
+ * the request is simply not limited: the limit is a safety net and must never block reps.
  */
-public without sharing class SalesReportRateLimitService {
-  private static SalesReport_Rate_Limit__c pending;
+public with sharing class SalesReportRateLimitService {
+  @TestVisible
+  static final String PARTITION = 'SalesReportCache';
+  /** Seconds a counter is kept: Platform Cache's minimum time-to-live. */
+  @TestVisible
+  static final Integer TTL_SECONDS = 300;
+  private static final String KEY_PREFIX = 'rl';
+  private static final String SOURCE = 'SalesReportRateLimitService';
+
+  /** Where counters are kept: Platform Cache, or a map in tests (the cache is shared and not rolled back). */
+  @TestVisible
+  private static Store store = new CacheStore();
+  private static String pendingKey;
+  private static List<Object> pendingValue;
   /** Fixed clock for tests, so a test can't straddle a minute boundary. */
   @TestVisible
   private static Datetime testNow;
 
   public static void check(String lineUserId) {
-    pending = null;
+    pendingKey = null;
+    pendingValue = null;
     if (String.isBlank(lineUserId)) {
       return;
     }
     String key = keyFor(lineUserId);
-    Datetime window = currentWindow();
-    List<SalesReport_Rate_Limit__c> rows = [
-      SELECT Id, Window_Start__c, Request_Count__c
-      FROM SalesReport_Rate_Limit__c
-      WHERE Key__c = :key
-      WITH SYSTEM_MODE
-      LIMIT 1
-    ];
+    Long minute = currentMinute();
     Integer count = 0;
-    if (!rows.isEmpty() && rows[0].Window_Start__c == window) {
-      count = rows[0].Request_Count__c == null
-        ? 0
-        : rows[0].Request_Count__c.intValue();
+    Object stored = safeGet(key);
+    if (stored instanceof List<Object>) {
+      List<Object> entry = (List<Object>) stored;
+      if (
+        entry.size() == 2 &&
+        entry[0] instanceof Long &&
+        (Long) entry[0] == minute &&
+        entry[1] instanceof Integer
+      ) {
+        count = (Integer) entry[1];
+      }
     }
     if (count >= SalesReportSettingsService.rateLimitPerMinute()) {
       throw SalesReportException.of(
@@ -40,52 +55,88 @@ public without sharing class SalesReportRateLimitService {
         'Too many requests from this LINE user; try again in a minute.'
       );
     }
-    pending = new SalesReport_Rate_Limit__c(
-      Key__c = key,
-      Window_Start__c = window,
-      Request_Count__c = count + 1
-    );
+    pendingKey = key;
+    pendingValue = new List<Object>{ minute, count + 1 };
   }
 
   /** Writes the counted request, if any. Never throws: a lost count must not break the response. */
   public static void flush() {
-    if (pending == null) {
+    if (pendingKey == null) {
       return;
     }
-    SalesReport_Rate_Limit__c row = pending;
-    pending = null;
+    String key = pendingKey;
+    List<Object> value = pendingValue;
+    pendingKey = null;
+    pendingValue = null;
     try {
-      Database.upsert(
-        row,
-        SalesReport_Rate_Limit__c.Key__c,
-        false,
-        AccessLevel.SYSTEM_MODE
-      );
+      store.put(key, value, TTL_SECONDS);
     } catch (Exception e) {
-      SalesReportLogService.warn(
-        'SalesReportRateLimitService.flush',
-        e.getMessage()
-      );
+      SalesReportLogService.warn(SOURCE + '.flush', e.getMessage());
+    }
+  }
+
+  /** Cache key: alphanumeric, at most 50 characters, no LINE user ID in it. */
+  @TestVisible
+  static String keyFor(String lineUserId) {
+    return KEY_PREFIX +
+      EncodingUtil.convertToHex(
+          Crypto.generateDigest('SHA-256', Blob.valueOf(lineUserId))
+        )
+        .left(40);
+  }
+
+  /** Minutes since 1970 (UTC): one counting window per calendar minute. */
+  @TestVisible
+  static Long currentMinute() {
+    Datetime now = testNow == null ? Datetime.now() : testNow;
+    return now.getTime() / 60000;
+  }
+
+  private static Object safeGet(String key) {
+    try {
+      return store.get(key);
+    } catch (Exception e) {
+      SalesReportLogService.warn(SOURCE + '.check', e.getMessage());
+      return null;
     }
   }
 
   @TestVisible
-  static String keyFor(String lineUserId) {
-    return EncodingUtil.convertToHex(
-      Crypto.generateDigest('SHA-256', Blob.valueOf(lineUserId))
-    );
+  interface Store {
+    Object get(String key);
+    void put(String key, Object value, Integer ttlSeconds);
   }
 
+  /** Platform Cache org partition, namespace-safe ("local" when unpackaged). */
   @TestVisible
-  static Datetime currentWindow() {
-    Datetime now = testNow == null ? Datetime.now() : testNow;
-    return Datetime.newInstanceGmt(
-      now.yearGmt(),
-      now.monthGmt(),
-      now.dayGmt(),
-      now.hourGmt(),
-      now.minuteGmt(),
-      0
-    );
+  class CacheStore implements Store {
+    private Cache.OrgPartition partition() {
+      String namespace = SalesReportNamespaceService.namespace();
+      return Cache.Org.getPartition(
+        (String.isBlank(namespace) ? 'local' : namespace) + '.' + PARTITION
+      );
+    }
+
+    public Object get(String key) {
+      return partition().get(key);
+    }
+
+    public void put(String key, Object value, Integer ttlSeconds) {
+      partition().put(key, value, ttlSeconds);
+    }
+  }
+
+  /** In-memory store for tests. */
+  @TestVisible
+  class MemoryStore implements Store {
+    public final Map<String, Object> values = new Map<String, Object>();
+
+    public Object get(String key) {
+      return values.get(key);
+    }
+
+    public void put(String key, Object value, Integer ttlSeconds) {
+      values.put(key, value);
+    }
   }
 }

@@ -77,18 +77,14 @@ Written by `SalesReportLogService` (buffered, one insert per transaction, never 
 
 Retention: deleted after `Log_Retention_Days__c` days (default 30) by the nightly `SalesReportCleanupService` (L7).
 
-### 1.4 `SalesReport_Rate_Limit__c` — request counter for the rate limit (L7, D-36)
+### 1.4 Rate-limit counters — Platform Cache, not an object (D-51)
 
-One row per LINE user who used the feature; holds only the current minute's count. Written only by
-`SalesReportRateLimitService` (system mode, at the end of each request); rows older than a day are deleted by
-`SalesReportCleanupService`. No tab; admins can read it through `SalesReport_Admin`.
-
-| Field | Label | Type | Req | Unique / Ext ID | Description |
-|---|---|---|---|---|---|
-| `Name` | Counter No. | Auto Number `RL-{000000}` | — | — | |
-| `Key__c` | Key | Text(64) | Yes (in code) | Unique (case-sensitive), Ext ID | SHA-256 hex of the LINE user ID — the ID itself is not stored. |
-| `Window_Start__c` | Window Start | Date/Time | Yes (in code) | — | Start of the counted minute (GMT, seconds cut off). |
-| `Request_Count__c` | Request Count | Number(6,0) | Yes (in code) | — | Requests in that minute. A new minute starts again at 1. |
+Since 2026-11-04 the per-LINE-user request counter lives in Platform Cache partition `SalesReportCache` (1 MB org cache), not in a custom object
+(`SalesReport_Rate_Limit__c` was deleted). One entry per LINE user: key `rl` + 40 hex characters of the SHA-256 of the
+LINE user ID (the ID itself is never stored), value `[minute since 1970 UTC, count]`, kept **5 minutes** (the cache's
+minimum), so entries expire on their own — no cleanup job. Written by `SalesReportRateLimitService` at the end of
+each request. If the cache is unavailable or drops an entry, that request is not limited (fails open); the problem is
+logged as WARN.
 
 ## 2. Custom setting — `SalesReport_Settings__c`
 
@@ -245,7 +241,6 @@ Validation-rule messages from the org are shown as returned (they are already in
 | `SalesReport_Line_Link__c` | Read, Edit, Delete, View All. Disconnect = **Revoke** button (or delete test data); `Unlink_Reason__c` editable, all other fields read-only via FLS (`Status__c` is required, so editable, but the trigger refuses changes to an ended link) |
 | `SalesReport_Link_Code__c` | Read, Edit (required by Salesforce for Delete), Delete, View All; fields read-only |
 | `SalesReport_Log__c` | Read, Edit, Delete, View All (Edit is required by Salesforce for Delete; all log fields are read-only via FLS) |
-| `SalesReport_Rate_Limit__c` | Read, Edit (required for Delete), Delete, View All; fields read-only. No tab (L7) |
 | Tabs | `SalesReport_Line_Link__c`, `SalesReport_Log__c` visible |
 | Apex | none (Revoke is a quick action; the trigger runs in system context) |
 
@@ -262,8 +257,7 @@ Justifications (repeated in class headers):
 | `SalesReportLinkService` | Creates link codes and reads the active link from the guest context (only for a **verified** LINE user ID), consumes codes and writes links on behalf of the logged-in rep (`UserInfo.getUserId()`), ends links of deactivated users. Reps and the guest get no object access, so mappings can't be edited by hand. |
 | `SalesReportLogService` | Logs must be written whoever the running user is. |
 | — | `SalesReportLineLinkTriggerHandler` is `with sharing`: it only sets fields on the records being saved, no queries. |
-| `SalesReportRateLimitService` | Reads and writes the per-LINE-user counter for the Site guest (only after the LINE token is verified); stores only a hash of the LINE user ID. |
-| `SalesReportCleanupService` | Deletes expired link codes, old logs and old counters owned by the guest / default record owner, whoever schedules the job. |
+| `SalesReportCleanupService` | Deletes expired link codes and old logs owned by the guest / default record owner, whoever schedules the job. |
 
 All other classes: `with sharing`; queries/DML on business data happen through the org REST API as the rep. (`SalesReportSessionCalloutService` reads `Organization.IsSandbox` with `WITH SYSTEM_MODE` — no business data.)
 
@@ -313,5 +307,5 @@ All other classes: `with sharing`; queries/DML on business data happen through t
 | Remote Site Setting | `SalesReport_LINE_API` | `https://api.line.me`, protocol security on, description "Sales Report: LINE ID token verification" |
 | Remote Site Setting | ~~`SalesReport_Org_Domain`~~ | Not needed: callouts to the org's own My Domain work without one (tested 2026-10-29) |
 | Certificate | `SalesReport_JWT_Signing` | Self-signed, 2048-bit, **not** exportable; expires **2027-10-29** — renew before then and re-upload to the ECA |
-| Platform Cache partition | `SalesReportCache` | Deployed with 0 MB (no free org capacity, D-30). Not used: rate limiting uses `SalesReport_Rate_Limit__c` instead (D-36) |
+| Platform Cache partition | `SalesReportCache` | **1 MB org cache** (D-50), in the repo so a deploy allocates it. Holds the rate-limit counters (D-51); link codes stay in their object (D-30) |
 | Scheduled job | "Sales Report cleanup" | `SalesReportCleanupService`, daily 02:00 in the scheduling user's time zone (Asia/Bangkok). Scheduled in `dev5` on 2026-10-30 with `scripts/apex/schedule-cleanup.apex` |
