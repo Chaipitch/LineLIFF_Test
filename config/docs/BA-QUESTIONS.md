@@ -29,7 +29,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 | Q-A3 ⚑ | Confirm the fields: Account*, Activity Type*, Date*, Comments | Mockup fields. Subject auto-built as "<Type> – <Account>". | Confirm; Comments required? | Follow Salesforce: required = required on the rep's layout, in the database or in the field set; validation rules run on save (D-31) — 2026-10-30 |
 | Q-A4 | Date: past and today only, or future too (planned activities)? | Completed vs planned changes Status. | Past and today only (`Completed`) | **Not restricted**: past, today and future; future → `Open`, otherwise `Completed` (D-32) — 2026-10-30 |
 | Q-A5 | Link the activity to the Account only, or also to an Opportunity / Contact? | Extra pickers add scope. | Account only in phase 1 | **Account only** (D-33) — 2026-10-30 |
-| Q-A6 | Photos / attachments? | Not in plan (adds scope). | Not in phase 1 | **Yes, attachments in scope** (D-34) — limits in Q-A6a — 2026-10-30. Built; switched off 2026-11-02 until confirmed |
+| Q-A6 | Photos / attachments? | Not in plan (adds scope). | Not in phase 1 | **Yes, attachments in scope** (D-34) — limits in Q-A6a — 2026-10-30. Built; switched off 2026-11-02, **on again 2026-11-04** until confirmed |
 | Q-A6a | Attachment limits: how many files per activity, max size, which types? | Files are stored on the Task as Salesforce Files and count against file storage (sandbox `dev5`: 59 MB free of 200 MB). Photos are shrunk on the phone before upload. | 5 files, 4 MB each after resizing, photos (camera or gallery) + PDF | |
 | Q-A7 | Who should own the Task? | With Option B the rep who submits is the owner (mockup "Assigned To Roj"). | The submitting rep | |
 

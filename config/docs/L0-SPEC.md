@@ -1,6 +1,6 @@
 # Spec — LINE Sales Reporting (LIFF → Salesforce)
 
-**Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, **switched off** for now), L5c (Update
+**Status (2026-11-02):** L0–L4, L5a (Log Activity), L5b (attachments — built, on since 2026-11-04), L5c (Update
 Opportunity — built with the proposed defaults, D-39, **switched off** for now) and L7 (hardening) done. Since
 2026-11-02 the one-time login opens in the phone's browser right away and returns to the form (D-42, device-tested on iOS). L6 (UI polish; English only, D-47) and L8 (QA,
 go-live) later. Open BA questions: `BA-QUESTIONS.md`.
@@ -20,7 +20,7 @@ Constraints: no middleware (browser → Salesforce Site → `api.line.me` only),
 Account selected by ID via debounced auto-complete, everything runs **as the rep** (Option B, D-02).
 
 Out of scope for this phase (adds scope if requested): creating Accounts or Opportunities, OA push messages/reminders,
-packaging/AppExchange. (Photos/attachments were added in L5b and are switched off by a setting until the BA confirms them.)
+packaging/AppExchange. (Photos/attachments were added in L5b; switch *Attachments Enabled*, on since 2026-11-04.)
 
 ## 2. Target org — findings (read-only checks, 2026-10-28)
 
@@ -188,7 +188,7 @@ Field lists below are the **initial members of the field sets** (D-21); admins c
 | Activity Purpose | `ActivityPurpose__c` | as Salesforce says | Existing org picklist (1. Initial Meeting … 6. Other). Not in the repo field set (org field, P3): an admin adds it in Setup if the BA wants it. |
 | Date | `ActivityDate` | as Salesforce says | Any date (D-32). |
 | Comments | `Description` | as Salesforce says | Long text. |
-| Attachments | Salesforce Files | no | After save; limits Q-A6a (D-34). **Switched off** (setting *Attachments Enabled*) since 2026-11-02. |
+| Attachments | Salesforce Files | no | After save; limits Q-A6a (D-34). On (setting *Attachments Enabled*) since 2026-11-04. |
 | — (server) | `Subject` | layout | "<Type label> – <Account name>" (or "Task – <Account name>" without a Type; format in label `SalesReport_Activity_Subject`). |
 | — (server) | `OwnerId` | layout | The rep. |
 | — (server) | `Status` | layout | Date ≤ today → `Completed`, future → layout default (`Open`) (D-32). |
@@ -250,7 +250,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/connection` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; BA's fields (D-46); **always on** since 2026-11-04 (switch removed, D-49) |
+| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **on** since 2026-11-04 (Android check pending); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; BA's fields (D-46); **always on** since 2026-11-04 (switch removed, D-49) |
 | L6 UI polish | Done 2026-11-04 (offline / retry on Save, tap targets, focus); English only (D-47); phone check pending |
 | L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
 | BA architecture review | Done (2026-11-03): link rules D-44 (block, Revoke, history, Revoked status) and support reference D-45 — deployed to `dev5`, device test pending |

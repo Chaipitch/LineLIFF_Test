@@ -66,7 +66,7 @@ See `HANDOFF.md` for background and `L0-SPEC.md` for the spec these decisions fe
 | D-12 Next Step field and Q-O1/Q-O2/Q-O4 — **answered and built (D-46)**; still open: Q-O3 stages, Q-O5 labels, Q-O7 (proposals in place); form switched off until the user switches it on | BA / user | Thai checklist items 4, 6–7 in `BA-QUESTIONS.md` |
 | D-13 rep licences (all 9 full licences in use; Platform users can't see Opportunities) | BA / user | Thai checklist item 1 |
 | D-15 link page browser — in-app tried (D-40), then **phone's browser** chosen (D-42) because of passkeys | — | Done |
-| D-34 attachment limits; attachments switched off since 2026-11-02 | BA (Q-A6a) / user | Thai checklist item 9 |
+| D-34 attachment limits (5 × 4 MB, jpg/jpeg/png/pdf, fixed in code); attachments **switched on** in `dev5` 2026-11-04 | BA (Q-A6a) to confirm the limits / user device test | Thai checklist item 9 |
 | Task Type values (Q-A2), go-live date / UAT (Q-S2, Q-T2), linking and security confirmations (Q-L*) | BA | Thai checklist items 8–20 (item 18, languages, answered: English only, D-47) |
 | D-44 meaning of Revoked vs Unlinked (Q-L9); device test of the block / Revoke flow | BA / user | Thai checklist item 15 · `SETUP-GUIDE.md` Part I |
 

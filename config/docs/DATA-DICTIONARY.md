@@ -3,7 +3,7 @@
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
 **State (2026-11-03): everything below is built and deployed to sandbox `dev5`** (L2–L5c, L7, link rules D-44/D-45). Update Opportunity (L5c)
-has the BA's fields (D-46) and is **always on** since 2026-11-04 (switch removed, D-49). Attachments (L5b) are switched off (`Attachments_Enabled__c`).
+has the BA's fields (D-46) and is **always on** since 2026-11-04 (switch removed, D-49). Attachments (L5b) are **switched on** in `dev5` 2026-11-04 (user) (`Attachments_Enabled__c`).
 Update this file in the same commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.
@@ -100,7 +100,7 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Liff_Id__c` | LIFF ID | Text(40) | — (required) | L2 | Passed to the LIFF page for `liff.init`. |
 | `Eca_Consumer_Key__c` | ECA Consumer Key | Text(255) | — (required for Option B) | L3 | `iss` of the JWT. Not a secret. |
 | `Jwt_Certificate_Name__c` | JWT Certificate Name | Text(64) | `SalesReport_JWT_Signing` | L3 | Unique name of the signing certificate. |
-| `Attachments_Enabled__c` | Attachments Enabled | Checkbox | false | L5b | Off (2026-11-02): attachment section hidden in LINE and uploads refused (403). Tick to switch on. |
+| `Attachments_Enabled__c` | Attachments Enabled | Checkbox | false | L5b | On in `dev5` since 2026-11-04 (was off 2026-11-02 – 11-04). Unticked: attachment section hidden in LINE and uploads refused (403). |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
 | `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 | Used by the nightly cleanup; capped at 365. |
 
@@ -125,7 +125,7 @@ feature does not grant standard-object access.
 | Opportunity | `Next_Step_Due_Date__c` | ✓ | ✓ | |
 | Opportunity | `PreSales_Engineer__c` | ✓ | (BA) | Needed by active VR for Stage ≥ 02. |
 | Task (D-11) | `WhatId` (Account only, D-33), `Subject` (built), `Type`, `ActivityPurpose__c` (only if an admin adds it to the field set), `ActivityDate`, `Status` (from date, D-32), `Priority` (layout default), `Description` | — | ✓ | `OwnerId` = the rep. Required flags follow Salesforce (D-31). |
-| ContentVersion (D-34) | `Title`, `PathOnClient`, `VersionData`, `FirstPublishLocationId` (= Task) | — | ✓ | Attachments, uploaded as the rep (L5b; switched off for now). |
+| ContentVersion (D-34) | `Title`, `PathOnClient`, `VersionData`, `FirstPublishLocationId` (= Task) | — | ✓ | Attachments, uploaded as the rep (L5b; on in `dev5` since 2026-11-04). |
 | Task / ContentDocumentLink | `Id`, `CreatedById`, `CreatedDate` / `LinkedEntityId` | ✓ | — | Upload checks: the rep's own Task within 60 min; file count per Task. |
 
 ## 3a. Field sets (D-21, D-29)

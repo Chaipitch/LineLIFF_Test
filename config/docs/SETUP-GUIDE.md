@@ -110,11 +110,11 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **Edit** 
 | LIFF ID | Which LINE form registration the page belongs to | From part F |
 | ECA Consumer Key | Which Salesforce "app pass" to use when acting as the rep | From part G |
 | JWT Certificate Name | Which digital stamp to sign with | Blank = `SalesReport_JWT_Signing` |
-| Attachments Enabled | Lets reps attach photos/files to Log Activity | **Unticked** (off since 2026-11-02) |
+| Attachments Enabled | Lets reps attach photos/files to Log Activity | **Ticked** (on since 2026-11-04) |
 | Log Level | How much the program writes to the log | `WARN` (`INFO`/`DEBUG` only while investigating) |
 | Log Retention (days) | How long logs are kept before the nightly cleanup deletes them | Blank = 30 |
 
-**Status:** all set in `dev5` (2026-10-29; Attachments Enabled unticked 2026-11-02). Since 2026-11-04 the setting has only
+**Status:** all set in `dev5` (2026-10-29; Attachments Enabled ticked again 2026-11-04). Since 2026-11-04 the setting has only
 these seven fields (D-48, D-49); limits such as search size, attachment size and the rate limit are fixed in code.
 
 ---
@@ -288,7 +288,7 @@ Create, then:
   **page layout** of the reps' profile, or tick *Required* for it in the field set. Validation rules on Task also apply
   and their message is shown on the form. If you make a field required on the layout but **don't** add it to the field
   set, reps get the message "Salesforce requires *X* … ask your admin to add it to field set SalesReport_Activity_Form".
-- **Attachments on/off (L5b).** Part C setting *Attachments Enabled* — **unticked = off** (current state, 2026-11-02): the
+- **Attachments on/off (L5b).** Part C setting *Attachments Enabled* — **ticked = on** (current state since 2026-11-04); unticked = off: the
   "Photos and files" section is hidden in LINE and the server refuses uploads. Tick it to switch attachments on.
 - **Attachment limits (L5b).** Fixed (D-48): up to **5 files of 4 MB** each, jpg / jpeg / png / pdf (4 MB is the most
   Salesforce can handle on this route). Photos are shrunk on the phone and arrive as .jpg. Files count against the org's
@@ -339,7 +339,7 @@ allow LINE's permission the first time → the page shows **Log activity** and "
 → "Activity saved: <Type> – <Account>". In Salesforce the Task is on the Account, Created By and Assigned To = you;
 today or earlier → Completed, a future date → Open.
 
-**L5b — Attachments (done on iOS 2026-10-30; currently switched off).** With *Attachments Enabled* ticked: **Add photo or
+**L5b — Attachments (done on iOS 2026-10-30; on since 2026-11-04).** With *Attachments Enabled* ticked: **Add photo or
 file** → take or pick a photo → **Save** → "Uploading 1 of 1…" → the photo is under Files on the Task. If an upload
 fails, the saved screen offers **Try again** (within an hour).
 

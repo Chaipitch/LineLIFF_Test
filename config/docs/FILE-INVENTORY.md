@@ -149,7 +149,7 @@ No fields are added to standard objects. Standard fields read/written as the rep
 | Platform Cache partition allocation | `SalesReportCache` | Setup → Platform Cache | L7 | Not allocated — no free capacity; not needed (D-36) |
 | Scheduled job | "Sales Report cleanup" (nightly 02:00) | Setup → Scheduled Jobs; created with `scripts/apex/schedule-cleanup.apex` | L7 | Done in `dev5` (by Claude, 2026-10-30) |
 | Settings value | *Update Opportunity Enabled* = off | Setup → Custom Settings → Sales Report Settings | L5c | Field removed 2026-11-04: Update Opportunity always on (D-49) |
-| Settings value | *Attachments Enabled* = off | Setup → Custom Settings → Sales Report Settings | L5b | Off since 2026-11-02 |
+| Settings value | *Attachments Enabled* = on | Setup → Custom Settings → Sales Report Settings | L5b | On since 2026-11-04 (off 2026-11-02 – 11-04) |
 | Settings values | `SalesReport_Settings__c` org defaults | Setup → Custom Settings | L2–L3 | [HUMAN] — done |
 | LINE OA, Messaging API channel, LINE Login channel | "Sales Reporting" | LINE consoles (`LINE-SETUP.md`) | L1 | [HUMAN] — done |
 | LIFF app, rich menu | "Sales Reporting" | LINE Developers Console / OA Manager | L2 | [HUMAN] — done |

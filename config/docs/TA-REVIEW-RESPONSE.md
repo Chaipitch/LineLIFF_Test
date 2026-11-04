@@ -60,7 +60,7 @@ apply the corrections in §3.
 |---|---|
 | Rate limiting | 60 requests per minute per verified LINE user (setting), "Too many requests" message (D-36). |
 | Housekeeping | Nightly job deletes link codes 24 h after expiry, logs after 30 days (setting) (D-37); rate-limit counters expire in Platform Cache by themselves (D-51). |
-| Attachments | Photos / files on Log Activity: built, **switched off** (setting) until the BA confirms limits (D-34, Q-A6a). |
+| Attachments | Photos / files on Log Activity: built, **switched on** 2026-11-04 (setting); BA to confirm the limits (D-34, Q-A6a). |
 | Update Opportunity | Built with the proposed fields (Stage, Amount, Next Step, Close Date; open stages only), **switched off** (setting) until the BA confirms the fields (D-39, Q-O1–Q-O7). |
 | Licences | Reps on a Salesforce Platform licence can log activities but cannot see Opportunities (D-13); they get a clear "no access" message. |
 | Org validation rule | `Require_Main_PreSales_Engineer_When_Stag` crashes on old unnumbered stages (e.g. "Proposal"); suggested fix recorded in `IMPLEMENTATION-PLAN.md` (L5c). |

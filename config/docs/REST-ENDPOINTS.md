@@ -144,8 +144,8 @@ Body: `{ accountId, values: { Type, ActivityDate, Description } }`
 
 ## 5. `POST /activity/files?taskId=…&name=…` — attach one file
 
-`SalesReportActivityFileController` → `SalesReportActivityFileService` (D-34). **Currently switched off** (setting
-*Attachments Enabled*).
+`SalesReportActivityFileController` → `SalesReportActivityFileService` (D-34). On since 2026-11-04 (setting
+*Attachments Enabled*; unticked → 403).
 
 **When:** after a Task is saved, once per photo or file. The body is the raw file bytes (`application/octet-stream`).
 

@@ -7,7 +7,7 @@ Work one milestone at a time. Keep `FILE-INVENTORY.md` up to date in the same co
 
 Status keys: `[x]` done · `[ ]` to do · `[~]` partly done / blocked (reason given).
 
-**Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched off (setting *Attachments Enabled*) · L5c built
+**Where we are (2026-11-02):** L0–L4 done · L5a done · L5b built, switched on again 2026-11-04 (setting *Attachments Enabled*) · L5c built
 with the proposed defaults, switched off for now · login in the phone's browser, straight back to the form (D-42) done on iOS · L6 later (user) · L7 done ·
 L8 not started. Open BA items: Thai checklist at the end of `BA-QUESTIONS.md`.
 
@@ -135,7 +135,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] H · Guest profile: add Apex class `SalesReportActivityController` — done 2026-10-30; public `/activity` answers 401 for a fake token.
 - [x] H+C · Device test (2026-10-30): Task logged from the phone on *Mock Customer 030 Co., Ltd.* — Created By / Assigned To = the rep, Subject "<Type> – <Account>", Status `Completed`, Priority `Normal`, Subtype `Task`.
 
-### L5b — Attachments (built 2026-10-30 with the proposed limits; switched off 2026-11-02 via `Attachments_Enabled__c`)
+### L5b — Attachments (built 2026-10-30; switched off 2026-11-02, **on again 2026-11-04** via `Attachments_Enabled__c`)
 
 - [ ] BA · Limits: count, size, types (Q-A6a). Built with the proposal 5 × 4 MB, jpg/jpeg/png/pdf — change in Settings, no code.
 - [x] C · Attachment limits 5 files × 4 MB, jpg/jpeg/png/pdf (were settings; fixed in code since D-48).
@@ -148,7 +148,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · Tests: size/type/count limits, Task not the rep's, old Task, upload as the rep, name cleaning — 102 tests, 96.2%; Code Analyzer 0 Critical/High.
 - [x] H · Guest profile: add Apex class `SalesReportActivityFileController` — done 2026-10-30; a 4 MB body through the Site reaches the token check (401 for a fake token).
 - [x] H+C · Device test iOS (2026-10-30): first upload failed (class not yet on the guest profile), Task kept; after adding the class, **Try again** attached IMG_8787.jpg (198 KB, shrunk on the phone) to the Task, Created By = the rep.
-- [x] H · Switched off 2026-11-02 at the user's request: setting `Attachments_Enabled__c` (default off) hides the section and the endpoint refuses uploads; tick it to switch on.
+- [x] H · Switched off 2026-11-02 at the user's request: setting `Attachments_Enabled__c` (default off) hides the section and the endpoint refuses uploads; **Ticked again 2026-11-04 (user).** Tick it to switch on.
 - [ ] H+C · Device test Android (camera and gallery) — when attachments are switched on again. Keep test files small (sandbox file storage: 59 MB free).
 
 ### L5c — Update Opportunity — built 2026-11-02 (D-39), BA's fields 2026-11-03 (D-46), always on since 2026-11-04 (D-49)
@@ -256,7 +256,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 | L2 exit | H: Site created, LIFF app + rich menu |
 | L3 Option B | H: certificate + ECA consumer key |
 | L5a | — (Task `Type` values from admin are nice to have) |
-| L5b switch-on | User: tick *Attachments Enabled*; BA: attachment limits (Q-A6a) |
+| L5b | On since 2026-11-04; BA: confirm the limits (Q-A6a); user: device test incl. Android |
 | L5c device test | H: guest-profile class access; a test Opportunity |
 | L5c final fields | BA: Q-O1–Q-O7, D-12 (Setup changes only); D-13 licences |
 | L7 rate limiting | — (custom-object fallback, D-36) |
