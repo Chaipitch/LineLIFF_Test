@@ -111,12 +111,11 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **Edit** 
 | ECA Consumer Key | Which Salesforce "app pass" to use when acting as the rep | From part G |
 | JWT Certificate Name | Which digital stamp to sign with | Blank = `SalesReport_JWT_Signing` |
 | Attachments Enabled | Lets reps attach photos/files to Log Activity | **Unticked** (off since 2026-11-02) |
-| Update Opportunity Enabled | Lets reps use Update Opportunity | **Unticked** (off since 2026-11-02; the button shows "coming soon") |
 | Log Level | How much the program writes to the log | `WARN` (`INFO`/`DEBUG` only while investigating) |
 | Log Retention (days) | How long logs are kept before the nightly cleanup deletes them | Blank = 30 |
 
 **Status:** all set in `dev5` (2026-10-29; Attachments Enabled unticked 2026-11-02). Since 2026-11-04 the setting has only
-these eight fields (D-48); limits such as search size, attachment size and the rate limit are fixed in code.
+these seven fields (D-48, D-49); limits such as search size, attachment size and the rate limit are fixed in code.
 
 ---
 
@@ -307,7 +306,7 @@ Create, then:
 - **Activity Type values.** The Type list is Salesforce's Task *Type* picklist (BA Q-A2): Object Manager → Activity →
   Fields → Type → add values such as *Customer Visit*. They also appear for normal Task entry in Salesforce.
 - **Switch off for everyone.** Setup → Sites → *SalesReport_Site* → **Deactivate** (there is no on/off setting any
-  more, D-48). Activate it again to switch back on. Update Opportunity and attachments have their own switches (Part C).
+  more, D-48). Activate it again to switch back on. Attachments have their own switch (Part C).
 
 ---
 
@@ -343,7 +342,7 @@ today or earlier → Completed, a future date → Open.
 file** → take or pick a photo → **Save** → "Uploading 1 of 1…" → the photo is under Files on the Task. If an upload
 fails, the saved screen offers **Try again** (within an hour).
 
-**L5c — Update Opportunity (built 2026-11-02; switched off — tick *Update Opportunity Enabled* first).** Use a **test** Opportunity — saving runs the
+**L5c — Update Opportunity (always on since 2026-11-04, D-49).** Use a **test** Opportunity — saving runs the
 org's Opportunity automation (e.g. Slack alerts). Tap **Update Opportunity** → choose an Account → its open Opportunities
 appear (stage · close date) → tap one → the form shows its current Stage, Target TCV, Main PreSales Engineer, Next Step,
 Next Step Due Date (BA's fields, D-46) → change something (type 2+ letters of a name to pick a PreSales Engineer;
@@ -448,9 +447,9 @@ because the page controller's test counts the labels — update that count too.
 | A rep quotes "Reference: …" | *Sales Report Logs* tab → search the reference in **Request ID** (D-45). |
 | Rep left the company | Deactivate the user as usual — the link ends automatically on the next attempt. |
 | Something went wrong | *Sales Report Logs* tab → "Errors today". |
-| Switch everything off | Setup → Sites → *SalesReport_Site* → Deactivate (D-48). Update Opportunity / attachments: Part C switches. |
+| Switch everything off | Setup → Sites → *SalesReport_Site* → Deactivate (D-48). Attachments: Part C switch. |
 | Switch attachments on/off | Sales Report Settings → *Attachments Enabled*. |
-| Switch Update Opportunity on/off | Sales Report Settings → *Update Opportunity Enabled*. Optionally also hide the button in the rich menu (LINE Official Account Manager). |
+| Hide Update Opportunity | No setting any more (D-49): remove its tile from the rich menu (LINE Official Account Manager). |
 | "Too many requests" for a rep | Wait a minute; if it happens in normal use, raise *Rate Limit per Minute*. |
 | Check the nightly cleanup ran | Setup → Scheduled Jobs → "Sales Report cleanup"; the *Sales Report Logs* tab shows an INFO line when Log Level is INFO. |
 | Yearly | Renew the certificate before it expires (part G) and upload it to the app. |

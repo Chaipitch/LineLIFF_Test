@@ -90,7 +90,7 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count t
 | `GET /activity` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | Done (L5a) | Field set `SalesReport_Activity_Form` + UI API object-info, layout, picklist-values read **as the rep** (D-31, D-35). |
 | `POST /activity` | Create the **Task** (D-11): body `{ accountId, values: { <field>: <value> } }` | yes | Done (L5a) | Only field-set fields accepted; `WhatId` = Account ID only (D-33), checked visible to the rep; `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
 | `POST /activity/files?taskId=&name=` | Attach one file (raw bytes, `application/octet-stream`) to a Task the rep just created | yes | Done (L5b) | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). Only the rep's own Task, within 60 min; count/size/type limits from settings. Returns `{ id, name, size }`. **Off** while setting *Attachments Enabled* is unticked (403 `NOT_AUTHORIZED`). |
-| `POST /opportunities` | Update one Opportunity: body `{ id, accountId, values }` | yes | Done (L5c; all `/opportunities` calls answer 403 while *Update Opportunity Enabled* is unticked) | Only form fields; open Opportunity of the chosen Account; empty optional fields cleared; PATCH as the rep. Returns `{ id, name, accountId }`. (D-39) |
+| `POST /opportunities` | Update one Opportunity: body `{ id, accountId, values }` | yes | Done (L5c; always on, D-49) | Only form fields; open Opportunity of the chosen Account; empty optional fields cleared; PATCH as the rep. Returns `{ id, name, accountId }`. (D-39) |
 
 Internal (login required, not on the Site): VF page `SalesReport_Link` at `<My Domain>/apex/SalesReport_Link?code=…` —
 needs custom permission `SalesReport_Access`; shows the LINE account; links only after **Connect** (POST, CSRF-protected);
@@ -250,7 +250,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L2 Site, LIFF shell, `/connection` | Done — LINE name shown on the phone |
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
-| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; **switched off** 2026-11-02 (`Opportunity_Form_Enabled__c`); BA answers = Setup changes |
+| L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; BA's fields (D-46); **always on** since 2026-11-04 (switch removed, D-49) |
 | L6 UI polish | Done 2026-11-04 (offline / retry on Save, tap targets, focus); English only (D-47); phone check pending |
 | L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
 | BA architecture review | Done (2026-11-03): link rules D-44 (block, Revoke, history, Revoked status) and support reference D-45 — deployed to `dev5`, device test pending |

@@ -3,7 +3,7 @@
 Field-level and configuration-level detail for every object, field, setting and access rule of this feature.
 `FILE-INVENTORY.md` lists the files; this document says what is in them. Naming: D-07.
 **State (2026-11-03): everything below is built and deployed to sandbox `dev5`** (L2–L5c, L7, link rules D-44/D-45). Update Opportunity (L5c)
-uses the proposed defaults (D-39) and is **switched off** (`Opportunity_Form_Enabled__c`) until the BA answers Q-O1–Q-O7. Attachments (L5b) are switched off (`Attachments_Enabled__c`).
+has the BA's fields (D-46) and is **always on** since 2026-11-04 (switch removed, D-49). Attachments (L5b) are switched off (`Attachments_Enabled__c`).
 Update this file in the same commit whenever a field or setting changes.
 
 Conventions: API names without namespace. "Req" = required at field level. Length in characters.
@@ -105,11 +105,10 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Eca_Consumer_Key__c` | ECA Consumer Key | Text(255) | — (required for Option B) | L3 | `iss` of the JWT. Not a secret. |
 | `Jwt_Certificate_Name__c` | JWT Certificate Name | Text(64) | `SalesReport_JWT_Signing` | L3 | Unique name of the signing certificate. |
 | `Attachments_Enabled__c` | Attachments Enabled | Checkbox | false | L5b | Off (2026-11-02): attachment section hidden in LINE and uploads refused (403). Tick to switch on. |
-| `Opportunity_Form_Enabled__c` | Update Opportunity Enabled | Checkbox | false | L5c | Off (2026-11-02): the Update Opportunity button shows "This form is coming soon" and `/opportunities` answers 403. Tick to switch on. |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
 | `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 | Used by the nightly cleanup; capped at 365. |
 
-Fixed values (D-48): link code 5 min; search from 2 characters, 10 Accounts; attachments 5 files × 4 MB, jpg/jpeg/png/pdf; 60 requests per LINE user per minute; all active open stages. Changing one is a code change in `SalesReportSettingsService`. There is no kill switch any more: to stop the feature for everyone, deactivate the Site `SalesReport_Site`.
+Update Opportunity has no switch: it is always on (D-49). Fixed values (D-48): link code 5 min; search from 2 characters, 10 Accounts; attachments 5 files × 4 MB, jpg/jpeg/png/pdf; 60 requests per LINE user per minute; all active open stages. Changing one is a code change in `SalesReportSettingsService`. There is no kill switch any more: to stop the feature for everyone, deactivate the Site `SalesReport_Site`.
 
 ## 3. Standard object fields used (no changes to standard objects)
 
@@ -163,7 +162,6 @@ Category `SalesReport`. **English only** (D-47, Q-S3) — no translations; admin
 | `SalesReport_Opportunity_Title` | Update opportunity | LIFF | L2 |
 | `SalesReport_Hello` | Hello, {0} | LIFF | L2 |
 | `SalesReport_Loading` | Loading… | LIFF | L2 |
-| `SalesReport_Coming_Soon` | This form is coming soon. | LIFF — shown while Update Opportunity is switched off | L2 |
 | `SalesReport_Close` | Close | LIFF | L2 |
 | `SalesReport_Open_In_Line` | Please open this page from the Sales Reporting menu in LINE. | LIFF | L2 |
 | `SalesReport_Error_Generic` | Something went wrong. Please try again. | LIFF | L2 |

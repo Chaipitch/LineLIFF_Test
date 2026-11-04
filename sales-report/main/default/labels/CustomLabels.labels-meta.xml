@@ -98,14 +98,6 @@
         <value>Close</value>
     </labels>
     <labels>
-        <fullName>SalesReport_Coming_Soon</fullName>
-        <categories>SalesReport</categories>
-        <language>en_US</language>
-        <protected>false</protected>
-        <shortDescription>SalesReport_Coming_Soon</shortDescription>
-        <value>This form is coming soon.</value>
-    </labels>
-    <labels>
         <fullName>SalesReport_Connect_Body</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>

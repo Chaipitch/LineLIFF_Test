@@ -24,10 +24,6 @@ private class SalesReportSettingsServiceTest {
       SalesReportSettingsService.attachmentsEnabled(),
       'Attachments off by default'
     );
-    Assert.isFalse(
-      SalesReportSettingsService.opportunityFormEnabled(),
-      'Update Opportunity off by default'
-    );
   }
 
   @IsTest

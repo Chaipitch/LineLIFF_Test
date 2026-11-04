@@ -25,8 +25,6 @@ Open the Sales Reporting chat in LINE. At the bottom you see two buttons:
 | **Log Activity** | Records a visit, call or meeting as a Salesforce activity on a customer Account |
 | **Update Opportunity** | Updates the stage, amount, PreSales engineer and next step of one of an Account's open deals |
 
-> If **Update Opportunity** says *"This form is coming soon."*, it hasn't been switched on yet.
-
 ---
 
 ## 1. First time only — connect your Salesforce login

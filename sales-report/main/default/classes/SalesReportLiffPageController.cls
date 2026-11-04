@@ -26,10 +26,6 @@ public with sharing class SalesReportLiffPageController {
           'maxSizeMb' => SalesReportSettingsService.attachmentMaxSizeMb(),
           'types' => SalesReportSettingsService.attachmentFileTypes()
         },
-        'forms' => new Map<String, Object>{
-          'activity' => true,
-          'opportunity' => SalesReportSettingsService.opportunityFormEnabled()
-        },
         'labels' => labels()
       }
     );
@@ -78,7 +74,6 @@ public with sharing class SalesReportLiffPageController {
       'errorRateLimited' => System.Label.SalesReport_Error_Rate_Limited,
       'linkedAs' => System.Label.SalesReport_Linked_As,
       'close' => System.Label.SalesReport_Close,
-      'comingSoon' => System.Label.SalesReport_Coming_Soon,
       'errorGeneric' => System.Label.SalesReport_Error_Generic,
       'errorReference' => System.Label.SalesReport_Error_Reference,
       'errorOffline' => System.Label.SalesReport_Error_Offline,

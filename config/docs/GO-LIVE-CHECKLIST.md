@@ -21,8 +21,8 @@ Tick each box as you go. Values marked `<…>` go into `ENVIRONMENTS.md` → Pro
     production Site, and point the rich menu at it. `dev5` keeps its own LIFF app for testing, opened by its
     `liff.line.me` link (the menu no longer opens the sandbox).
   - (b) A separate test OA for the sandbox, the main OA for production.
-- [ ] **BA / user** · Which switches start **on**: Update Opportunity (needs Q-O3/Q-O5 settled) and Attachments
-      (needs Q-A6a). Both default to **off**.
+- [ ] **BA / user** · Whether Attachments start **on** (needs Q-A6a; default off). Update Opportunity is always on
+      (D-49) — settle Q-O3/Q-O5 before go-live.
 - [ ] **BA** · Activity **Type** values (Q-A2) — added by an admin in production before go-live (step 6).
 
 ## 1. Check production first (read-only)
@@ -76,7 +76,7 @@ sf project deploy validate -o <prod-alias> --source-dir sales-report --test-leve
 
 ## 5. Sales Report Settings (Setup, H)
 
-Setup → Custom Settings → **Sales Report Settings** → Manage → **New** (org default). Only 8 fields (D-48):
+Setup → Custom Settings → **Sales Report Settings** → Manage → **New** (org default). Only 7 fields (D-48, D-49):
 
 | Field | Production value |
 |---|---|
@@ -84,7 +84,6 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **New** (
 | LIFF ID | `<production LIFF ID>` (step 7) |
 | ECA Consumer Key | from step 3 |
 | JWT Certificate Name | blank (= `SalesReport_JWT_Signing`) |
-| Update Opportunity Enabled | as decided in step 0 |
 | Attachments Enabled | as decided in step 0 |
 | Log Level | `WARN` |
 | Log Retention (days) | blank (= 30) |
@@ -117,7 +116,7 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **New** (
 - [ ] First login: Log Activity → browser login → **Connect** → back on the form in LINE.
 - [ ] Account search shows only Accounts the rep can see.
 - [ ] Save an activity → Task on the Account, Created By = the rep.
-- [ ] (If switched on) Update a **test** Opportunity — remember the org's Opportunity automation posts Slack alerts.
+- [ ] Update a **test** Opportunity — remember the org's Opportunity automation posts Slack alerts.
 - [ ] Second LINE account on the same user → "already linked"; admin **Revoke** works; relink creates a new record.
 - [ ] Sales Report Logs: no ERROR entries; a forced error shows a **Reference** that matches a log entry.
 - [ ] Android and iOS.
@@ -133,6 +132,6 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **New** (
 
 - **Stop for everyone:** Setup → Sites → `SalesReport_Site` → **Deactivate** (D-48). LINE then shows an error; no data
   is touched. Re-activate to resume.
-- **Hide one form:** untick *Update Opportunity Enabled* or *Attachments Enabled*.
+- **Hide attachments:** untick *Attachments Enabled*. **Hide Update Opportunity:** remove its tile from the rich menu (no switch, D-49).
 - **Remove a rep:** revoke their link and/or remove *Sales Report User*.
 - Records already saved (Tasks, Opportunity changes, files) are normal Salesforce records and stay.

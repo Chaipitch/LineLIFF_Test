@@ -1,7 +1,7 @@
 /**
  * Single reader of SalesReport_Settings__c (org defaults). The setting holds only what differs per environment or what
- * an admin switches (D-48): LINE Login channel ID, LIFF ID, External Client App consumer key, certificate name, the two
- * form switches and the log level / retention. Everything else is a fixed value below (tests may change the
+ * an admin switches (D-48, D-49): LINE Login channel ID, LIFF ID, External Client App consumer key, certificate name,
+ * the Attachments switch and the log level / retention. Everything else is a fixed value below (tests may change the
  * @TestVisible ones). Blank fields fall back to the defaults.
  */
 public with sharing class SalesReportSettingsService {
@@ -98,11 +98,6 @@ public with sharing class SalesReportSettingsService {
       return DEFAULT_LOG_RETENTION_DAYS;
     }
     return Math.min(days.intValue(), MAX_LOG_RETENTION_DAYS);
-  }
-
-  /** Update Opportunity in LINE: off unless an admin ticks Update Opportunity Enabled. */
-  public static Boolean opportunityFormEnabled() {
-    return settings().Opportunity_Form_Enabled__c == true;
   }
 
   public static String logLevel() {

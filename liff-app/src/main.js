@@ -101,12 +101,6 @@ function newPicker(onSelect) {
   });
 }
 
-/** Forms can be switched off in Sales Report Settings; a missing flag means on. */
-function formEnabled(formKey) {
-  const forms = config.forms || {};
-  return forms[formKey] !== false;
-}
-
 function showHome(me, formKey) {
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels[FORMS[formKey]] || labels.menuTitle));
@@ -120,8 +114,6 @@ function showHome(me, formKey) {
       onError: handleApiError
     });
     card.append(form.element);
-  } else if (formKey === "opportunity" && !formEnabled("opportunity")) {
-    card.append(el("p", "sr-message", labels.comingSoon));
   } else if (formKey === "opportunity") {
     const form = createOpportunityForm({
       api: apiClient,
@@ -135,10 +127,9 @@ function showHome(me, formKey) {
   } else {
     // Opened without ?form= (e.g. "Open Sales Report in LINE" after the one-time login): let the rep pick a form.
     card.append(button(labels.activityTitle, () => showHome(me, "activity")));
-    if (formEnabled("opportunity"))
-      card.append(
-        button(labels.opportunityTitle, () => showHome(me, "opportunity"), true)
-      );
+    card.append(
+      button(labels.opportunityTitle, () => showHome(me, "opportunity"), true)
+    );
   }
   render(identityBar(me), card);
 }
