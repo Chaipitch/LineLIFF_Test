@@ -9,6 +9,7 @@ import { createAccountPicker } from "./accountPicker.js";
 import { createActivityForm } from "./activityForm.js";
 import { createOpportunityForm } from "./opportunityForm.js";
 import { uploadFiles } from "./attachments.js";
+import { renderSummary } from "./formFields.js";
 
 const RELOAD_FLAG = "salesReport.reloadedForToken";
 const FORMS = { activity: "activityTitle", opportunity: "opportunityTitle" };
@@ -110,7 +111,8 @@ function showHome(me, formKey) {
       labels,
       createPicker: newPicker,
       attachments: config.attachments,
-      onSaved: (result, failed) => showActivitySaved(me, result, failed),
+      onSaved: (result, failed, summary) =>
+        showActivitySaved(me, result, failed, summary),
       onError: handleApiError
     });
     card.append(form.element);
@@ -120,7 +122,7 @@ function showHome(me, formKey) {
       labels,
       createPicker: newPicker,
       minChars: (config.accountSearch || {}).minChars || 2,
-      onSaved: (result) => showOpportunitySaved(me, result),
+      onSaved: (result, summary) => showOpportunitySaved(me, result, summary),
       onError: handleApiError
     });
     card.append(form.element);
@@ -154,24 +156,26 @@ function identityBar(me) {
   return bar;
 }
 
-function showOpportunitySaved(me, result) {
+function showOpportunitySaved(me, result, summary) {
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels.opportunityTitle));
   card.append(
     el("p", "sr-message", format(labels.opportunitySaved, result.name || ""))
   );
+  if (summary) card.append(renderSummary(summary));
   card.append(button(labels.updateAnother, () => showHome(me, "opportunity")));
   if (liff.isInClient())
     card.append(button(labels.close, () => liff.closeWindow(), true));
   render(identityBar(me), card);
 }
 
-function showActivitySaved(me, result, failed) {
+function showActivitySaved(me, result, failed, summary) {
   const card = el("section", "sr-card");
   card.append(el("h1", "sr-title", labels.activityTitle));
   card.append(
     el("p", "sr-message", format(labels.activitySaved, result.subject || ""))
   );
+  if (summary) card.append(renderSummary(summary));
   if (failed && failed.length) {
     card.append(
       el("p", "sr-error", format(labels.uploadFailed, failed.length))
@@ -186,7 +190,7 @@ function showActivitySaved(me, result, failed) {
           retry.textContent = format(labels.uploading, done, total);
         }
       );
-      showActivitySaved(me, result, stillFailed);
+      showActivitySaved(me, result, stillFailed, summary);
     });
     card.append(retry);
   }

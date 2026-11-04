@@ -71,12 +71,16 @@ export function createActivityForm(options) {
         accountId: account.id,
         values: collected.values
       });
+      // What was saved, as the rep saw it, for the success screen.
+      const summary = [
+        { label: labels.accountLabel, value: account.name }
+      ].concat(fields.summary());
       // The Task exists from here on: upload problems are reported on the saved screen, never as a form error.
       const files = attachments ? attachments.files() : [];
       const failed = await uploadFiles(api, result.id, files, (done, total) => {
         save.textContent = format(labels.uploading, done, total);
       });
-      onSaved(result, failed);
+      onSaved(result, failed, summary);
     } catch (error) {
       save.disabled = false;
       save.textContent = labels.save;

@@ -53,6 +53,26 @@ function localToday() {
   );
 }
 
+/** yyyy-mm-dd → the phone's local date format; anything else unchanged. */
+export function formatDate(isoDate) {
+  if (!isoDate) return "";
+  const parts = String(isoDate).split("-").map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return isoDate;
+  return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString();
+}
+
+/**
+ * "What was saved" list for the success screen: rows of { label, value } as definition list. Empty values show "—".
+ * All text with textContent.
+ */
+export function renderSummary(rows) {
+  const list = el("dl", "sr-summary");
+  rows.forEach((row) => {
+    list.append(el("dt", null, row.label), el("dd", null, row.value || "—"));
+  });
+  return list;
+}
+
 function isEmpty(value) {
   return (
     value === "" ||
@@ -67,6 +87,7 @@ function buildControl(field, labels, id, options) {
   if (field.type === "lookup" && options.searchLookup) {
     // Search box; the value is the chosen record's ID. "Change" empties it (clears an optional lookup on save).
     let value = initial || "";
+    let name = initial ? field.displayValue || initial : "";
     const picker = createSearchPicker({
       inputId: id,
       placeholder: labels.accountPlaceholder,
@@ -80,11 +101,12 @@ function buildControl(field, labels, id, options) {
       search: (term, signal) => options.searchLookup(field, term, signal),
       onSelect: (item) => {
         value = item ? item.id : "";
+        name = item ? item.name : "";
         picker.element.dispatchEvent(new Event("change", { bubbles: true }));
       },
       onError: options.onError || (() => {})
     });
-    return { node: picker.element, read: () => value };
+    return { node: picker.element, read: () => value, display: () => name };
   }
   if (field.type === "textarea") {
     const area = el("textarea", "sr-input sr-textarea");
@@ -92,7 +114,11 @@ function buildControl(field, labels, id, options) {
     if (field.maxLength) area.maxLength = field.maxLength;
     if (initial != null) area.value = initial;
     area.id = id;
-    return { node: area, read: () => area.value.trim() };
+    return {
+      node: area,
+      read: () => area.value.trim(),
+      display: () => area.value.trim()
+    };
   }
   if (field.type === "picklist") {
     const select = el("select", "sr-input sr-select");
@@ -102,7 +128,12 @@ function buildControl(field, labels, id, options) {
       select.append(new Option(option.label, option.value))
     );
     if (initial != null) select.value = initial;
-    return { node: select, read: () => select.value };
+    return {
+      node: select,
+      read: () => select.value,
+      display: () =>
+        select.value ? select.options[select.selectedIndex].text : ""
+    };
   }
   if (field.type === "multipicklist") {
     const group = el("div", "sr-choices");
@@ -121,7 +152,12 @@ function buildControl(field, labels, id, options) {
     });
     return {
       node: group,
-      read: () => boxes.filter((box) => box.checked).map((box) => box.value)
+      read: () => boxes.filter((box) => box.checked).map((box) => box.value),
+      display: () =>
+        (field.options || [])
+          .filter((option, i) => boxes[i].checked)
+          .map((option) => option.label)
+          .join(", ")
     };
   }
   if (field.type === "boolean") {
@@ -130,7 +166,11 @@ function buildControl(field, labels, id, options) {
     box.className = "sr-checkbox";
     box.id = id;
     box.checked = initial === true;
-    return { node: box, read: () => box.checked };
+    return {
+      node: box,
+      read: () => box.checked,
+      display: () => (box.checked ? "✓" : "")
+    };
   }
   const input = el("input", "sr-input");
   input.type = INPUT_TYPES[field.type] || "text";
@@ -143,13 +183,25 @@ function buildControl(field, labels, id, options) {
   if (initial != null) input.value = initial;
   else if (field.type === "date" && options.dateDefaultToday)
     input.value = localToday();
-  return { node: input, read: () => input.value.trim() };
+  return {
+    node: input,
+    read: () => input.value.trim(),
+    display: () => {
+      const value = input.value.trim();
+      if (field.type === "date") return formatDate(value);
+      // 1500000 → "1,500,000" in the phone's number format.
+      if (field.type === "number" && value !== "" && !isNaN(Number(value)))
+        return Number(value).toLocaleString();
+      return value;
+    }
+  };
 }
 
 /**
  * options: labels, idPrefix, dateDefaultToday (new records), sendEmpty (edits: empty fields are sent so Salesforce
  * clears them), searchLookup(field, term, signal) → Promise of [{ id, name, detail }] and minChars (lookup fields;
- * forms without it skip lookups), onError. Returns { element, render(fields), collect(), mark(name, message), clear() }.
+ * forms without it skip lookups), onError. Returns { element, render(fields), collect(), mark(name, message), clear(),
+ * summary() }.
  */
 export function createFieldList(options) {
   const labels = options.labels;
@@ -202,7 +254,13 @@ export function createFieldList(options) {
       wrapper.addEventListener("input", onChange);
       wrapper.addEventListener("change", onChange);
       element.append(wrapper);
-      controls.push({ field, wrapper, error, read: control.read });
+      controls.push({
+        field,
+        wrapper,
+        error,
+        read: control.read,
+        display: control.display
+      });
     });
   }
 
@@ -225,7 +283,15 @@ export function createFieldList(options) {
     return { values, valid };
   }
 
-  return { element, render, collect, mark, clear };
+  /** The fields as shown to the rep (picklist labels, names, local dates), for the success screen. */
+  function summary() {
+    return controls.map((control) => ({
+      label: control.field.label,
+      value: control.display ? control.display() : String(control.read())
+    }));
+  }
+
+  return { element, render, collect, mark, clear, summary };
 }
 
 /**

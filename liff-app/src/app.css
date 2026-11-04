@@ -324,6 +324,30 @@ input[type="date"].sr-input::-webkit-date-and-time-value {
   color: var(--sr-error);
 }
 
+/* "What was saved" on the success screens: label above value, one pair per row. */
+.sr-summary {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--sr-border);
+  border-radius: 10px;
+  background: var(--sr-bg);
+}
+
+.sr-summary dt {
+  color: var(--sr-muted);
+  font-size: 13px;
+}
+
+.sr-summary dd {
+  margin: 2px 0 10px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.sr-summary dd:last-child {
+  margin-bottom: 0;
+}
+
 /* Attachment limits under "Photos and files" (red, readable on both themes). */
 .sr-limit {
   margin: -2px 0 8px;

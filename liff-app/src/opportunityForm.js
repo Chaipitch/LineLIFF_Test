@@ -5,17 +5,11 @@
 import {
   createFieldList,
   el,
+  formatDate,
   showError,
   showRetryableError,
   showSaveError
 } from "./formFields.js";
-
-function formatDate(isoDate) {
-  if (!isoDate) return "";
-  const parts = String(isoDate).split("-").map(Number);
-  if (parts.length !== 3 || parts.some(isNaN)) return isoDate;
-  return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString();
-}
 
 export function createOpportunityForm(options) {
   const api = options.api;
@@ -199,7 +193,14 @@ export function createOpportunityForm(options) {
         accountId: account.id,
         values: collected.values
       });
-      onSaved(result);
+      // What was saved, as the rep saw it, for the success screen.
+      onSaved(
+        result,
+        [
+          { label: labels.accountLabel, value: account.name },
+          { label: labels.opportunityLabel, value: opportunity.name }
+        ].concat(fields.summary())
+      );
     } catch (error) {
       save.disabled = false;
       save.textContent = labels.save;

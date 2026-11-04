@@ -216,6 +216,9 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] ~~C · Labels in JA / EN / TH~~ — not needed: English only (D-47). Text stays in Custom Labels `SalesReport_*` (admins edit it in Setup).
 - [x] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states (2026-11-04): no connection / timeout shows its own message; when Save fails for a retryable reason (no connection, too many requests, server error with its Reference) the message appears above Save and the form keeps what the rep typed. Empty states: no matching accounts, no matches, no open opportunities.
 - [x] C · Accessibility basics (2026-11-04): buttons and options 44–48 px, **Change** links now 44 px, visible keyboard focus, 16 px inputs (no iOS zoom), text contrast ≥ 4.5:1 in light and dark mode, smooth scrolling off when the phone asks for reduced motion.
+- [x] C · Success screens show what was saved (2026-11-04, user): Account (+ Opportunity) and every field as the rep saw
+      it — picklist labels, the PreSales Engineer's name, local dates, numbers with separators — above "Log another activity" /
+      "Update another opportunity".
 - [ ] H · Look at it on a phone (iOS + Android): airplane mode → Save → message above Save, form kept; back online → Save works.
 
 ## L7 — Hardening (3 d) — done 2026-10-30

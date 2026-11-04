@@ -67,7 +67,8 @@ Salesforce user."*
 3. Fill in the fields — for example **Type**, **Date** and **Comments**. Fields marked **\*** are required.
    - The date can be today, in the past or in the future. A past or today's date is saved as **Completed**; a future
      date is saved as a planned (**Open**) activity.
-4. Tap **Save**. You see *"Activity saved: <Type> – <Account>"*.
+4. Tap **Save**. You see *"Activity saved: <Type> – <Account>"* and, below it, everything you saved (Account and each
+   field) so you can check it.
 5. Tap **Log another activity** or **Close**.
 
 The activity appears in Salesforce on the Account's activity timeline, with you as the creator. Its subject is the
@@ -95,7 +96,8 @@ type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 | **Next Step** | What happens next |
 | **Next Step Due Date** | When it is due |
 
-5. Tap **Save**. You see *"Opportunity updated: <deal name>"*.
+5. Tap **Save**. You see *"Opportunity updated: <deal name>"* and, below it, the values now in Salesforce (Account,
+   Opportunity and each field).
 
 Salesforce's own rules still apply. For example, moving a deal to **Stage 02 or later** needs a **Main PreSales
 Engineer**; if it's missing you see *"Salesforce couldn't save your changes:"* followed by Salesforce's message.
