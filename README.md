@@ -47,10 +47,12 @@ sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex
 
 | File | For | Contents |
 |---|---|---|
+| `USER-GUIDE.md` | Sales reps | How to connect, log an activity, update an opportunity; what each message means |
 | `SETUP-GUIDE.md` | Admins, BA | What each setup part is for, exact steps, device tests, day-to-day tasks |
+| `GO-LIVE-CHECKLIST.md` | Admins, developers, BA | Ordered steps to set up production, smoke test and rollback |
 | `L0-SPEC.md` | Developers | Scope, org findings, architecture, API, data model, classes, security |
 | `REST-ENDPOINTS.md` | Developers, admins | How each REST endpoint works step by step; checklist for adding one |
-| `DECISIONS.md` | Everyone | Decision log D-01 … D-38 and what is still open |
+| `DECISIONS.md` | Everyone | Decision log D-01 … D-48 and what is still open |
 | `IMPLEMENTATION-PLAN.md` | Everyone | Milestones L0–L8, task status, dependencies |
 | `DATA-DICTIONARY.md` | Admins, developers | Objects, fields, settings, labels, permissions, Site/ECA settings |
 | `FILE-INVENTORY.md` | Developers | Every file and org component, with status |

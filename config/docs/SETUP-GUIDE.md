@@ -77,7 +77,7 @@ container in LINE), so the same person has the same LINE ID in both.
 
 **What it is for.** Installs everything that is code or configuration in the repo: the form page, the "doors"
 (endpoints), the LINE Link / Link Code / Log / Rate Limit objects, labels, permission sets, the LINE remote site, settings
-fields and the Account search and Log Activity field sets. Done by Claude; an admin only needs this when moving to another org (e.g. production).
+fields, the three field sets, the link trigger, layout and Revoke action. Done by Claude; an admin only needs this when moving to another org (e.g. production).
 
 ```bash
 npm run build:liff
@@ -86,14 +86,14 @@ npm run build:liff
 Sandbox (only this feature's tests — every `SalesReport*Test` class; regenerate the list when tests are added):
 
 ```bash
-sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityFileControllerTest --tests SalesReportActivityFileServiceTest --tests SalesReportActivityServiceTest --tests SalesReportCleanupServiceTest --tests SalesReportConnectionControllerTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportNamespaceServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportRateLimitServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
+sf project deploy start -o lineliff-sbx --source-dir sales-report --test-level RunSpecifiedTests --tests SalesReportAccountControllerTest --tests SalesReportAccountServiceTest --tests SalesReportActivityControllerTest --tests SalesReportActivityFileControllerTest --tests SalesReportActivityFileServiceTest --tests SalesReportActivityServiceTest --tests SalesReportCleanupServiceTest --tests SalesReportConnectionControllerTest --tests SalesReportFormServiceTest --tests SalesReportIdentityServiceTest --tests SalesReportLiffPageControllerTest --tests SalesReportLineCalloutServiceTest --tests SalesReportLineLinkTriggerHandlerTest --tests SalesReportLinkControllerTest --tests SalesReportLinkPageControllerTest --tests SalesReportLinkServiceTest --tests SalesReportLogServiceTest --tests SalesReportNamespaceServiceTest --tests SalesReportOpportunityControllerTest --tests SalesReportOpportunityServiceTest --tests SalesReportOrgApiCalloutServiceTest --tests SalesReportRateLimitServiceTest --tests SalesReportSessionCalloutServiceTest --tests SalesReportSettingsServiceTest
 ```
 
-Production: validate first with `--test-level RunLocalTests` (`sf project deploy validate`), then quick-deploy.
+Production: follow **`GO-LIVE-CHECKLIST.md`** (validate, then quick-deploy, then the Setup and LINE steps in order).
 On a brand-new org, deploy `sales-report/main/default/objects` first: Apex tests can't see brand-new fields during the
 same check-only validation. After the first deploy to a new org, schedule the nightly cleanup once (Part H).
 
-**Status:** deployed to `dev5` (L2–L5c, L7; latest 2026-11-02, 137 tests).
+**Status:** deployed to `dev5` (L2–L5c, L7, D-44–D-48; latest 2026-11-04, 24 test classes, 150 tests).
 
 ---
 

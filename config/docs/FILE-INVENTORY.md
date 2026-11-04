@@ -34,7 +34,8 @@ Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own p
 | `images/mockup-1-overview.webp`, `images/mockup-2-login-mapping.webp` | Concept mockups supplied by the user | L0 | Done |
 | `DATA-DICTIONARY.md` | Objects, fields, settings, labels, permissions, Site/ECA configuration | L0 | Done (living) |
 | `SETUP-GUIDE.md` | Admin guide: Site, settings, LIFF app, rich menu (L2); ECA, certificate (L3); … | L2–L8 | Done (living) |
-| `USER-GUIDE.md` | Rep guide: linking, logging activities, updating opportunities | L8 | Planned |
+| `USER-GUIDE.md` | Rep guide: connecting, logging activities, updating opportunities, messages (English) | L8 | Done (2026-11-04) |
+| `GO-LIVE-CHECKLIST.md` | Ordered production steps: decisions, deploy, Setup, LINE, cleanup job, smoke test, rollback | L8 | Done (2026-11-04) |
 
 ## 2. Apex classes (`fa/classes/`)
 
