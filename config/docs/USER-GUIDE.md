@@ -119,6 +119,7 @@ Fix the field and tap **Save** again — nothing was changed.
 | *Too many requests. Please wait a minute and try again.* | Very many taps in one minute | Wait a minute |
 | *Your session expired. Reopening…* | LINE refreshes your sign-in | Nothing — the form reopens by itself |
 | *Something went wrong. Please try again.* **Reference: …** | Unexpected error | Try again. If it keeps happening, send the **Reference** to your administrator — it lets them find exactly what happened |
+| *Can't reach Salesforce. Check your internet connection and try again.* | No signal, or Salesforce didn't answer in time | Check your connection and tap **Save** again — what you typed is kept. If you were saving, check in Salesforce first that it wasn't saved already |
 | *The service is temporarily unavailable.* | Sales Report is not reachable right now | Try again later |
 | *Please open this page from the Sales Reporting menu in LINE.* | The page was opened outside LINE | Use the menu in the LINE chat |
 

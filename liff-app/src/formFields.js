@@ -4,6 +4,13 @@
 import { ApiError } from "./api.js";
 import { createSearchPicker } from "./accountPicker.js";
 
+function reducedMotion() {
+  return (
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
 export function el(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -22,7 +29,10 @@ export function showError(box, message) {
   box.hidden = !message;
   // The form-level error sits at the end of a long form: bring it into view so the rep sees why nothing was saved.
   if (message && box.classList.contains("sr-form-error") && box.scrollIntoView)
-    box.scrollIntoView({ block: "center", behavior: "smooth" });
+    box.scrollIntoView({
+      block: "center",
+      behavior: reducedMotion() ? "auto" : "smooth"
+    });
 }
 
 const INPUT_TYPES = {
@@ -216,6 +226,27 @@ export function createFieldList(options) {
   }
 
   return { element, render, collect, mark, clear };
+}
+
+/**
+ * Errors worth retrying from the same form — no connection or timeout, too many requests, a server error — shown
+ * above the Save button so the rep keeps what they typed and can tap Save again. Server errors carry the support
+ * reference (D-45). Returns false for any other error, which the caller passes on.
+ */
+export function showRetryableError(error, labels, formError) {
+  if (!(error instanceof ApiError)) return false;
+  let text;
+  if (error.code === "NETWORK" || error.code === "ABORTED")
+    text = labels.errorOffline;
+  else if (error.code === "RATE_LIMITED") text = labels.errorRateLimited;
+  else if (error.status >= 500) {
+    text = labels.errorGeneric;
+    if (error.reference && labels.errorReference)
+      text += "\n" + format(labels.errorReference, error.reference);
+  }
+  if (!text) return false;
+  showError(formError, text);
+  return true;
 }
 
 /**

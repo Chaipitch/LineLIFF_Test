@@ -64,6 +64,7 @@ function errorText(code) {
   if (code === "NOT_AUTHORIZED") return labels.errorNotAuthorized;
   if (code === "RATE_LIMITED") return labels.errorRateLimited;
   if (code === "NO_ACCESS") return labels.errorNoAccess;
+  if (code === "NETWORK" || code === "ABORTED") return labels.errorOffline;
   return labels.errorGeneric;
 }
 

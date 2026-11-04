@@ -81,6 +81,7 @@ public with sharing class SalesReportLiffPageController {
       'comingSoon' => System.Label.SalesReport_Coming_Soon,
       'errorGeneric' => System.Label.SalesReport_Error_Generic,
       'errorReference' => System.Label.SalesReport_Error_Reference,
+      'errorOffline' => System.Label.SalesReport_Error_Offline,
       'errorSessionExpired' => System.Label.SalesReport_Error_Session_Expired,
       'errorUnavailable' => System.Label.SalesReport_Error_Unavailable,
       'hello' => System.Label.SalesReport_Hello,

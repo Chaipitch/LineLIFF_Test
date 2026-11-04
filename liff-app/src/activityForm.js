@@ -6,7 +6,8 @@ import {
   el,
   format,
   showError,
-  showSaveError
+  showSaveError,
+  showRetryableError
 } from "./formFields.js";
 import { createAttachmentPicker, uploadFiles } from "./attachments.js";
 
@@ -79,7 +80,10 @@ export function createActivityForm(options) {
     } catch (error) {
       save.disabled = false;
       save.textContent = labels.save;
-      if (!showSaveError(error, labels, fields, markAccount, formError))
+      if (
+        !showSaveError(error, labels, fields, markAccount, formError) &&
+        !showRetryableError(error, labels, formError)
+      )
         onError(error);
     }
   });

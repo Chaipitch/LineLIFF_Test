@@ -166,6 +166,15 @@
     >Your Salesforce user is not set up for Sales Report. Please ask your administrator.</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Error_Offline</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Error_Offline</shortDescription>
+        <value
+    >Can’t reach Salesforce. Check your internet connection and try again.</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Error_Rate_Limited</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>

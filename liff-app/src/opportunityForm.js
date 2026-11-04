@@ -2,7 +2,13 @@
 // update form filled with the current values (GET /opportunities?id=, fields from field set
 // SalesReport_Opportunity_Form) → Save (POST /opportunities). Empty optional fields are sent so Salesforce clears them.
 // Stage choices are open stages only; closing a deal is done in Salesforce. All text uses textContent.
-import { createFieldList, el, showError, showSaveError } from "./formFields.js";
+import {
+  createFieldList,
+  el,
+  showError,
+  showRetryableError,
+  showSaveError
+} from "./formFields.js";
 
 function formatDate(isoDate) {
   if (!isoDate) return "";
@@ -197,7 +203,10 @@ export function createOpportunityForm(options) {
     } catch (error) {
       save.disabled = false;
       save.textContent = labels.save;
-      if (!showSaveError(error, labels, fields, markExtra, formError))
+      if (
+        !showSaveError(error, labels, fields, markExtra, formError) &&
+        !showRetryableError(error, labels, formError)
+      )
         onError(error);
     }
   });

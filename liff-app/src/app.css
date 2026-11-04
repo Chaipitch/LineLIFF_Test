@@ -272,11 +272,21 @@ input[type="date"].sr-input::-webkit-date-and-time-value {
 }
 
 .sr-link {
+  /* At least 44 px high so it is easy to hit with a thumb. */
+  min-height: 44px;
   border: 0;
   background: none;
   color: var(--sr-accent);
   font: inherit;
-  padding: 4px;
+  padding: 8px 12px;
+}
+
+/* Visible focus for keyboard and switch-control users; taps don't show it. */
+.sr-button:focus-visible,
+.sr-option:focus-visible,
+.sr-link:focus-visible {
+  outline: 3px solid var(--sr-accent);
+  outline-offset: 2px;
 }
 
 .sr-form {

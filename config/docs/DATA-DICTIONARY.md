@@ -215,6 +215,7 @@ Category `SalesReport`. **English only** (D-47, Q-S3) — no translations; admin
 | `SalesReport_Rule_Error` | A Salesforce rule couldn’t run, so nothing was saved. Please send this message to your administrator: | LIFF — when a validation-rule formula itself fails ("Validation Formula … Invalid") | L5c |
 | `SalesReport_Error_No_Access` | Your Salesforce user can’t open this data. Please ask your administrator. | LIFF (`NO_ACCESS`) | L5c |
 | `SalesReport_No_Matches` | No matches | LIFF — lookup search (e.g. Main PreSales Engineer) found nothing | D-46 |
+| `SalesReport_Error_Offline` | Can’t reach Salesforce. Check your internet connection and try again. | LIFF — no connection or timeout (L6) | L6 |
 | `SalesReport_Error_Reference` | Reference: {0} | LIFF and link page — under unexpected errors, {0} = request ID (D-45) | D-45 |
 | `SalesReport_Link_Already_Linked` | This Salesforce user is already linked to another LINE account. Please contact your administrator to revoke the existing link before linking a new account. | Link page (`ALREADY_LINKED`) | D-44 |
 | `SalesReport_Link_Line_In_Use` | This LINE account is already linked to another Salesforce user. Please contact your administrator to revoke that link first. | Link page (`LINE_IN_USE`) | D-44 |

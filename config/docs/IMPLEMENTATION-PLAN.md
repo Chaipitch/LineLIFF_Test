@@ -211,11 +211,12 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       (user).
 - [ ] H · When switching on: tick *Update Opportunity Enabled*, device-test with a **test** Opportunity (Slack alerts).
 
-## L6 — Mobile UI polish (1 d) — later (user, 2026-11-02); languages dropped: English only (D-47)
+## L6 — Mobile UI polish — done 2026-11-04 (English only, D-47); phone check pending
 
 - [x] ~~C · Labels in JA / EN / TH~~ — not needed: English only (D-47). Text stays in Custom Labels `SalesReport_*` (admins edit it in Setup).
-- [~] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states — loading, token-expired reload, rate-limit and error messages and the success screen with Close exist; offline/empty states still to do.
-- [ ] C · Accessibility basics (tap targets, contrast, font scaling).
+- [x] C · Loading, empty, offline, token-expired (> 1 h → reload) and error states (2026-11-04): no connection / timeout shows its own message; when Save fails for a retryable reason (no connection, too many requests, server error with its Reference) the message appears above Save and the form keeps what the rep typed. Empty states: no matching accounts, no matches, no open opportunities.
+- [x] C · Accessibility basics (2026-11-04): buttons and options 44–48 px, **Change** links now 44 px, visible keyboard focus, 16 px inputs (no iOS zoom), text contrast ≥ 4.5:1 in light and dark mode, smooth scrolling off when the phone asks for reduced motion.
+- [ ] H · Look at it on a phone (iOS + Android): airplane mode → Save → message above Save, form kept; back online → Save works.
 
 ## L7 — Hardening (3 d) — done 2026-10-30
 

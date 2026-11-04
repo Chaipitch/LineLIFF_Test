@@ -251,7 +251,7 @@ Coexistence with LINE Connect and packaging-readiness rules: `COEXISTENCE.md`.
 | L3 One-time login + rep session | Done — linked on the phone, Salesforce name shown |
 | L4 Account search | Done — search works on the phone |
 | L5 Forms | L5a Log Activity done — Task saved from the phone (2026-10-30); L5b attachments done on iOS, **switched off** 2026-11-02 (Android check when switched on); L5c Update Opportunity built 2026-11-02 with the proposed defaults (D-39) — guest-profile grant done; **switched off** 2026-11-02 (`Opportunity_Form_Enabled__c`); BA answers = Setup changes |
-| L6 UI polish | Later (user, 2026-11-02); English only, no translations (D-47) |
+| L6 UI polish | Done 2026-11-04 (offline / retry on Save, tap targets, focus); English only (D-47); phone check pending |
 | L7 Hardening | Done (2026-10-30): rate limit, nightly cleanup, audits |
 | BA architecture review | Done (2026-11-03): link rules D-44 (block, Revoke, history, Revoked status) and support reference D-45 — deployed to `dev5`, device test pending |
 | L8 QA, UAT, go-live | Not started |
