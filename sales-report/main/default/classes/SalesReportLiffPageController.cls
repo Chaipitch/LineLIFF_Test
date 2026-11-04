@@ -51,6 +51,7 @@ public with sharing class SalesReportLiffPageController {
       'activityTitle' => System.Label.SalesReport_Activity_Title,
       'activitySaved' => System.Label.SalesReport_Activity_Saved,
       'attachmentsLabel' => System.Label.SalesReport_Attachments_Label,
+      'attachmentLimits' => System.Label.SalesReport_Attachment_Limits,
       'addFile' => System.Label.SalesReport_Add_File,
       'removeFile' => System.Label.SalesReport_Remove_File,
       'fileTooLarge' => System.Label.SalesReport_File_Too_Large,

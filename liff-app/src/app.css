@@ -324,6 +324,13 @@ input[type="date"].sr-input::-webkit-date-and-time-value {
   color: var(--sr-error);
 }
 
+/* Attachment limits under "Photos and files" (red, readable on both themes). */
+.sr-limit {
+  margin: -2px 0 8px;
+  color: var(--sr-error);
+  font-size: 14px;
+}
+
 .sr-error {
   margin: 4px 0 0;
   color: var(--sr-error);

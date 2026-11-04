@@ -78,6 +78,24 @@ export function createAttachmentPicker(options) {
 
   const root = el("div", "sr-field sr-attachments");
   root.append(el("p", "sr-label", labels.attachmentsLabel));
+  // The limits in red under the label, e.g. "Up to 5 files, 4 MB each (JPG, PNG, PDF)", so reps know before picking.
+  const shownTypes = [];
+  types.forEach((type) => {
+    const shown = (type === "jpeg" ? "jpg" : type).toUpperCase();
+    if (shownTypes.indexOf(shown) === -1) shownTypes.push(shown);
+  });
+  root.append(
+    el(
+      "p",
+      "sr-limit",
+      format(
+        labels.attachmentLimits,
+        maxFiles,
+        limits.maxSizeMb,
+        shownTypes.join(", ")
+      )
+    )
+  );
   const list = el("ul", "sr-files");
   const error = el("p", "sr-error");
   error.setAttribute("role", "alert");

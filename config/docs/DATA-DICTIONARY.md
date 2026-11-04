@@ -191,6 +191,7 @@ Category `SalesReport`. **English only** (D-47, Q-S3) — no translations; admin
 | `SalesReport_Select_Placeholder` | — Select — | LIFF | L5a |
 | `SalesReport_Choose_Account` | Choose an Account first. | LIFF | L5a |
 | `SalesReport_Attachments_Label` | Photos and files | LIFF | L5b |
+| `SalesReport_Attachment_Limits` | Up to {0} files, {1} MB each ({2}) | LIFF — red line under "Photos and files" ({0} files, {1} MB, {2} types) | L5b |
 | `SalesReport_Add_File` | Add photo or file | LIFF | L5b |
 | `SalesReport_Remove_File` | Remove | LIFF | L5b |
 | `SalesReport_File_Too_Large` | {0} is larger than {1} MB. | LIFF | L5b |

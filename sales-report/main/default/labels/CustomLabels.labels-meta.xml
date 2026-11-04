@@ -50,6 +50,14 @@
         <value>Add photo or file</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Attachment_Limits</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Attachment_Limits</shortDescription>
+        <value>Up to {0} files, {1} MB each ({2})</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Attachments_Label</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
