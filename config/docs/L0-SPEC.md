@@ -111,8 +111,8 @@ field history on User and Status. A second LINE account is refused until an admi
 `Used_At__c`, `Used_By__c`.
 **`SalesReport_Log__c`** — application log (D-18).
 **`SalesReport_Rate_Limit__c`** — per-LINE-user request counter for the rate limit (L7, D-36); key = SHA-256 of the LINE user ID.
-**Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, link-code TTL, Account
-search limits, attachments switch and limits, rate limit, log level and retention, kill switch. No secrets are stored in
+**Custom setting `SalesReport_Settings__c`** — channel ID, LIFF ID, ECA consumer key, cert name, Update Opportunity and
+attachments switches, log level and retention (D-48; limits are fixed in code, no kill switch). No secrets are stored in
 it (unpackaged "Protected" visibility has no effect); the JWT private key stays in the certificate store.
 **Field sets** `SalesReport_Account_Search` (Account, D-29) and `SalesReport_Activity_Form` (Task, D-21/D-31).
 Reps get **no** access to our objects; only the services write them (justifications in `DATA-DICTIONARY.md` §5.3).
@@ -203,7 +203,7 @@ Assigned To, Priority and Status, so Type, Date and Comments are optional unless
 | Shown on the form | Field (`dev5` label) | Required? | Notes |
 |---|---|---|---|
 | Account, Opportunity | `AccountId`, `Id` | always | Account search (L4) → its open Opportunities the rep can see. |
-| Stage | `StageName` (Stage) | as Salesforce says (required) | Active open stages only (01–03 in `dev5`) + the current one; setting `Opportunity_Stages__c` narrows them. |
+| Stage | `StageName` (Stage) | as Salesforce says (required) | Active open stages only (01–03 in `dev5`) + the current one; (no narrowing setting since D-48). |
 | Amount | `Amount` (Target TCV) | as Salesforce says (required on the edit layout) | |
 | Next Step | `NextStep` (Next Step) | as Salesforce says | Standard field (D-12 default); swap for `Next_Step_Custom__c` in the field set if the BA says so. |
 | Close Date | `CloseDate` (Target Close Date) | as Salesforce says (required) | |

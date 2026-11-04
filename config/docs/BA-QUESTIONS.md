@@ -130,7 +130,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
    ทำให้หัวเรื่อง Task ออกมาเป็น "Connected - Busy / Call Back – ชื่อลูกค้า"
    → เสนอ: Customer Visit, Online Meeting, Phone Call, Demo, Other — admin เพิ่มค่าใน Salesforce (Q-A2)
 9. ☐ **แนบไฟล์:** ตอนนี้ตั้งไว้ **ไม่เกิน 5 ไฟล์ ไฟล์ละไม่เกิน 4 MB** (รูปถูกย่อบนมือถือก่อนส่ง) รองรับ jpg / png / pdf
-   → ใช้ตามนี้ได้ไหม? (เปลี่ยนได้ใน Settings ไม่ต้องแก้โค้ด; 4 MB คือค่าสูงสุดที่ระบบรองรับ) (Q-A6a)
+   → ใช้ตามนี้ได้ไหม? (ตอนนี้กำหนดตายตัวในโค้ด D-48 — ถ้าต้องการเปลี่ยนต้องแก้โค้ด; 4 MB คือค่าสูงสุดที่ระบบรองรับ) (Q-A6a)
 10. ☐ **ชื่อฟิลด์ในฟอร์ม:** ตอนนี้แสดงตาม Salesforce คือ "Due Date Only" และ "Description"
     → ให้ admin เปลี่ยนชื่อเป็น "Date" / "Comments" ไหม? และ**เพิ่มฟิลด์ Activity Purpose** (มีอยู่แล้วใน org) ในฟอร์มไหม?
 11. ☐ **ฟิลด์ไหนบังคับกรอก?** ตอนนี้ฟอร์มบังคับตาม Salesforce (page layout ของ Task) ซึ่งยังไม่บังคับ Type / Date / Comments

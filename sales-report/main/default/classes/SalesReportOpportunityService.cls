@@ -4,7 +4,7 @@
  *
  * The form comes from field set SalesReport_Opportunity_Form through SalesReportFormService (D-21, D-31), filled with
  * the record's current values. Stage choices are the active open stages (closing is done in Salesforce — validation
- * rules need contract / reason fields), optionally narrowed by setting Opportunity Stages (Q-O3). The Opportunity must
+ * rules need contract / reason fields, Q-O3). The Opportunity must
  * be open and belong to the Account chosen on the form.
  */
 public with sharing class SalesReportOpportunityService {
@@ -164,10 +164,9 @@ public with sharing class SalesReportOpportunityService {
     context.keepOption(STAGE_FIELD, currentStage);
   }
 
-  /** Active open stages, narrowed to setting Opportunity Stages when it is filled in. */
+  /** Active open stages (closing a deal is done in Salesforce). */
   @TestVisible
   static Set<String> allowedStages() {
-    Set<String> configured = SalesReportSettingsService.opportunityStages();
     Set<String> stages = new Set<String>();
     for (OpportunityStage stage : [
       SELECT ApiName
@@ -175,9 +174,7 @@ public with sharing class SalesReportOpportunityService {
       WHERE IsActive = TRUE AND IsClosed = FALSE
       WITH SYSTEM_MODE
     ]) {
-      if (configured.isEmpty() || configured.contains(stage.ApiName)) {
-        stages.add(stage.ApiName);
-      }
+      stages.add(stage.ApiName);
     }
     return stages;
   }

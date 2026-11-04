@@ -16,7 +16,6 @@ private class SalesReportLiffPageControllerTest {
       config.get('liffId'),
       'LIFF ID'
     );
-    Assert.areEqual(true, config.get('enabled'), 'Enabled');
     Assert.areEqual(
       '/services/apexrest/salesreport/v1',
       config.get('apiBase'),

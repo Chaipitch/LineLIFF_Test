@@ -47,7 +47,7 @@ private class SalesReportConnectionControllerTest {
 
   @IsTest
   static void missingTokenAnswers401AndLogsWarning() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     SalesReportTestFactory.restRequest(null, null);
 
     Test.startTest();
@@ -75,7 +75,7 @@ private class SalesReportConnectionControllerTest {
 
   @IsTest
   static void expiredTokenAnswers401AndLogsOnlyAtInfo() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(
@@ -108,26 +108,8 @@ private class SalesReportConnectionControllerTest {
   }
 
   @IsTest
-  static void switchedOffAnswers503() {
-    SalesReportTestFactory.settings(false, 'WARN');
-    SalesReportTestFactory.restRequest(
-      SalesReportIdentityService.TOKEN_HEADER,
-      SalesReportTestFactory.ID_TOKEN
-    );
-
-    SalesReportConnectionController.getConnection();
-
-    Assert.areEqual(503, RestContext.response.statusCode, 'Unavailable');
-    Assert.areEqual(
-      SalesReportException.UNAVAILABLE,
-      errorJson().get('code'),
-      'Error code'
-    );
-  }
-
-  @IsTest
   static void unexpectedFailureAnswersGeneric500AndLogsError() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
@@ -208,7 +190,7 @@ private class SalesReportConnectionControllerTest {
 
   @IsTest
   static void linkedRepWithoutConsumerKeyAnswers503() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     SalesReportTestFactory.link(
       SalesReportTestFactory.LINE_USER_ID,
       UserInfo.getUserId(),

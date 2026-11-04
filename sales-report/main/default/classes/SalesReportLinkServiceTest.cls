@@ -366,17 +366,4 @@ private class SalesReportLinkServiceTest {
     Assert.isNull(row.Active_Line_Key__c, 'LINE key released');
     Assert.isNotNull(row.Unlinked_At__c, 'End date');
   }
-
-  @IsTest
-  static void ttlFollowsSettingsWithinBounds() {
-    insert new SalesReport_Settings__c(
-      SetupOwnerId = UserInfo.getOrganizationId(),
-      Link_Code_Ttl_Minutes__c = 500
-    );
-    Assert.areEqual(
-      SalesReportSettingsService.MAX_LINK_CODE_TTL_MINUTES,
-      SalesReportSettingsService.linkCodeTtlMinutes(),
-      'Capped'
-    );
-  }
 }

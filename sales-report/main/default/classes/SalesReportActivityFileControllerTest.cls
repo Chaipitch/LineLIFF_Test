@@ -55,7 +55,7 @@ private class SalesReportActivityFileControllerTest {
 
   @IsTest
   static void notLinkedAnswers403() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())

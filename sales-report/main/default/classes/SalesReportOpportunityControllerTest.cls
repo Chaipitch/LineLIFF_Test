@@ -119,10 +119,7 @@ private class SalesReportOpportunityControllerTest {
 
   @IsTest
   static void notLinkedAnswers403() {
-    SalesReport_Settings__c settings = SalesReportTestFactory.settings(
-      true,
-      'WARN'
-    );
+    SalesReport_Settings__c settings = SalesReportTestFactory.settings('WARN');
     settings.Opportunity_Form_Enabled__c = true;
     update settings;
     Test.setMock(
@@ -140,10 +137,7 @@ private class SalesReportOpportunityControllerTest {
 
   @IsTest
   static void notLinkedCannotList() {
-    SalesReport_Settings__c settings = SalesReportTestFactory.settings(
-      true,
-      'WARN'
-    );
+    SalesReport_Settings__c settings = SalesReportTestFactory.settings('WARN');
     settings.Opportunity_Form_Enabled__c = true;
     update settings;
     Test.setMock(

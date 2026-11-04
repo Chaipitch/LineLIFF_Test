@@ -56,7 +56,7 @@ Every custom field gets a **Description** (for admins) and, where users see it, 
 | `Name` | Code No. | Auto Number | — | — | `LC-{000000}` | |
 | `Code_Hash__c` | Code Hash | Text(64) | Yes | Unique (case-sensitive) | — | SHA-256 hex of the one-time code. The code itself is never stored. |
 | `Line_User_Id__c` | LINE User ID | Text(64) | Yes (enforced in code) | — | — | From the verified ID token of the `/link/start` request. |
-| `Expires_At__c` | Expires At | Date/Time | Yes | — | — | Created + `Link_Code_Ttl_Minutes__c` (default 5). |
+| `Expires_At__c` | Expires At | Date/Time | Yes | — | — | Created + 5 minutes (fixed, D-48). |
 | `Used_At__c` | Used At | Date/Time | No | — | — | Set once; a used code is rejected. |
 | `Used_By__c` | Used By | Lookup(User) | No | — | — | User who consumed the code on the link page. |
 | `Line_Display_Name__c` | LINE Display Name | Text(255) | No | — | — | Shown on the confirm page so the rep can check it is their own LINE account. |
@@ -104,19 +104,12 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Liff_Id__c` | LIFF ID | Text(40) | — (required) | L2 | Passed to the LIFF page for `liff.init`. |
 | `Eca_Consumer_Key__c` | ECA Consumer Key | Text(255) | — (required for Option B) | L3 | `iss` of the JWT. Not a secret. |
 | `Jwt_Certificate_Name__c` | JWT Certificate Name | Text(64) | `SalesReport_JWT_Signing` | L3 | Unique name of the signing certificate. |
-| `Link_Code_Ttl_Minutes__c` | Link Code TTL (min) | Number(3,0) | 5 | L3 | |
-| `Account_Search_Min_Chars__c` | Account Search Min Chars | Number(2,0) | 2 | L4 | |
-| `Account_Search_Max_Results__c` | Account Search Max Results | Number(3,0) | 10 | L4 | Capped at 50 in code. |
 | `Attachments_Enabled__c` | Attachments Enabled | Checkbox | false | L5b | Off (2026-11-02): attachment section hidden in LINE and uploads refused (403). Tick to switch on. |
-| `Attachment_Max_Files__c` | Attachment Max Files | Number(2,0) | 5 | L5b | Files per activity; capped at 10 in code. |
-| `Attachment_Max_Size_Mb__c` | Attachment Max Size MB | Number(1,0) | 4 | L5b | Per file, after photos are shrunk; 4 is also the hard cap (Apex heap, D-34). |
-| `Attachment_File_Types__c` | Attachment File Types | Text(255) | jpg,jpeg,png,pdf | L5b | Comma-separated extensions. Photos become .jpg on the phone, so keep jpg in the list. |
 | `Opportunity_Form_Enabled__c` | Update Opportunity Enabled | Checkbox | false | L5c | Off (2026-11-02): the Update Opportunity button shows "This form is coming soon" and `/opportunities` answers 403. Tick to switch on. |
-| `Opportunity_Stages__c` | Opportunity Stages | Text(255) | — (all active open stages) | L5c | Comma-separated stage API names reps may choose; closed stages are never offered; the current stage stays selectable (D-39). |
-| `Rate_Limit_Per_Minute__c` | Rate Limit per Minute | Number(4,0) | 60 | L7 | Per verified LINE user per calendar minute; over it → `RATE_LIMITED` (429). Capped at 1000. |
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
 | `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 | Used by the nightly cleanup; capped at 365. |
-| `Enabled__c` | Enabled | Checkbox | true | L2 | Kill switch: when false all endpoints return "temporarily unavailable". |
+
+Fixed values (D-48): link code 5 min; search from 2 characters, 10 Accounts; attachments 5 files × 4 MB, jpg/jpeg/png/pdf; 60 requests per LINE user per minute; all active open stages. Changing one is a code change in `SalesReportSettingsService`. There is no kill switch any more: to stop the feature for everyone, deactivate the Site `SalesReport_Site`.
 
 ## 3. Standard object fields used (no changes to standard objects)
 

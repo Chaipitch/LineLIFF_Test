@@ -3,10 +3,7 @@ private class SalesReportRateLimitServiceTest {
   private static final String LINE_USER = SalesReportTestFactory.LINE_USER_ID;
 
   private static void limitTo(Integer perMinute) {
-    insert new SalesReport_Settings__c(
-      SetupOwnerId = UserInfo.getOrganizationId(),
-      Rate_Limit_Per_Minute__c = perMinute
-    );
+    SalesReportSettingsService.requestsPerMinute = perMinute;
   }
 
   private static SalesReport_Rate_Limit__c row() {
@@ -102,9 +99,8 @@ private class SalesReportRateLimitServiceTest {
 
   @IsTest
   static void endpointAnswers429WhenOverTheLimit() {
-    SalesReport_Settings__c settings = SalesReportTestFactory.settings();
-    settings.Rate_Limit_Per_Minute__c = 1;
-    update settings;
+    SalesReportTestFactory.settings();
+    SalesReportSettingsService.requestsPerMinute = 1;
     SalesReportRateLimitService.testNow = Datetime.now();
     Database.insert(
       new SalesReport_Rate_Limit__c(

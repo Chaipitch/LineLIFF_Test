@@ -1,37 +1,37 @@
 /**
- * Single reader of SalesReport_Settings__c (org defaults). Blank fields fall back to the defaults below, so the
- * feature works with no settings record except for the values that must come from the admin (channel ID, LIFF ID).
+ * Single reader of SalesReport_Settings__c (org defaults). The setting holds only what differs per environment or what
+ * an admin switches (D-48): LINE Login channel ID, LIFF ID, External Client App consumer key, certificate name, the two
+ * form switches and the log level / retention. Everything else is a fixed value below (tests may change the
+ * @TestVisible ones). Blank fields fall back to the defaults.
  */
 public with sharing class SalesReportSettingsService {
   public static final String DEFAULT_LOG_LEVEL = 'WARN';
   public static final String DEFAULT_JWT_CERTIFICATE = 'SalesReport_JWT_Signing';
   @TestVisible
-  static final Integer DEFAULT_LINK_CODE_TTL_MINUTES = 5;
-  @TestVisible
-  static final Integer MAX_LINK_CODE_TTL_MINUTES = 30;
-  @TestVisible
-  static final Integer DEFAULT_SEARCH_MIN_CHARS = 2;
-  @TestVisible
-  static final Integer DEFAULT_SEARCH_MAX_RESULTS = 10;
-  @TestVisible
-  static final Integer MAX_SEARCH_RESULTS = 50;
-  @TestVisible
-  static final Integer DEFAULT_ATTACHMENT_MAX_FILES = 5;
-  @TestVisible
-  static final Integer MAX_ATTACHMENT_FILES = 10;
-  /** Also the hard cap: a 4 MB file peaks at ~5.6 MB of the 6 MB Apex heap on its way to the API (D-34). */
-  @TestVisible
-  static final Integer MAX_ATTACHMENT_SIZE_MB = 4;
-  @TestVisible
-  static final String DEFAULT_ATTACHMENT_TYPES = 'jpg,jpeg,png,pdf';
-  @TestVisible
-  static final Integer DEFAULT_RATE_LIMIT_PER_MINUTE = 60;
-  @TestVisible
-  static final Integer MAX_RATE_LIMIT_PER_MINUTE = 1000;
-  @TestVisible
   static final Integer DEFAULT_LOG_RETENTION_DAYS = 30;
   @TestVisible
   static final Integer MAX_LOG_RETENTION_DAYS = 365;
+  /** Fixed values (were settings until D-48). */
+  @TestVisible
+  static Integer linkCodeTtl = 5;
+  @TestVisible
+  static Integer searchMinChars = 2;
+  @TestVisible
+  static Integer searchMaxResults = 10;
+  @TestVisible
+  static Integer maxFilesPerActivity = 5;
+  /** Also the hard cap: a 4 MB file peaks at ~5.6 MB of the 6 MB Apex heap on its way to the API (D-34). */
+  @TestVisible
+  static Integer maxFileSizeMb = 4;
+  @TestVisible
+  static final List<String> FILE_TYPES = new List<String>{
+    'jpg',
+    'jpeg',
+    'png',
+    'pdf'
+  };
+  @TestVisible
+  static Integer requestsPerMinute = 60;
 
   @TestVisible
   private static SalesReport_Settings__c cached;
@@ -44,12 +44,6 @@ public with sharing class SalesReportSettingsService {
     return trimToNull(settings().Liff_Id__c);
   }
 
-  /** No settings record means enabled; otherwise the admin's checkbox decides. */
-  public static Boolean isEnabled() {
-    SalesReport_Settings__c s = settings();
-    return s.Id == null || s.Enabled__c == true;
-  }
-
   public static String ecaConsumerKey() {
     return trimToNull(settings().Eca_Consumer_Key__c);
   }
@@ -59,31 +53,19 @@ public with sharing class SalesReportSettingsService {
     return name == null ? DEFAULT_JWT_CERTIFICATE : name;
   }
 
-  /** Between 1 and MAX_LINK_CODE_TTL_MINUTES; blank = DEFAULT_LINK_CODE_TTL_MINUTES. */
+  /** Minutes a one-time link code stays valid. */
   public static Integer linkCodeTtlMinutes() {
-    Decimal minutes = settings().Link_Code_Ttl_Minutes__c;
-    if (minutes == null || minutes < 1) {
-      return DEFAULT_LINK_CODE_TTL_MINUTES;
-    }
-    return Math.min(minutes.intValue(), MAX_LINK_CODE_TTL_MINUTES);
+    return linkCodeTtl;
   }
 
-  /** Between 1 and 10; blank = DEFAULT_SEARCH_MIN_CHARS. */
+  /** Characters before a search starts (Accounts, lookup fields). */
   public static Integer accountSearchMinChars() {
-    return bounded(
-      settings().Account_Search_Min_Chars__c,
-      DEFAULT_SEARCH_MIN_CHARS,
-      10
-    );
+    return searchMinChars;
   }
 
-  /** Between 1 and MAX_SEARCH_RESULTS; blank = DEFAULT_SEARCH_MAX_RESULTS. */
+  /** Accounts shown in the search list. */
   public static Integer accountSearchMaxResults() {
-    return bounded(
-      settings().Account_Search_Max_Results__c,
-      DEFAULT_SEARCH_MAX_RESULTS,
-      MAX_SEARCH_RESULTS
-    );
+    return searchMaxResults;
   }
 
   /** Attachments on Log Activity: off unless an admin ticks Attachments Enabled. */
@@ -91,74 +73,36 @@ public with sharing class SalesReportSettingsService {
     return settings().Attachments_Enabled__c == true;
   }
 
-  /** Between 1 and MAX_ATTACHMENT_FILES; blank = DEFAULT_ATTACHMENT_MAX_FILES. */
   public static Integer attachmentMaxFiles() {
-    return bounded(
-      settings().Attachment_Max_Files__c,
-      DEFAULT_ATTACHMENT_MAX_FILES,
-      MAX_ATTACHMENT_FILES
-    );
+    return maxFilesPerActivity;
   }
 
-  /** Between 1 and MAX_ATTACHMENT_SIZE_MB; blank = MAX_ATTACHMENT_SIZE_MB. */
   public static Integer attachmentMaxSizeMb() {
-    return bounded(
-      settings().Attachment_Max_Size_Mb__c,
-      MAX_ATTACHMENT_SIZE_MB,
-      MAX_ATTACHMENT_SIZE_MB
-    );
+    return maxFileSizeMb;
   }
 
-  /** Allowed file extensions, lower case without dots; blank = DEFAULT_ATTACHMENT_TYPES. */
+  /** Allowed file extensions, lower case without dots. */
   public static List<String> attachmentFileTypes() {
-    String raw = trimToNull(settings().Attachment_File_Types__c);
-    List<String> types = new List<String>();
-    for (
-      String part : (raw == null ? DEFAULT_ATTACHMENT_TYPES : raw).split(',')
-    ) {
-      String extension = part.trim().removeStart('.').toLowerCase();
-      if (extension.length() > 0 && !types.contains(extension)) {
-        types.add(extension);
-      }
-    }
-    return types;
+    return new List<String>(FILE_TYPES);
   }
 
-  /** Requests per LINE user per minute, between 1 and MAX_RATE_LIMIT_PER_MINUTE; blank = DEFAULT_RATE_LIMIT_PER_MINUTE. */
+  /** Requests per LINE user per minute. */
   public static Integer rateLimitPerMinute() {
-    return bounded(
-      settings().Rate_Limit_Per_Minute__c,
-      DEFAULT_RATE_LIMIT_PER_MINUTE,
-      MAX_RATE_LIMIT_PER_MINUTE
-    );
+    return requestsPerMinute;
   }
 
   /** Days logs are kept, between 1 and MAX_LOG_RETENTION_DAYS; blank = DEFAULT_LOG_RETENTION_DAYS. */
   public static Integer logRetentionDays() {
-    return bounded(
-      settings().Log_Retention_Days__c,
-      DEFAULT_LOG_RETENTION_DAYS,
-      MAX_LOG_RETENTION_DAYS
-    );
+    Decimal days = settings().Log_Retention_Days__c;
+    if (days == null || days < 1) {
+      return DEFAULT_LOG_RETENTION_DAYS;
+    }
+    return Math.min(days.intValue(), MAX_LOG_RETENTION_DAYS);
   }
 
   /** Update Opportunity in LINE: off unless an admin ticks Update Opportunity Enabled. */
   public static Boolean opportunityFormEnabled() {
     return settings().Opportunity_Form_Enabled__c == true;
-  }
-
-  /** Stage API names reps may choose on Update Opportunity; empty = all open stages. */
-  public static Set<String> opportunityStages() {
-    Set<String> stages = new Set<String>();
-    String raw = trimToNull(settings().Opportunity_Stages__c);
-    if (raw != null) {
-      for (String part : raw.split(',')) {
-        if (String.isNotBlank(part)) {
-          stages.add(part.trim());
-        }
-      }
-    }
-    return stages;
   }
 
   public static String logLevel() {
@@ -174,13 +118,6 @@ public with sharing class SalesReportSettingsService {
       }
     }
     return cached;
-  }
-
-  private static Integer bounded(Decimal value, Integer fallback, Integer max) {
-    if (value == null || value < 1) {
-      return fallback;
-    }
-    return Math.min(value.intValue(), max);
   }
 
   private static String trimToNull(String value) {

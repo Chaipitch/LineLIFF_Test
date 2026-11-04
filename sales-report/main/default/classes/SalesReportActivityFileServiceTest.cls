@@ -138,9 +138,7 @@ private class SalesReportActivityFileServiceTest {
 
   @IsTest
   static void inputIsCheckedBeforeAnyCallout() {
-    SalesReport_Settings__c settings = SalesReport_Settings__c.getOrgDefaults();
-    settings.Attachment_Max_Size_Mb__c = 1;
-    update settings;
+    SalesReportSettingsService.maxFileSizeMb = 1;
     SalesReportHttpMock http = SalesReportTestFactory.taskFileMock(
       UserInfo.getUserId(),
       Datetime.now(),

@@ -10,13 +10,6 @@ public with sharing class SalesReportIdentityService {
   static final Integer MAX_TOKEN_LENGTH = 4096;
 
   public SalesReportLineVerifyData identify(RestRequest req) {
-    if (!SalesReportSettingsService.isEnabled()) {
-      throw SalesReportException.of(
-        SalesReportException.UNAVAILABLE,
-        503,
-        'Sales Report is switched off in settings.'
-      );
-    }
     String channelId = SalesReportSettingsService.lineLoginChannelId();
     if (channelId == null) {
       throw SalesReportException.of(

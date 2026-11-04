@@ -2,7 +2,7 @@
 private class SalesReportLogServiceTest {
   @IsTest
   static void writesEntriesAtOrAboveTheConfiguredLevel() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
 
     Test.startTest();
     SalesReportLogService.setLineUserRef(SalesReportTestFactory.LINE_USER_ID);
@@ -52,7 +52,7 @@ private class SalesReportLogServiceTest {
 
   @IsTest
   static void debugLevelWritesEverythingAndExceptionsAreFormatted() {
-    SalesReportTestFactory.settings(true, 'DEBUG');
+    SalesReportTestFactory.settings('DEBUG');
 
     SalesReportLogService.debug(null, null);
     SalesReportLogService.error('Test.exception', new DmlException('bad row'));
@@ -74,7 +74,7 @@ private class SalesReportLogServiceTest {
 
   @IsTest
   static void longValuesAreTruncatedAndUnknownLevelFallsBack() {
-    SalesReportTestFactory.settings(true, 'NOPE');
+    SalesReportTestFactory.settings('NOPE');
 
     SalesReportLogService.info('Test.info', 'not written at default WARN');
     SalesReportLogService.warn('S'.repeat(300), 'M'.repeat(40000));

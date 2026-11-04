@@ -95,7 +95,7 @@ private class SalesReportActivityControllerTest {
 
   @IsTest
   static void notLinkedAnswers403() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
@@ -111,7 +111,7 @@ private class SalesReportActivityControllerTest {
 
   @IsTest
   static void notLinkedCannotCreate() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())

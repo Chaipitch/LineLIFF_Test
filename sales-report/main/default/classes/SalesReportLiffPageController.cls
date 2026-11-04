@@ -13,7 +13,6 @@ public with sharing class SalesReportLiffPageController {
     configJson = JSON.serialize(
       new Map<String, Object>{
         'liffId' => SalesReportSettingsService.liffId(),
-        'enabled' => SalesReportSettingsService.isEnabled(),
         'apiBase' => apiBase(),
         'accountSearch' => new Map<String, Object>{
           'minChars' => SalesReportSettingsService.accountSearchMinChars(),

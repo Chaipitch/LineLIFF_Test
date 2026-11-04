@@ -344,7 +344,7 @@ function clearReloadFlag() {
 
 async function start() {
   showLoading();
-  if (!config.liffId || config.enabled === false) {
+  if (!config.liffId) {
     showError("UNAVAILABLE");
     return;
   }

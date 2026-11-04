@@ -79,10 +79,7 @@ private class SalesReportAccountServiceTest {
 
   @IsTest
   static void resultsAreCappedBySettings() {
-    insert new SalesReport_Settings__c(
-      SetupOwnerId = UserInfo.getOrganizationId(),
-      Account_Search_Max_Results__c = 2
-    );
+    SalesReportSettingsService.searchMaxResults = 2;
     List<Map<String, Object>> rows = new List<Map<String, Object>>();
     for (Integer i = 0; i < 5; i++) {
       rows.add(account('00100000000000' + i + 'AAA', 'Acme ' + i));

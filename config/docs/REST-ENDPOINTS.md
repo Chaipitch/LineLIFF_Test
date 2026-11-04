@@ -2,7 +2,7 @@
 
 How the Apex REST endpoints of LINE Sales Reporting handle a request, step by step. Contract summary (paths, request
 and response shapes, error codes): `L0-SPEC.md` §4. Classes: `L0-SPEC.md` §5a. Decisions: `DECISIONS.md` (D-xx).
-Last updated 2026-11-03 (link rules D-44, support reference D-45, BA's Opportunity fields and lookup search D-46).
+Last updated 2026-11-04 (settings trimmed, D-48; link rules D-44, support reference D-45, BA's Opportunity fields and lookup search D-46).
 
 Base URL (sandbox `dev5`):
 `https://terraskyth--dev5.sandbox.my.salesforce-sites.com/salesreport/services/apexrest/salesreport/v1/…`
@@ -16,7 +16,7 @@ follow the same pattern.
 
 ```
 LIFF page ──(X-Line-Id-Token: <LINE ID token>)──▶ Controller
-  1. identify()      checks: Enabled setting on, channel ID set, token present
+  1. identify()      checks: channel ID set, token present
                      → POST api.line.me/oauth2/v2.1/verify   (LINE: "who is this?")
                      → rate-limit check for that LINE user (60/min, D-36)
   2. [repSession()]  only for business-data endpoints:
@@ -42,7 +42,7 @@ Salesforce request ID — the same as `Request_Id__c` on the Sales Report Log en
 | `RATE_LIMITED` | 429 | Over the per-minute limit for this LINE user |
 | `QUERY_TOO_SHORT` / `INVALID_INPUT` / `SAVE_FAILED` | 400 | Bad input or a Salesforce save error, usually with `fields` (field API name → message) |
 | `NO_ACCESS` | 403 | The rep's Salesforce user can't read that object or field (e.g. Opportunity on a Platform licence) |
-| `UNAVAILABLE` / `CONFIG_MISSING` | 503 | Switched off in settings, or settings incomplete |
+| `CONFIG_MISSING` | 503 | Settings incomplete (e.g. no LINE Login channel ID) |
 | `LINE_ERROR` / `SESSION_ERROR` | 502 | LINE or the Salesforce API could not be reached or refused the session |
 | `INTERNAL` | 500 | Unexpected error (logged in full, answered with a generic message) |
 
@@ -180,7 +180,7 @@ profile needs one grant. **Currently switched off** (setting *Update Opportunity
 2. Build the form from field set `SalesReport_Opportunity_Form` with the same three UI API reads as Log Activity, but
    for **editing**: fields the rep can update, required flags from the rep's Opportunity *edit* layout (D-31).
 3. Read the Opportunity as the rep with those fields; refuse it if it is closed or not visible.
-4. Stage choices: active **open** stages (optionally narrowed by setting *Opportunity Stages*), plus the record's current
+4. Stage choices: active **open** stages, plus the record's current
    stage even if that stage is no longer active, so an unchanged stage can still be saved.
 
 **Returns:** `{ id, name, accountId, fields }` — each field's `defaultValue` is the current value. Fields today (D-46):

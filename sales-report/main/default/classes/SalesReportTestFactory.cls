@@ -9,15 +9,11 @@ public with sharing class SalesReportTestFactory {
   public static final String DISPLAY_NAME = 'Test Rep';
   public static final String ID_TOKEN = 'header.payload.signature';
 
-  public static SalesReport_Settings__c settings(
-    Boolean enabled,
-    String logLevel
-  ) {
+  public static SalesReport_Settings__c settings(String logLevel) {
     SalesReport_Settings__c s = new SalesReport_Settings__c(
       SetupOwnerId = UserInfo.getOrganizationId(),
       Line_Login_Channel_Id__c = CHANNEL_ID,
       Liff_Id__c = LIFF_ID,
-      Enabled__c = enabled,
       Log_Level__c = logLevel
     );
     insert s;
@@ -25,7 +21,7 @@ public with sharing class SalesReportTestFactory {
   }
 
   public static SalesReport_Settings__c settings() {
-    return settings(true, 'DEBUG');
+    return settings('DEBUG');
   }
 
   /** Verify-endpoint success body; expiry in seconds from now (negative = already expired). */

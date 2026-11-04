@@ -43,19 +43,6 @@ private class SalesReportIdentityServiceTest {
   }
 
   @IsTest
-  static void switchedOff() {
-    SalesReportTestFactory.settings(false, 'WARN');
-    SalesReportException e = identifyExpectingFailure(
-      SalesReportTestFactory.restRequest(
-        SalesReportIdentityService.TOKEN_HEADER,
-        SalesReportTestFactory.ID_TOKEN
-      )
-    );
-    Assert.areEqual(SalesReportException.UNAVAILABLE, e.code, 'Kill switch');
-    Assert.areEqual(503, e.statusCode, 'Status');
-  }
-
-  @IsTest
   static void missingChannelId() {
     SalesReportException e = identifyExpectingFailure(
       SalesReportTestFactory.restRequest(

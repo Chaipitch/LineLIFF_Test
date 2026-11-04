@@ -57,7 +57,7 @@ private class SalesReportAccountControllerTest {
 
   @IsTest
   static void notLinkedAnswers403() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     Test.setMock(
       HttpCalloutMock.class,
       new SalesReportHttpMock(200, SalesReportTestFactory.verifyBody())
@@ -80,7 +80,7 @@ private class SalesReportAccountControllerTest {
 
   @IsTest
   static void missingTokenAnswers401() {
-    SalesReportTestFactory.settings(true, 'WARN');
+    SalesReportTestFactory.settings('WARN');
     SalesReportTestFactory.restRequest(null, null);
 
     SalesReportAccountController.search();

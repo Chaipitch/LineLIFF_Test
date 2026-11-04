@@ -110,18 +110,13 @@ Setup → Custom Settings → **Sales Report Settings** → Manage → **Edit** 
 | LIFF ID | Which LINE form registration the page belongs to | From part F |
 | ECA Consumer Key | Which Salesforce "app pass" to use when acting as the rep | From part G |
 | JWT Certificate Name | Which digital stamp to sign with | Blank = `SalesReport_JWT_Signing` |
-| Link Code TTL (min) | How long a first-login link stays valid | Blank = 5 |
-| Account Search Min Chars / Max Results | How many letters before search starts / how many results | Blank = 2 / 10 |
 | Attachments Enabled | Lets reps attach photos/files to Log Activity | **Unticked** (off since 2026-11-02) |
-| Attachment Max Files / Max Size MB / File Types | Limits when attachments are on | Blank = 5 / 4 / `jpg,jpeg,png,pdf` |
 | Update Opportunity Enabled | Lets reps use Update Opportunity | **Unticked** (off since 2026-11-02; the button shows "coming soon") |
-| Opportunity Stages | Which stages reps may choose on Update Opportunity | Blank = all open stages (closing stays in Salesforce) |
-| Rate Limit per Minute | Most requests one LINE user may make per minute | Blank = 60 |
 | Log Level | How much the program writes to the log | `WARN` (`INFO`/`DEBUG` only while investigating) |
 | Log Retention (days) | How long logs are kept before the nightly cleanup deletes them | Blank = 30 |
-| Enabled | Emergency off switch for everyone | ✓ |
 
-**Status:** all set in `dev5` (2026-10-29; Attachments Enabled unticked 2026-11-02).
+**Status:** all set in `dev5` (2026-10-29; Attachments Enabled unticked 2026-11-02). Since 2026-11-04 the setting has only
+these eight fields (D-48); limits such as search size, attachment size and the rate limit are fixed in code.
 
 ---
 
@@ -296,11 +291,10 @@ Create, then:
   set, reps get the message "Salesforce requires *X* … ask your admin to add it to field set SalesReport_Activity_Form".
 - **Attachments on/off (L5b).** Part C setting *Attachments Enabled* — **unticked = off** (current state, 2026-11-02): the
   "Photos and files" section is hidden in LINE and the server refuses uploads. Tick it to switch attachments on.
-- **Attachment limits (L5b).** Part C settings: *Attachment Max Files* (blank = 5, at most 10), *Attachment Max Size MB*
-  (blank = 4; 4 is the most Salesforce can handle on this route), *Attachment File Types* (blank = `jpg,jpeg,png,pdf`).
-  Photos are shrunk on the phone and always arrive as .jpg, so keep `jpg` in the list. Files count against the org's
-  **file storage** (Setup → Storage Usage). *Why:* keeps uploads quick on mobile data and storage under control.
-- **Rate limit (L7).** Part C setting *Rate Limit per Minute* (blank = 60): how many requests one LINE user may make per
+- **Attachment limits (L5b).** Fixed (D-48): up to **5 files of 4 MB** each, jpg / jpeg / png / pdf (4 MB is the most
+  Salesforce can handle on this route). Photos are shrunk on the phone and arrive as .jpg. Files count against the org's
+  **file storage** (Setup → Storage Usage). Changing the limits is a code change.
+- **Rate limit (L7).** Fixed at **60** (D-48): how many requests one LINE user may make per
   minute before seeing "Too many requests. Please wait a minute". *Why:* stops a stuck phone or a misuse from flooding
   Salesforce. Normal use (search, save, a few photos) stays far below 60.
 - **Nightly cleanup (L7).** Scheduled job *Sales Report cleanup* (Setup → Scheduled Jobs) runs every night at 02:00 and
@@ -308,12 +302,12 @@ Create, then:
   *Why:* keeps temporary data from piling up. In a new org (e.g. production) schedule it once:
   `sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex` (run it as an admin in the Bangkok time zone).
 - **Fields on the Update Opportunity form (L5c).** Object Manager → Opportunity → **Field Sets** → *Sales Report
-  Opportunity Form* — same idea as the Log Activity form. Starts with Stage, Amount, Next Step, Close Date; add e.g.
-  *Your Win Confidence* or the custom *Next Step* when the BA decides (Q-O1, Q-O2). Lookup fields (e.g. *PreSales
-  Engineer*) can't be shown on the form yet. *Opportunity Stages* (Part C) limits the stage list.
+  Opportunity Form* — same idea as the Log Activity form. Now the BA's list (D-46): Stage, Amount, Main PreSales Engineer
+  (a search box), Next Step, Next Step Due Date. Stage offers all active open stages (closing stays in Salesforce).
 - **Activity Type values.** The Type list is Salesforce's Task *Type* picklist (BA Q-A2): Object Manager → Activity →
   Fields → Type → add values such as *Customer Visit*. They also appear for normal Task entry in Salesforce.
-- **Switch off for everyone.** Part C: untick *Enabled*.
+- **Switch off for everyone.** Setup → Sites → *SalesReport_Site* → **Deactivate** (there is no on/off setting any
+  more, D-48). Activate it again to switch back on. Update Opportunity and attachments have their own switches (Part C).
 
 ---
 
@@ -454,7 +448,7 @@ because the page controller's test counts the labels — update that count too.
 | A rep quotes "Reference: …" | *Sales Report Logs* tab → search the reference in **Request ID** (D-45). |
 | Rep left the company | Deactivate the user as usual — the link ends automatically on the next attempt. |
 | Something went wrong | *Sales Report Logs* tab → "Errors today". |
-| Switch the forms off | Sales Report Settings → untick *Enabled*. |
+| Switch everything off | Setup → Sites → *SalesReport_Site* → Deactivate (D-48). Update Opportunity / attachments: Part C switches. |
 | Switch attachments on/off | Sales Report Settings → *Attachments Enabled*. |
 | Switch Update Opportunity on/off | Sales Report Settings → *Update Opportunity Enabled*. Optionally also hide the button in the rich menu (LINE Official Account Manager). |
 | "Too many requests" for a rep | Wait a minute; if it happens in normal use, raise *Rate Limit per Minute*. |

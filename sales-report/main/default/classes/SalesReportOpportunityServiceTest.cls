@@ -144,48 +144,6 @@ private class SalesReportOpportunityServiceTest {
   }
 
   @IsTest
-  static void settingNarrowsTheStagesButKeepsTheCurrentOne() {
-    List<String> stages = SalesReportTestFactory.openStages();
-    Assert.isTrue(
-      stages.size() >= 2,
-      'Org needs two open stages for this test'
-    );
-    insert new SalesReport_Settings__c(
-      SetupOwnerId = UserInfo.getOrganizationId(),
-      Opportunity_Stages__c = stages[1]
-    );
-    Test.setMock(
-      HttpCalloutMock.class,
-      SalesReportTestFactory.opportunityApiMock(
-        SalesReportTestFactory.opportunityRecordBody(
-          ACCOUNT_ID,
-          false,
-          stages[0]
-        )
-      )
-    );
-
-    Test.startTest();
-    SalesReportOpportunityFormData data = new SalesReportOpportunityService()
-      .form(api(), OPP_ID);
-    Test.stopTest();
-
-    Set<String> offered = new Set<String>();
-    for (SalesReportFormData.Field field : data.fields) {
-      if (field.name == 'StageName') {
-        for (SalesReportFormData.Option option : field.options) {
-          offered.add(option.value);
-        }
-      }
-    }
-    Assert.areEqual(
-      new Set<String>{ stages[0], stages[1] },
-      offered,
-      'Allowed stage + current stage'
-    );
-  }
-
-  @IsTest
   static void updateSendsOnlyFormFieldsAsTheRep() {
     SalesReportHttpMock mock = SalesReportTestFactory.opportunityApiMock();
     Test.setMock(HttpCalloutMock.class, mock);

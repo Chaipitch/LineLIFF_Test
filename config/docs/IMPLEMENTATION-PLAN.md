@@ -138,7 +138,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 ### L5b — Attachments (built 2026-10-30 with the proposed limits; switched off 2026-11-02 via `Attachments_Enabled__c`)
 
 - [ ] BA · Limits: count, size, types (Q-A6a). Built with the proposal 5 × 4 MB, jpg/jpeg/png/pdf — change in Settings, no code.
-- [x] C · Settings `Attachment_Max_Files__c` (5, cap 10), `Attachment_Max_Size_Mb__c` (4, hard cap 4), `Attachment_File_Types__c`.
+- [x] C · Attachment limits 5 files × 4 MB, jpg/jpeg/png/pdf (were settings; fixed in code since D-48).
 - [x] C · `POST /salesreport/v1/activity/files?taskId=&name=` (raw bytes) → `ContentVersion` on the Task as the rep (D-34): only the
       rep's own Task, within 60 min of logging it, count/size/type limits, clean file name.
 - [x] C · Heap measured (anonymous Apex): file bytes don't count, the base64 JSON does (~1.33 ×); 4 MB → ~5.6 MB of 6 MB. Live: 3.9 MB
@@ -156,7 +156,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · Shared form engine `SalesReportFormService` (field set + UI API as the rep, D-31/D-35) used by Log Activity and Update Opportunity.
 - [x] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities on the Account visible to the rep (≤ 50, by close date).
 - [x] C · Field set `SalesReport_Opportunity_Form` (Stage, Amount, Next Step, Close Date); `GET /salesreport/v1/opportunities?id=` → form with current values; required flags per D-31.
-- [x] C · Stage choices = active open stages, setting `Opportunity_Stages__c` to narrow them; current (even inactive) stage kept selectable.
+- [x] C · Stage choices = active open stages, (the narrowing setting was removed, D-48); current (even inactive) stage kept selectable.
 - [x] C · `POST /salesreport/v1/opportunities` → form fields only; open Opportunity of the chosen Account; empty optional fields cleared; PATCH override.
 - [x] C · `NO_ACCESS` (403) for reps who can't read Opportunities (Platform licence, D-13), own message in LINE.
 - [x] C · LIFF: Account → open Opportunities (stage · close date) → prefilled form → Save → "Opportunity updated" (checked headless 2026-11-02; Log Activity re-checked).
