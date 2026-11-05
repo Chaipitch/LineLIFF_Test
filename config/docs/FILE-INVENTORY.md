@@ -36,6 +36,7 @@ Paths are relative to the repo root; `fa/` = `sales-report/main/default/` (own p
 | `SETUP-GUIDE.md` | Admin guide: Site, settings, LIFF app, rich menu (L2); ECA, certificate (L3); … | L2–L8 | Done (living) |
 | `USER-GUIDE.md` | Rep guide: connecting, logging activities, updating opportunities, messages (English) | L8 | Done (2026-11-04) |
 | `GO-LIVE-CHECKLIST.md` | Ordered production steps: decisions, deploy, Setup, LINE, cleanup job, smoke test, rollback | L8 | Done (2026-11-04) |
+| `tracker/*.csv` | BA tracker sheets 04 Error Handling, 05 API Inventory, 06 Apex Inventory, filled in with the build (2026-11-05) | L8 | Done |
 
 ## 2. Apex classes (`fa/classes/`)
 
