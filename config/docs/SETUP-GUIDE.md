@@ -303,7 +303,8 @@ Create, then:
   `sf apex run -o <alias> -f scripts/apex/schedule-cleanup.apex` (run it as an admin in the Bangkok time zone).
 - **Fields on the Update Opportunity form (L5c).** Object Manager → Opportunity → **Field Sets** → *Sales Report
   Opportunity Form* — same idea as the Log Activity form. Now the BA's list (D-46): Stage, Amount, Main PreSales Engineer
-  (a search box), Next Step, Next Step Due Date. Stage offers all active open stages (closing stays in Salesforce).
+  (a search box), Next Step, Next Step Due Date. Stage offers all active stages, incl. Closed Won / Lost (D-52); the org's closing rules (signed contract,
+  win / lost reasons) show their message on save.
 - **Activity Type values.** The Type list is Salesforce's Task *Type* picklist (BA Q-A2): Object Manager → Activity →
   Fields → Type → add values such as *Customer Visit*. They also appear for normal Task entry in Salesforce.
 - **Switch off for everyone.** Setup → Sites → *SalesReport_Site* → **Deactivate** (there is no on/off setting any

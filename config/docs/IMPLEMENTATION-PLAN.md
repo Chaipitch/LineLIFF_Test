@@ -157,7 +157,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · Shared form engine `SalesReportFormService` (field set + UI API as the rep, D-31/D-35) used by Log Activity and Update Opportunity.
 - [x] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities on the Account visible to the rep (≤ 50, by close date).
 - [x] C · Field set `SalesReport_Opportunity_Form` (Stage, Amount, Next Step, Close Date); `GET /salesreport/v1/opportunities?id=` → form with current values; required flags per D-31.
-- [x] C · Stage choices = active open stages, (the narrowing setting was removed, D-48); current (even inactive) stage kept selectable.
+- [x] C · Stage choices = all active stages incl. Closed Won / Lost (D-52, 2026-11-05; was open stages only); current (even inactive) stage kept selectable; validation-rule messages shown on save.
 - [x] C · `POST /salesreport/v1/opportunities` → form fields only; open Opportunity of the chosen Account; empty optional fields cleared; PATCH override.
 - [x] C · `NO_ACCESS` (403) for reps who can't read Opportunities (Platform licence, D-13), own message in LINE.
 - [x] C · LIFF: Account → open Opportunities (stage · close date) → prefilled form → Save → "Opportunity updated" (checked headless 2026-11-02; Log Activity re-checked).

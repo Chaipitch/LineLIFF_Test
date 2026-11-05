@@ -104,7 +104,7 @@ used when a field is blank. Edited by admins in Setup → Custom Settings ([HUMA
 | `Log_Level__c` | Log Level | Text(10) | `WARN` | L2 | `ERROR`/`WARN`/`INFO`/`DEBUG`. |
 | `Log_Retention_Days__c` | Log Retention (days) | Number(3,0) | 30 | L7 | Used by the nightly cleanup; capped at 365. |
 
-Update Opportunity has no switch: it is always on (D-49). Fixed values (D-48): link code 5 min; search from 2 characters, 10 Accounts; attachments 5 files × 4 MB, jpg/jpeg/png/pdf; 60 requests per LINE user per minute; all active open stages. Changing one is a code change in `SalesReportSettingsService`. There is no kill switch any more: to stop the feature for everyone, deactivate the Site `SalesReport_Site`.
+Update Opportunity has no switch: it is always on (D-49). Fixed values (D-48): link code 5 min; search from 2 characters, 10 Accounts; attachments 5 files × 4 MB, jpg/jpeg/png/pdf; 60 requests per LINE user per minute; all active stages (incl. closed, D-52). Changing one is a code change in `SalesReportSettingsService`. There is no kill switch any more: to stop the feature for everyone, deactivate the Site `SalesReport_Site`.
 
 ## 3. Standard object fields used (no changes to standard objects)
 
@@ -116,7 +116,7 @@ feature does not grant standard-object access.
 | User | `Id`, `Name`, `Username`, `IsActive`, `TimeZoneSidKey` | ✓ (system) | — | `Username` = JWT `sub`; `IsActive` checked before exchange; time zone gives the rep's "today" (D-32). |
 | Account | `Id`, `Name` + text fields in field set `SalesReport_Account_Search` | ✓ | — | Built in L4 (D-29); which extra fields: BA Q-C1. |
 | Opportunity | `Id`, `Name`, `AccountId`, `Owner.Name`, `IsClosed`, `CloseDate` | ✓ | — | List filter: `AccountId = :id AND IsClosed = false` (L5c). Update only when open and on the chosen Account. |
-| Opportunity | `StageName` | ✓ | ✓ | Active open stages (`01.`–`03.` in `dev5`) + the current one (D-39). |
+| Opportunity | `StageName` | ✓ | ✓ | All active stages, incl. `04. Closed Won` / `05. Closed Lost` (D-52) + the current one; validation-rule messages shown on save. |
 | OpportunityStage | `ApiName`, `IsActive`, `IsClosed` | ✓ (system) | — | Which stages are open (setup data, read in system mode). |
 | Opportunity | `Your_Win_Confidence__c` | ✓ | ✓ | Field-level required picklist. |
 | Opportunity | `CloseDate` | ✓ | ✓ | |

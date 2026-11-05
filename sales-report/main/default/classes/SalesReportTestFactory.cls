@@ -306,7 +306,20 @@ public with sharing class SalesReportTestFactory {
   public static final String OPPORTUNITY_ID = '006000000000001AAA';
   public static final String ACCOUNT_ID = '001000000000001AAA';
 
-  /** Active open stages of this org plus one closed one — tests don't depend on the org's stage names. */
+  /** An active closed stage of this org (e.g. Closed Won), or null when the org has none. */
+  public static String closedStage() {
+    List<OpportunityStage> stages = [
+      SELECT ApiName
+      FROM OpportunityStage
+      WHERE IsActive = TRUE AND IsClosed = TRUE
+      WITH SYSTEM_MODE
+      ORDER BY SortOrder
+      LIMIT 1
+    ];
+    return stages.isEmpty() ? null : stages[0].ApiName;
+  }
+
+  /** Active open stages of this org — tests don't depend on the org's stage names. */
   public static List<String> openStages() {
     List<String> stages = new List<String>();
     for (OpportunityStage stage : [
@@ -368,6 +381,14 @@ public with sharing class SalesReportTestFactory {
     List<Object> values = new List<Object>();
     for (String stage : openStages()) {
       values.add(new Map<String, Object>{ 'value' => stage, 'label' => stage });
+    }
+    if (closedStage() != null) {
+      values.add(
+        new Map<String, Object>{
+          'value' => closedStage(),
+          'label' => closedStage()
+        }
+      );
     }
     values.add(
       new Map<String, Object>{

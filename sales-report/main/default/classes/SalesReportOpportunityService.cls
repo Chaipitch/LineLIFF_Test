@@ -3,9 +3,9 @@
  * (Option B), so only Opportunities the rep can see and fields the rep can edit are offered.
  *
  * The form comes from field set SalesReport_Opportunity_Form through SalesReportFormService (D-21, D-31), filled with
- * the record's current values. Stage choices are the active open stages (closing is done in Salesforce — validation
- * rules need contract / reason fields, Q-O3). The Opportunity must
- * be open and belong to the Account chosen on the form.
+ * the record's current values. Stage choices are all active stages, including Closed Won / Closed Lost (user,
+ * 2026-11-05, D-52); the org's validation rules still decide what a close needs (signed contract, win / lost reasons)
+ * and their message is shown on the form. The Opportunity must be open and belong to the Account chosen on the form.
  */
 public with sharing class SalesReportOpportunityService {
   public static final String FORM_FIELD_SET = 'SalesReport_Opportunity_Form';
@@ -150,7 +150,7 @@ public with sharing class SalesReportOpportunityService {
     );
   }
 
-  /** Stage choices: open (and allowed) stages, plus the Opportunity's current stage so it still shows and saves. */
+  /** Stage choices: all active stages, plus the Opportunity's current stage so it still shows and saves. */
   private static void restrictStages(
     SalesReportFormService context,
     String currentStage
@@ -164,14 +164,14 @@ public with sharing class SalesReportOpportunityService {
     context.keepOption(STAGE_FIELD, currentStage);
   }
 
-  /** Active open stages (closing a deal is done in Salesforce). */
+  /** All active stages, open and closed (D-52). */
   @TestVisible
   static Set<String> allowedStages() {
     Set<String> stages = new Set<String>();
     for (OpportunityStage stage : [
       SELECT ApiName
       FROM OpportunityStage
-      WHERE IsActive = TRUE AND IsClosed = FALSE
+      WHERE IsActive = TRUE
       WITH SYSTEM_MODE
     ]) {
       stages.add(stage.ApiName);

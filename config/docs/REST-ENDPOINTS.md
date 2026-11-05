@@ -179,7 +179,7 @@ profile needs one grant. Always on (the *Update Opportunity Enabled* switch was 
 2. Build the form from field set `SalesReport_Opportunity_Form` with the same three UI API reads as Log Activity, but
    for **editing**: fields the rep can update, required flags from the rep's Opportunity *edit* layout (D-31).
 3. Read the Opportunity as the rep with those fields; refuse it if it is closed or not visible.
-4. Stage choices: active **open** stages, plus the record's current
+4. Stage choices: **all active stages** incl. Closed Won / Lost (D-52), plus the record's current
    stage even if that stage is no longer active, so an unchanged stage can still be saved.
 
 **Returns:** `{ id, name, accountId, fields }` — each field's `defaultValue` is the current value. Fields today (D-46):

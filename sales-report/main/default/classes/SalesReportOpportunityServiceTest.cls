@@ -136,10 +136,14 @@ private class SalesReportOpportunityServiceTest {
     for (SalesReportFormData.Option option : byName.get('StageName').options) {
       offered.add(option.value);
     }
+    Set<String> expected = new Set<String>(SalesReportTestFactory.openStages());
+    if (SalesReportTestFactory.closedStage() != null) {
+      expected.add(SalesReportTestFactory.closedStage());
+    }
     Assert.areEqual(
-      new Set<String>(SalesReportTestFactory.openStages()),
+      expected,
       offered,
-      'Open stages only, no closed stage'
+      'All active stages incl. closed ones (D-52); unknown values dropped'
     );
   }
 
@@ -223,7 +227,7 @@ private class SalesReportOpportunityServiceTest {
   }
 
   @IsTest
-  static void closedStageAndMissingRequiredAreHighlighted() {
+  static void unknownStageAndMissingRequiredAreHighlighted() {
     SalesReportHttpMock mock = SalesReportTestFactory.opportunityApiMock();
     Test.setMock(HttpCalloutMock.class, mock);
     Map<String, Object> values = validValues();
@@ -237,7 +241,7 @@ private class SalesReportOpportunityServiceTest {
     Assert.areEqual(
       new Set<String>{ 'StageName', 'Amount' },
       e.fieldErrors.keySet(),
-      'Closed stage not allowed, Amount required'
+      'Unknown stage not allowed, Amount required'
     );
     Assert.isNull(updateRequest(mock), 'Nothing updated');
   }

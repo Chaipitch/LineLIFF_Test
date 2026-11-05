@@ -90,7 +90,7 @@ type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 
 | Field | Notes |
 |---|---|
-| **Stage** | Only open stages. Close a deal (Won / Lost) in Salesforce — it needs extra details there |
+| **Stage** | All stages, including **04. Closed Won** and **05. Closed Lost** |
 | **Target TCV** (Amount) | Numbers only |
 | **Main PreSales Engineer** | Type 2+ letters of a name and pick the person. **Change** clears it |
 | **Next Step** | What happens next |
@@ -100,7 +100,9 @@ type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
    Opportunity and each field).
 
 Salesforce's own rules still apply. For example, moving a deal to **Stage 02 or later** needs a **Main PreSales
-Engineer**; if it's missing you see *"Salesforce couldn't save your changes:"* followed by Salesforce's message.
+Engineer**, and closing it as **Won** or **Lost** needs details such as the signed contract or the lost reason. If
+something is missing you see *"Salesforce couldn't save your changes:"* followed by Salesforce's message — complete it in
+Salesforce if the field isn't on this form.
 Fix the field and tap **Save** again — nothing was changed.
 
 ---

@@ -86,7 +86,7 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count t
 | `GET /accounts?q=` | Account auto-complete | yes | Done (L4) | Min 2 chars, max 10 (settings). Runs as the rep → only visible Accounts. Name + field set `SalesReport_Account_Search` (D-29); prefix matches first. |
 | `GET /opportunities?accountId=` | Open Opportunities on the Account visible to the rep | yes | Done (L5c) | `IsClosed = false`, ordered by CloseDate, ≤ 50. Returns `{ opportunities: [{ id, name, stage, closeDate, ownerName }] }`. |
 | `GET /opportunities?lookup=<field>&q=` | Search for a lookup field of the form (Main PreSales Engineer → active Users) | yes | Done (D-46) | Only single-object lookups of the field set; as the rep; ≤ 10. Returns `{ records: [{ id, name, detail }] }`. |
-| `GET /opportunities?id=` | Update form for one open Opportunity, filled with current values | yes | Done (L5c) | Field set `SalesReport_Opportunity_Form` via `SalesReportFormService` (Edit layout, D-31); Stage = open stages (+ current). Returns `{ id, name, accountId, fields }`. |
+| `GET /opportunities?id=` | Update form for one open Opportunity, filled with current values | yes | Done (L5c) | Field set `SalesReport_Opportunity_Form` via `SalesReportFormService` (Edit layout, D-31); Stage = all active stages (+ current, D-52). Returns `{ id, name, accountId, fields }`. |
 | `GET /activity` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | Done (L5a) | Field set `SalesReport_Activity_Form` + UI API object-info, layout, picklist-values read **as the rep** (D-31, D-35). |
 | `POST /activity` | Create the **Task** (D-11): body `{ accountId, values: { <field>: <value> } }` | yes | Done (L5a) | Only field-set fields accepted; `WhatId` = Account ID only (D-33), checked visible to the rep; `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
 | `POST /activity/files?taskId=&name=` | Attach one file (raw bytes, `application/octet-stream`) to a Task the rep just created | yes | Done (L5b) | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). Only the rep's own Task, within 60 min; count/size/type limits from settings. Returns `{ id, name, size }`. **Off** while setting *Attachments Enabled* is unticked (403 `NOT_AUTHORIZED`). |
@@ -203,7 +203,7 @@ Assigned To, Priority and Status, so Type, Date and Comments are optional unless
 | Shown on the form | Field (`dev5` label) | Required? | Notes |
 |---|---|---|---|
 | Account, Opportunity | `AccountId`, `Id` | always | Account search (L4) → its open Opportunities the rep can see. |
-| Stage | `StageName` (Stage) | as Salesforce says (required) | Active open stages only (01–03 in `dev5`) + the current one; (no narrowing setting since D-48). |
+| Stage | `StageName` (Stage) | as Salesforce says (required) | All active stages (01–05 in `dev5`, incl. Closed Won / Lost, D-52) + the current one; closing rules' messages shown on save. |
 | Amount | `Amount` (Target TCV) | as Salesforce says (required on the edit layout) | |
 | Next Step | `NextStep` (Next Step) | as Salesforce says | Standard field (D-12 default); swap for `Next_Step_Custom__c` in the field set if the BA says so. |
 | Close Date | `CloseDate` (Target Close Date) | as Salesforce says (required) | |
