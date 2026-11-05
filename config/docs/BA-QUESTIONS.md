@@ -42,7 +42,7 @@ Org facts quoted below come from the read-only check of sandbox `dev5` on 2026-1
 | Q-O3 ⚑ | Which stages can be chosen? | Org stages: 01. Before 1st MTG, 02. Early Stage, 03. Final Proposal, 08.Closed Won, 08.Closed Lost. Closing needs extra fields (signed contract + win reason; lost reason + detail) by active validation rules. | Open stages 01–03 only; close in Salesforce | **Answered 2026-11-05 (user): all active stages, incl. 04. Closed Won and 05. Closed Lost**; when a validation rule stops the save, its message is shown (D-52). |
 | Q-O4 ⚑ | Moving to Stage 02+ requires **PreSales Engineer** (active validation rule). Add it to the form? | Without it, reps will see the error and can't save. | Add PreSales Engineer to the form | **Answered 2026-11-03:** yes — on the form as a search box of active Users (D-46). |
 | Q-O5 | Labels: the org calls `Amount` "Target TCV" and stages have numbers. OK to show the org's labels as-is? | Form shows Salesforce labels automatically. | Yes | |
-| Q-O6 | Which Opportunities appear in the list? | Own only / all open on the Account / all visible. | All open on the Account that the rep can see || **Answered 2026-11-05 (user): all the Account's Opportunities, open and closed** (D-53). |
+| Q-O6 | Which Opportunities appear in the list? | Own only / all open on the Account / all visible. | All open on the Account that the rep can see | **Answered 2026-11-05 (user): all the Account's Opportunities, open and closed** (D-53). |
 | Q-O7 | Create new Opportunities from LINE? | Not in plan (adds scope). | Not in phase 1 | |
 
 ## 4. Account search
