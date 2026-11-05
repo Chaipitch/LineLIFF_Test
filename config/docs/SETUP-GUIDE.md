@@ -345,7 +345,7 @@ file** → take or pick a photo → **Save** → "Uploading 1 of 1…" → the p
 fails, the saved screen offers **Try again** (within an hour).
 
 **L5c — Update Opportunity (always on since 2026-11-04, D-49).** Use a **test** Opportunity — saving runs the
-org's Opportunity automation (e.g. Slack alerts). Tap **Update Opportunity** → choose an Account → its open Opportunities
+org's Opportunity automation (e.g. Slack alerts). Tap **Update Opportunity** → choose an Account → its Opportunities (open first, then closed)
 appear (stage · close date) → tap one → the form shows its current Stage, Target TCV, Main PreSales Engineer, Next Step,
 Next Step Due Date (BA's fields, D-46) → change something (type 2+ letters of a name to pick a PreSales Engineer;
 **Change** empties it) → **Save** → "Opportunity updated: <name>". Moving to Stage 02 without a PreSales Engineer shows

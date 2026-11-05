@@ -115,7 +115,7 @@ feature does not grant standard-object access.
 |---|---|---|---|---|
 | User | `Id`, `Name`, `Username`, `IsActive`, `TimeZoneSidKey` | ✓ (system) | — | `Username` = JWT `sub`; `IsActive` checked before exchange; time zone gives the rep's "today" (D-32). |
 | Account | `Id`, `Name` + text fields in field set `SalesReport_Account_Search` | ✓ | — | Built in L4 (D-29); which extra fields: BA Q-C1. |
-| Opportunity | `Id`, `Name`, `AccountId`, `Owner.Name`, `IsClosed`, `CloseDate` | ✓ | — | List filter: `AccountId = :id AND IsClosed = false` (L5c). Update only when open and on the chosen Account. |
+| Opportunity | `Id`, `Name`, `AccountId`, `Owner.Name`, `IsClosed`, `CloseDate` | ✓ | — | List filter: `AccountId = :id`, open first then closed (D-53). Update when on the chosen Account (open or closed). |
 | Opportunity | `StageName` | ✓ | ✓ | All active stages, incl. `04. Closed Won` / `05. Closed Lost` (D-52) + the current one; validation-rule messages shown on save. |
 | OpportunityStage | `ApiName`, `IsActive`, `IsClosed` | ✓ (system) | — | Which stages are open (setup data, read in system mode). |
 | Opportunity | `Your_Win_Confidence__c` | ✓ | ✓ | Field-level required picklist. |
@@ -202,7 +202,7 @@ Category `SalesReport`. **English only** (D-47, Q-S3) — no translations; admin
 | `SalesReport_Retry` | Try again | LIFF | L5b |
 | `SalesReport_Error_Rate_Limited` | Too many requests. Please wait a minute and try again. | LIFF | L7 |
 | `SalesReport_Opportunity_Label` | Opportunity | LIFF | L5c |
-| `SalesReport_No_Open_Opportunities` | No open opportunities for this account. | LIFF | L5c |
+| `SalesReport_No_Open_Opportunities` | No opportunities for this account. | LIFF (text changed 2026-11-05, D-53) | L5c |
 | `SalesReport_Choose_Opportunity` | Choose an opportunity first. | LIFF | L5c |
 | `SalesReport_Opportunity_Saved` | Opportunity updated: {0} | LIFF ({0} = Opportunity name) | L5c |
 | `SalesReport_Update_Another` | Update another opportunity | LIFF | L5c |

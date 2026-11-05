@@ -165,11 +165,12 @@ Body: `{ accountId, values: { Type, ActivityDate, Description } }`
 `SalesReportOpportunityController` → `SalesReportOpportunityService` (D-39). One class for the whole form, so the guest
 profile needs one grant. Always on (the *Update Opportunity Enabled* switch was removed, D-49).
 
-### `GET /opportunities?accountId=…` — the Account's open Opportunities
+### `GET /opportunities?accountId=…` — the Account's Opportunities
 
 1. Verify the token and get the rep's session.
-2. Run `SELECT Id, Name, toLabel(StageName), CloseDate, Owner.Name FROM Opportunity WHERE AccountId = … AND IsClosed =
-   false ORDER BY CloseDate LIMIT 50` **as the rep**, so only Opportunities they can see appear.
+2. Run `SELECT Id, Name, toLabel(StageName), CloseDate, Owner.Name FROM Opportunity WHERE AccountId = … ORDER BY
+   IsClosed, CloseDate LIMIT 50` **as the rep**, so only Opportunities they can see appear — open ones first, then
+   closed ones (D-53).
 
 **Returns:** `{ opportunities: [{ id, name, stage, closeDate, ownerName }] }` (stage label in the rep's language).
 
@@ -178,7 +179,7 @@ profile needs one grant. Always on (the *Update Opportunity Enabled* switch was 
 1. Verify the token and get the rep's session.
 2. Build the form from field set `SalesReport_Opportunity_Form` with the same three UI API reads as Log Activity, but
    for **editing**: fields the rep can update, required flags from the rep's Opportunity *edit* layout (D-31).
-3. Read the Opportunity as the rep with those fields; refuse it if it is closed or not visible.
+3. Read the Opportunity as the rep with those fields; refuse it if it is not visible (closed ones are allowed, D-53).
 4. Stage choices: **all active stages** incl. Closed Won / Lost (D-52), plus the record's current
    stage even if that stage is no longer active, so an unchanged stage can still be saved.
 
@@ -205,7 +206,7 @@ For the form's lookup fields, e.g. `lookup=PreSales_Engineer__c` (D-46).
 Body: `{ id, accountId, values: { StageName, Amount, PreSales_Engineer__c, Next_Step_Custom__c, Next_Step_Due_Date__c } }`
 
 1. Verify the token, get the rep's session.
-2. Read the Opportunity as the rep: it must be open and belong to the chosen Account.
+2. Read the Opportunity as the rep: it must belong to the chosen Account (open or closed, D-53).
 3. Check the values like Log Activity (only form fields, picklist values, types, required; a lookup value must be an ID
    of its object, e.g. a User ID). Optional fields sent empty are **cleared** (set to null).
 4. Update as the rep (`POST /sobjects/Opportunity/<id>?_HttpMethod=PATCH`, because Apex can't send PATCH). Validation-rule

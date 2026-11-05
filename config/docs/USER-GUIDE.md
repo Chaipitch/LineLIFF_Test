@@ -23,7 +23,7 @@ Open the Sales Reporting chat in LINE. At the bottom you see two buttons:
 | Button | What it does |
 |---|---|
 | **Log Activity** | Records a visit, call or meeting as a Salesforce activity on a customer Account |
-| **Update Opportunity** | Updates the stage, amount, PreSales engineer and next step of one of an Account's open deals |
+| **Update Opportunity** | Updates the stage, amount, PreSales engineer and next step of one of an Account's deals |
 
 ---
 
@@ -84,8 +84,8 @@ type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 
 1. Tap **Update Opportunity**.
 2. **Account**: type at least 2 letters and choose the customer.
-3. **Opportunity**: tap one of the Account's **open** deals (shown with its stage and close date). If you see *"No open
-   opportunities for this account."*, there is nothing to update for that customer.
+3. **Opportunity**: tap one of the Account's deals (shown with its stage and close date) — open deals first, then
+   closed ones. If you see *"No opportunities for this account."*, there is nothing to update for that customer.
 4. The form shows the deal's **current values**. Change what you need:
 
 | Field | Notes |

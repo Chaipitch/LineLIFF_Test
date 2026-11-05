@@ -56,10 +56,10 @@ private class SalesReportOpportunityServiceTest {
 
     Test.startTest();
     SalesReportOpportunityData data = new SalesReportOpportunityService()
-      .listOpen(api(), ACCOUNT_ID);
+      .listForAccount(api(), ACCOUNT_ID);
     Test.stopTest();
 
-    Assert.areEqual(1, data.opportunities.size(), 'One open opportunity');
+    Assert.areEqual(1, data.opportunities.size(), 'One opportunity');
     SalesReportOpportunityData.Item item = data.opportunities[0];
     Assert.areEqual(OPP_ID, item.id, 'ID');
     Assert.areEqual('Early Stage', item.stage, 'Stage label');
@@ -68,7 +68,8 @@ private class SalesReportOpportunityServiceTest {
       mock.lastRequest.getEndpoint().substringAfter('q='),
       'UTF-8'
     );
-    Assert.isTrue(soql.contains('IsClosed = false'), 'Open only');
+    Assert.isFalse(soql.contains('IsClosed = false'), 'Closed ones too (D-53)');
+    Assert.isTrue(soql.contains('ORDER BY IsClosed'), 'Open first');
     Assert.isTrue(soql.contains(ACCOUNT_ID), 'This Account');
     Assert.areEqual(
       'Bearer session-token',
@@ -80,7 +81,8 @@ private class SalesReportOpportunityServiceTest {
   @IsTest
   static void listNeedsAValidAccountId() {
     try {
-      new SalesReportOpportunityService().listOpen(api(), '0010000; DELETE');
+      new SalesReportOpportunityService()
+        .listForAccount(api(), '0010000; DELETE');
       Assert.fail('Expected INVALID_INPUT');
     } catch (SalesReportException e) {
       Assert.areEqual(SalesReportException.INVALID_INPUT, e.code, 'Code');
@@ -205,25 +207,23 @@ private class SalesReportOpportunityServiceTest {
   }
 
   @IsTest
-  static void closedOpportunityIsRefused() {
-    Test.setMock(
-      HttpCalloutMock.class,
-      SalesReportTestFactory.opportunityApiMock(
-        SalesReportTestFactory.opportunityRecordBody(
-          ACCOUNT_ID,
-          true,
-          'Closed Test'
-        )
+  static void closedOpportunityCanBeUpdated() {
+    SalesReportHttpMock mock = SalesReportTestFactory.opportunityApiMock(
+      SalesReportTestFactory.opportunityRecordBody(
+        ACCOUNT_ID,
+        true,
+        'Closed Test'
       )
     );
+    Test.setMock(HttpCalloutMock.class, mock);
+    Map<String, Object> values = validValues();
+    values.put('StageName', 'Closed Test');
 
     Test.startTest();
-    SalesReportException e = saveExpectingFailure(
-      body(ACCOUNT_ID, validValues())
-    );
+    new SalesReportOpportunityService().save(api(), body(ACCOUNT_ID, values));
     Test.stopTest();
 
-    Assert.isTrue(e.getMessage().contains('closed'), 'Closed message');
+    Assert.isNotNull(updateRequest(mock), 'Closed deals are updated (D-53)');
   }
 
   @IsTest
@@ -313,7 +313,7 @@ private class SalesReportOpportunityServiceTest {
 
     Test.startTest();
     try {
-      new SalesReportOpportunityService().listOpen(api(), ACCOUNT_ID);
+      new SalesReportOpportunityService().listForAccount(api(), ACCOUNT_ID);
       Assert.fail('Expected NO_ACCESS');
     } catch (SalesReportException e) {
       Assert.areEqual(SalesReportException.NO_ACCESS, e.code, 'Code');

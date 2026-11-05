@@ -380,7 +380,7 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>SalesReport_No_Open_Opportunities</shortDescription>
-        <value>No open opportunities for this account.</value>
+        <value>No opportunities for this account.</value>
     </labels>
     <labels>
         <fullName>SalesReport_No_Results</fullName>

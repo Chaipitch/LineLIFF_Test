@@ -1,4 +1,4 @@
-// Update Opportunity form (L5c). Choose an Account → its open Opportunities (GET /opportunities?accountId=) → the
+// Update Opportunity form (L5c). Choose an Account → its Opportunities, open first then closed (GET /opportunities?accountId=) → the
 // update form filled with the current values (GET /opportunities?id=, fields from field set
 // SalesReport_Opportunity_Form) → Save (POST /opportunities). Empty optional fields are sent so Salesforce clears them.
 // Stage choices are open stages only; closing a deal is done in Salesforce. All text uses textContent.

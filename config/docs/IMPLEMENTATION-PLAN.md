@@ -155,10 +155,10 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 ### L5c — Update Opportunity — built 2026-11-02 (D-39), BA's fields 2026-11-03 (D-46), always on since 2026-11-04 (D-49)
 
 - [x] C · Shared form engine `SalesReportFormService` (field set + UI API as the rep, D-31/D-35) used by Log Activity and Update Opportunity.
-- [x] C · `GET /salesreport/v1/opportunities?accountId=` → open Opportunities on the Account visible to the rep (≤ 50, by close date).
+- [x] C · `GET /salesreport/v1/opportunities?accountId=` → the Account's Opportunities visible to the rep, open first then closed (≤ 50; closed ones added 2026-11-05, D-53).
 - [x] C · Field set `SalesReport_Opportunity_Form` (Stage, Amount, Next Step, Close Date); `GET /salesreport/v1/opportunities?id=` → form with current values; required flags per D-31.
 - [x] C · Stage choices = all active stages incl. Closed Won / Lost (D-52, 2026-11-05; was open stages only); current (even inactive) stage kept selectable; validation-rule messages shown on save.
-- [x] C · `POST /salesreport/v1/opportunities` → form fields only; open Opportunity of the chosen Account; empty optional fields cleared; PATCH override.
+- [x] C · `POST /salesreport/v1/opportunities` → form fields only; Opportunity of the chosen Account (open or closed, D-53); empty optional fields cleared; PATCH override.
 - [x] C · `NO_ACCESS` (403) for reps who can't read Opportunities (Platform licence, D-13), own message in LINE.
 - [x] C · LIFF: Account → open Opportunities (stage · close date) → prefilled form → Save → "Opportunity updated" (checked headless 2026-11-02; Log Activity re-checked).
 - [x] C · Tests: list, form prefill, stage limits, inactive current stage, update body (cleared field), other Account, closed Opportunity, VR message, bad ids, no access — 135 tests, 96.6%; Code Analyzer 0 Critical/High.

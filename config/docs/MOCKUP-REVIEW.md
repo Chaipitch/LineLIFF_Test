@@ -20,7 +20,7 @@ answers, the spec, decisions log, data dictionary and field sets are updated tog
 | "Assigned To Roj", "Last Modified By Roj" | Option B (D-02): records are written **as the rep** |
 | One-time login, then no repeat logins | Link flow (L3), no further logins |
 | User Mapping Table (LINE User ID ↔ Salesforce User) | `SalesReport_Line_Link__c` (D-08) |
-| Opportunity dropdown filtered by the selected Account | `GET /opportunities?accountId=` (open Opportunities) |
+| Opportunity dropdown filtered by the selected Account | `GET /opportunities?accountId=` (all the Account's Opportunities, open first, D-53) |
 | Success screen with "Back to Menu" | **Built (L5a):** "Activity saved: <subject>" with *Log another activity* and *Close* (back to the chat) |
 | Task subject "Customer Visit – Toyota Motor Thailand" | **Built (L5a):** Subject from Type label + Account name (`L0-SPEC.md` §7); needs the visit types in Task `Type` (Q-A2) |
 

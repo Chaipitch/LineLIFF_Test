@@ -70,7 +70,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportLineVerifyData` | Data | LINE verify response | L2 | Done |
 | `SalesReportConnectionData` | Data | `/connection` response | L2 | Done |
 | `SalesReportAccountData` | Data | Account search result (`id`, `name`, `detail`) | L4 | Done |
-| `SalesReportOpportunityData` | Data | `GET /opportunities?accountId=` response (open Opportunities) | L5c | Done |
+| `SalesReportOpportunityData` | Data | `GET /opportunities?accountId=` response (all the Account's Opportunities, open first, D-53) | L5c | Done |
 | `SalesReportOpportunityFormData` | Data | `GET /opportunities?id=` (form + current values) and `POST /opportunities` response | L5c | Done |
 | `SalesReportActivityData` | Data | `POST /activity` response (`id`, `subject`, `status`) | L5a | Done |
 | `SalesReportActivityFileData` | Data | `POST /activity/files` response (`id`, `name`, `size`) | L5b | Done |

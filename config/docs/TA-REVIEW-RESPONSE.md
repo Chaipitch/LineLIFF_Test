@@ -48,7 +48,7 @@ apply the corrections in §3.
 | C4 | §5 Figure 5 | Endpoints `/auth/link`, `/account/search`, `/task/create`, `/opportunity/update`. | `GET /connection`, `POST /link/start`, `GET /accounts`, `GET`/`POST /activity`, `POST /activity/files`, `GET`/`POST /opportunities` (base `/services/apexrest/salesreport/v1`). Details: `REST-ENDPOINTS.md`. |
 | C5 | §5.2 Business Service Layer | LinkCodeService, LineLinkService, AccountSearchService, TaskService, OpportunityService, SalesReportLogger. | `SalesReportLinkService` (codes and links), `SalesReportIdentityService` (LINE token + rep session), `SalesReportAccountService`, `SalesReportActivityService`, `SalesReportActivityFileService`, `SalesReportOpportunityService`, `SalesReportFormService` (shared form engine), `SalesReportLogService`, `SalesReportRateLimitService`, `SalesReportCleanupService`. |
 | C6 | §1.3 Figure 1 | Salesforce login shown on the Salesforce Site page. | The login is on the org's **My Domain** (`…my.salesforce.com`), opened in the phone's browser; the Site only hosts the LIFF page and the REST endpoints. |
-| C7 | §1.1 | "Opportunity search". | The rep chooses an Account, then one of **its open Opportunities they can see** (no free-text Opportunity search) — as §3.5 already describes. |
+| C7 | §1.1 | "Opportunity search". | The rep chooses an Account, then one of **its Opportunities they can see** (open and closed since 2026-11-05, D-53) (no free-text Opportunity search) — as §3.5 already describes. |
 | C8 | §4.5.4 / Figure 5 "User-mode access where applicable" | User mode. | Stronger: every Account / Task / Opportunity / file read or write goes through the org's REST API **as the rep** (JWT bearer, D-02), so sharing, CRUD, FLS, validation rules and "Created By" are Salesforce's own. System mode is used only for the feature's own objects, each with a written justification (`DATA-DICTIONARY.md` §5.3). |
 | C9 | §6.2 | Log level "FATAL". | Levels are ERROR, WARN, INFO, DEBUG. Unexpected exceptions are logged as ERROR. |
 | C10 | §6.3 | "Source__c naming include:" (blank). | `Class.method` of the entry point, e.g. `SalesReportConnectionController.getConnection`, `SalesReportActivityController.create`, `SalesReportOpportunityController.save`, `SalesReportLinkPageController.confirm`, `SalesReportCleanupService`. |
@@ -73,7 +73,7 @@ apply the corrections in §3.
   infeasible and requests are rate-limited.
 - Site guest user: only the feature's REST endpoints and the LIFF page, **no object access**; protected operations never
   run on guest privileges.
-- Account and Opportunity are bound by **record ID**; an Opportunity must be open and belong to the chosen Account; only
+- Account and Opportunity are bound by **record ID**; an Opportunity must belong to the chosen Account; only
   approved (field-set) fields can be updated; record access, CRUD and FLS enforced by Salesforce.
 - Task creation checks create access, Account access, field access, required fields (from the rep's layout) and
   validation rules.

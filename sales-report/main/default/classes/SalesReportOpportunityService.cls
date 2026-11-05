@@ -1,11 +1,13 @@
 /**
- * Update Opportunity (L5c): the Account's open Opportunities, the update form and the update, all **as the rep**
+ * Update Opportunity (L5c): the Account's Opportunities (open and closed, D-53), the update form and the update, all
+ * **as the rep**
  * (Option B), so only Opportunities the rep can see and fields the rep can edit are offered.
  *
  * The form comes from field set SalesReport_Opportunity_Form through SalesReportFormService (D-21, D-31), filled with
  * the record's current values. Stage choices are all active stages, including Closed Won / Closed Lost (user,
  * 2026-11-05, D-52); the org's validation rules still decide what a close needs (signed contract, win / lost reasons)
- * and their message is shown on the form. The Opportunity must be open and belong to the Account chosen on the form.
+ * and their message is shown on the form. The Opportunity must belong to the Account chosen on the form; closed ones
+ * can be updated too (D-53).
  */
 public with sharing class SalesReportOpportunityService {
   public static final String FORM_FIELD_SET = 'SalesReport_Opportunity_Form';
@@ -20,7 +22,7 @@ public with sharing class SalesReportOpportunityService {
     '006[A-Za-z0-9]{12}(?:[A-Za-z0-9]{3})?'
   );
 
-  public SalesReportOpportunityData listOpen(
+  public SalesReportOpportunityData listForAccount(
     SalesReportOrgApiCalloutService api,
     String accountId
   ) {
@@ -31,7 +33,7 @@ public with sharing class SalesReportOpportunityService {
     List<Object> records = api.query(
       'SELECT Id, Name, toLabel(StageName), CloseDate, Owner.Name FROM Opportunity WHERE AccountId = \'' +
         accountId +
-        '\' AND IsClosed = false ORDER BY CloseDate ASC NULLS LAST LIMIT ' +
+        '\' ORDER BY IsClosed ASC, CloseDate ASC NULLS LAST LIMIT ' +
         MAX_LIST
     );
     SalesReportOpportunityData data = new SalesReportOpportunityData();
@@ -60,7 +62,7 @@ public with sharing class SalesReportOpportunityService {
     for (String relationship : context.lookupRelationships.values()) {
       extraFields.add(relationship + '.Name');
     }
-    Map<String, Object> current = openOpportunity(
+    Map<String, Object> current = readOpportunity(
       api,
       opportunityId,
       extraFields
@@ -111,7 +113,7 @@ public with sharing class SalesReportOpportunityService {
       throw invalid('Choose an Account.', 'accountId');
     }
 
-    Map<String, Object> current = openOpportunity(api, opportunityId, null);
+    Map<String, Object> current = readOpportunity(api, opportunityId, null);
     if (
       Id.valueOf((String) current.get('AccountId')) != Id.valueOf(accountId)
     ) {
@@ -180,10 +182,10 @@ public with sharing class SalesReportOpportunityService {
   }
 
   /**
-   * The Opportunity through the rep's session (visible to them), with the extra fields; refuses closed ones. Field
+   * The Opportunity through the rep's session (visible to them), with the extra fields (open or closed, D-53). Field
    * names come from the field set via describe, so they are safe to inline.
    */
-  private static Map<String, Object> openOpportunity(
+  private static Map<String, Object> readOpportunity(
     SalesReportOrgApiCalloutService api,
     String opportunityId,
     Set<String> extraFields
@@ -213,12 +215,6 @@ public with sharing class SalesReportOpportunityService {
       );
     }
     Map<String, Object> record = (Map<String, Object>) records[0];
-    if (record.get('IsClosed') == true) {
-      throw invalid(
-        'This opportunity is closed; update it in Salesforce.',
-        'opportunityId'
-      );
-    }
     return record;
   }
 

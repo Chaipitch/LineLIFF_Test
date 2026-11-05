@@ -1,5 +1,6 @@
 /**
- * Response of GET /salesreport/v1/opportunities?accountId=… — the Account's open Opportunities the rep can see.
+ * Response of GET /salesreport/v1/opportunities?accountId=… — the Account's Opportunities the rep can see,
+ * open ones first, then closed ones (D-53).
  */
 public with sharing class SalesReportOpportunityData {
   public List<Item> opportunities = new List<Item>();
