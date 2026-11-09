@@ -386,7 +386,7 @@ public with sharing class SalesReportTestFactory {
     Map<String, Object> credenData = fieldInfo(
       'TextArea',
       'Update CredenData Screen shot',
-      false,
+      true,
       131072
     );
     credenData.put('htmlFormatted', true);

@@ -468,6 +468,7 @@ private class SalesReportOpportunityServiceTest {
     );
     Assert.areEqual('image', screenshot.type, 'Rich text → screenshot');
     Assert.isTrue(screenshot.hasValue, 'Saved content reported');
+    Assert.isFalse(screenshot.required, 'Screenshot always optional');
     Assert.isNull(screenshot.defaultValue, 'Saved HTML not sent');
     SalesReportFormData.Field why = byName.get(
       'Please_articulate_the_reason_for_winning__c'

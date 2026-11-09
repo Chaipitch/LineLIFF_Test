@@ -399,17 +399,6 @@ export function createFieldList(options) {
     const values = {};
     let valid = true;
     controls.forEach((control) => {
-      // A required screenshot field needs a new screenshot only when none is saved yet.
-      if (
-        control.field.type === "image" &&
-        control.field.required &&
-        !control.field.hasValue &&
-        !control.read()
-      ) {
-        mark(control.field.name);
-        valid = false;
-        return;
-      }
       if (skipped(control)) return;
       const value = control.read();
       if (isEmpty(value)) {

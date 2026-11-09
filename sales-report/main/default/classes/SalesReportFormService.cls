@@ -640,6 +640,8 @@ public with sharing class SalesReportFormService {
     }
     if (inputType == 'image') {
       field.hasValue = false;
+      // Screenshots are always optional on the LINE form, whatever the layout says (user, 2026-11-09).
+      field.required = false;
     }
     if (TEXT_TYPES.contains(inputType) && info.get('length') != null) {
       Integer length = Integer.valueOf(info.get('length'));

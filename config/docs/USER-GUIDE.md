@@ -98,7 +98,7 @@ type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 | **Target Close Date**, **Target TCV**, **Your Win Confidence** | Dates, numbers and the confidence list as in Salesforce |
 | **Opportunity Type**, **Lead Source** | Lists as in Salesforce |
 | **Prime Partner** / **Main PreSales Engineer** | Type 2+ letters and pick the Account / person. **Change** clears it |
-| **Update CredenData Screen shot** | Tap **Add screenshot** and pick an image. If one is already saved you don't need to add it again; a new one replaces it |
+| **Update CredenData Screen shot** | Optional. Tap **Add screenshot** and pick an image; a new one replaces the saved one |
 
 When you choose **Closed Won**, two more fields appear under Stage: **Why We Won** and **Attached Signed Contract
 Documents**. For **Closed Lost**: **Lost Main Reason** and **Specify Other Reason**.

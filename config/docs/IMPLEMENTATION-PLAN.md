@@ -217,7 +217,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [x] C · Log Activity: Related To (Opportunity of the Account, else Account), Name (Contact of the Account), Activity
       Purpose, Type, Description, Date.
 - [x] C · Update Opportunity: BA's 12 fields incl. Prime Partner search and CredenData screenshot; Won / Lost fields after
-      Stage only for closed stages.
+      Stage only for closed stages. Screenshot optional (user).
 - [x] C · Checked: 159 tests, live read-only form check in `dev5`, rich-text image accepted (rollback test), headless UI check.
 - [ ] H · Device test: log an activity on an Opportunity with a Contact; update a **test** Opportunity incl. a screenshot
       and Closed Won / Lost.
