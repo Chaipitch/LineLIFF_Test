@@ -43,7 +43,7 @@ private class SalesReportActivityControllerTest {
 
     Assert.areEqual(200, RestContext.response.statusCode, 'OK');
     List<Object> fields = (List<Object>) responseJson().get('fields');
-    Assert.areEqual(3, fields.size(), 'Field set members');
+    Assert.areEqual(4, fields.size(), 'Field set members');
   }
 
   @IsTest
@@ -123,5 +123,20 @@ private class SalesReportActivityControllerTest {
     Test.stopTest();
 
     Assert.areEqual(403, RestContext.response.statusCode, 'Forbidden');
+  }
+
+  @IsTest
+  static void accountIdReturnsWhatTheTaskCanBeLinkedTo() {
+    linkedRep();
+    Test.setMock(HttpCalloutMock.class, SalesReportTestFactory.taskApiMock());
+    request('GET', null).params.put('accountId', '001000000000001AAA');
+
+    Test.startTest();
+    SalesReportActivityController.form();
+    Test.stopTest();
+
+    Assert.areEqual(200, RestContext.response.statusCode, 'OK');
+    Assert.isTrue(responseJson().containsKey('opportunities'), 'Opportunities');
+    Assert.isTrue(responseJson().containsKey('contacts'), 'Contacts');
   }
 }

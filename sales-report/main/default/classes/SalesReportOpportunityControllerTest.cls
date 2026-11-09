@@ -65,7 +65,7 @@ private class SalesReportOpportunityControllerTest {
 
     Assert.areEqual(200, RestContext.response.statusCode, 'OK');
     Assert.areEqual(
-      5,
+      10,
       ((List<Object>) responseJson().get('fields')).size(),
       'Fields'
     );

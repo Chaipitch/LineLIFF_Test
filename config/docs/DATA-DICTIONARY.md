@@ -124,7 +124,7 @@ feature does not grant standard-object access.
 | Opportunity | `NextStep` (default) **or** `Next_Step_Custom__c` | ✓ | ✓ | D-12: standard `NextStep` in the field set until the BA decides. |
 | Opportunity | `Next_Step_Due_Date__c` | ✓ | ✓ | |
 | Opportunity | `PreSales_Engineer__c` | ✓ | (BA) | Needed by active VR for Stage ≥ 02. |
-| Task (D-11) | `WhatId` (Account only, D-33), `Subject` (built), `Type`, `ActivityPurpose__c` (only if an admin adds it to the field set), `ActivityDate`, `Status` (from date, D-32), `Priority` (layout default), `Description` | — | ✓ | `OwnerId` = the rep. Required flags follow Salesforce (D-31). |
+| Task (D-11) | `WhatId` (chosen Opportunity of the Account, else the Account, D-54), `WhoId` (optional Contact of the Account, D-54), `Subject` (built), `ActivityPurpose__c`, `Type`, `ActivityDate`, `Status` (from date, D-32), `Priority` (layout default), `Description` | — | ✓ | `OwnerId` = the rep. Required flags follow Salesforce (D-31). |
 | ContentVersion (D-34) | `Title`, `PathOnClient`, `VersionData`, `FirstPublishLocationId` (= Task) | — | ✓ | Attachments, uploaded as the rep (L5b; on in `dev5` since 2026-11-04). |
 | Task / ContentDocumentLink | `Id`, `CreatedById`, `CreatedDate` / `LinkedEntityId` | ✓ | — | Upload checks: the rep's own Task within 60 min; file count per Task. |
 
@@ -140,10 +140,12 @@ is only an extra: a field is also required when the rep's layout or the database
 
 | Field set | Object | Initial members (BA to confirm) | Required in set |
 |---|---|---|---|
-| `SalesReport_Opportunity_Form` | Opportunity | BA's list (2026-11-03, D-46): `StageName`, `Amount`, `PreSales_Engineer__c` (User lookup → search box of active Users), `Next_Step_Custom__c`, `Next_Step_Due_Date__c`. Org fields, so this field set is a P3 exception for TerraSky Thailand orgs. Account and Opportunity are chosen above the fields, not in the set | none (follow the edit layout, D-31) |
-| `SalesReport_Activity_Form` | Task (D-11) | `Type`, `ActivityDate`, `Description` (built, L5a). Admins may add `ActivityPurpose__c` in Setup (org field, kept out of the repo, P3) | none (follow the layout, D-31) |
+| `SalesReport_Opportunity_Form` | Opportunity | BA's list (2026-11-09, D-54): `Name`, `Next_Step_Custom__c`, `Next_Step_Due_Date__c`, `StageName`, `CloseDate`, `Amount`, `Your_Win_Confidence__c`, `Type`, `LeadSource`, `Prime_Partner__c` (Account search), `PreSales_Engineer__c` (User search), `Update_CredenData_Screen_shot__c` (rich text → screenshot picker). Org fields, so a P3 exception for TerraSky Thailand orgs. Account and Opportunity are chosen above the fields, not in the set |
+| `SalesReport_Opportunity_Won` | Opportunity | `Please_articulate_the_reason_for_winning__c` (Why We Won), `Attached_Signed_Contract_Documents__c` — shown right after Stage only for won stages (D-54) |
+| `SalesReport_Opportunity_Lost` | Opportunity | `Lost_Main_Reason__c`, `Lost_Reason_Detail__c` (Specify Other Reason) — shown right after Stage only for lost stages (D-54) | none (follow the edit layout, D-31) |
+| `SalesReport_Activity_Form` | Task (D-11) | `ActivityPurpose__c`, `Type`, `Description`, `ActivityDate` (BA list 2026-11-09, D-54). Account, Related To (Opportunity) and Name (Contact) are added by the form itself | none (follow the layout, D-31) |
 
-Always set by code, never from the field set: `WhatId` (selected Account), `OwnerId` (the rep, implicit), Opportunity `Id`;
+Always set by code, never from the field set: `WhatId` (chosen Opportunity, else the Account), `WhoId` (chosen Contact), `OwnerId` (the rep, implicit), Opportunity `Id`;
 for Tasks also `Subject`, `Priority` and (unless `Status` is in the field set) `Status` (D-31, D-32).
 
 ## 4. Custom Labels (`SalesReport_*`)
@@ -211,6 +213,12 @@ Category `SalesReport`. **English only** (D-47, Q-S3) — no translations; admin
 | `SalesReport_Error_No_Access` | Your Salesforce user can’t open this data. Please ask your administrator. | LIFF (`NO_ACCESS`) | L5c |
 | `SalesReport_No_Matches` | No matches | LIFF — lookup search (e.g. Main PreSales Engineer) found nothing | D-46 |
 | `SalesReport_Error_Offline` | Can’t reach Salesforce. Check your internet connection and try again. | LIFF — no connection or timeout (L6) | L6 |
+| `SalesReport_Related_To_Label` / `SalesReport_Related_Account_Only` | Related To / — Account only — | Log Activity: Opportunity dropdown (D-54) | D-54 |
+| `SalesReport_Contact_Label` / `SalesReport_None_Option` | Name / — None — | Log Activity: Contact dropdown (D-54) | D-54 |
+| `SalesReport_Add_Screenshot` | Add screenshot | Update Opportunity: CredenData screenshot picker | D-54 |
+| `SalesReport_Screenshot_Saved` | A screenshot is already saved in Salesforce. Adding a new one replaces it. | Screenshot picker | D-54 |
+| `SalesReport_Screenshot_Added` | New screenshot added | Success screen | D-54 |
+| `SalesReport_Screenshot_Failed` | This image can’t be used. Please try another one. | Screenshot picker | D-54 |
 | `SalesReport_Error_Reference` | Reference: {0} | LIFF and link page — under unexpected errors, {0} = request ID (D-45) | D-45 |
 | `SalesReport_Link_Already_Linked` | This Salesforce user is already linked to another LINE account. Please contact your administrator to revoke the existing link before linking a new account. | Link page (`ALREADY_LINKED`) | D-44 |
 | `SalesReport_Link_Line_In_Use` | This LINE account is already linked to another Salesforce user. Please contact your administrator to revoke that link first. | Link page (`LINE_IN_USE`) | D-44 |

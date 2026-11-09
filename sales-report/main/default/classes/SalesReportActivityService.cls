@@ -5,8 +5,10 @@
  * required flags from the rep's own layout and the database, D-31). Validation rules run on save; their messages come
  * back as SAVE_FAILED.
  *
- * The Task is linked to the Account only (D-33). Subject is built from Type + Account name, Status follows the date
- * (D-32), other layout-required fields take the layout's defaults, OwnerId defaults to the rep.
+ * The Task is linked to the chosen Opportunity of the Account, or to the Account itself ("Related To", D-54; was
+ * Account only, D-33), and optionally to one of the Account's Contacts ("Name"). Subject is built from Type + Account
+ * name, Status follows the date (D-32), other layout-required fields take the layout's defaults, OwnerId defaults to
+ * the rep.
  */
 public with sharing class SalesReportActivityService {
   public static final String FORM_FIELD_SET = 'SalesReport_Activity_Form';
@@ -16,11 +18,69 @@ public with sharing class SalesReportActivityService {
     'Subject',
     'Status',
     'OwnerId',
-    'WhatId'
+    'WhatId',
+    'WhoId'
   };
+  @TestVisible
+  static final Integer MAX_RELATED = 50;
   private static final Pattern ACCOUNT_ID = Pattern.compile(
     '001[A-Za-z0-9]{12}(?:[A-Za-z0-9]{3})?'
   );
+  private static final Pattern OPPORTUNITY_ID = Pattern.compile(
+    '006[A-Za-z0-9]{12}(?:[A-Za-z0-9]{3})?'
+  );
+  private static final Pattern CONTACT_ID = Pattern.compile(
+    '003[A-Za-z0-9]{12}(?:[A-Za-z0-9]{3})?'
+  );
+
+  /** The Account's Opportunities (open first) and Contacts the rep can see, for "Related To" and "Name" (D-54). */
+  public SalesReportActivityRelatedData related(
+    SalesReportOrgApiCalloutService api,
+    String accountId
+  ) {
+    if (accountId == null || !ACCOUNT_ID.matcher(accountId).matches()) {
+      throw SalesReportException.withFields(
+        SalesReportException.INVALID_INPUT,
+        400,
+        'Choose an Account.',
+        new Map<String, String>{ 'accountId' => 'Choose an Account.' }
+      );
+    }
+    SalesReportActivityRelatedData data = new SalesReportActivityRelatedData();
+    // accountId matched ACCOUNT_ID above, so it is safe to inline.
+    for (
+      Object row : api.query(
+        'SELECT Id, Name, toLabel(StageName) FROM Opportunity WHERE AccountId = \'' +
+          accountId +
+          '\' ORDER BY IsClosed ASC, CloseDate ASC NULLS LAST LIMIT ' +
+          MAX_RELATED
+      )
+    ) {
+      data.opportunities.add(item((Map<String, Object>) row, 'StageName'));
+    }
+    for (
+      Object row : api.query(
+        'SELECT Id, Name, Title FROM Contact WHERE AccountId = \'' +
+          accountId +
+          '\' ORDER BY Name LIMIT ' +
+          MAX_RELATED
+      )
+    ) {
+      data.contacts.add(item((Map<String, Object>) row, 'Title'));
+    }
+    return data;
+  }
+
+  private static SalesReportActivityRelatedData.Item item(
+    Map<String, Object> record,
+    String detailField
+  ) {
+    SalesReportActivityRelatedData.Item item = new SalesReportActivityRelatedData.Item();
+    item.id = (String) record.get('Id');
+    item.name = (String) record.get('Name');
+    item.detail = (String) record.get(detailField);
+    return item;
+  }
 
   public SalesReportFormData form(SalesReportOrgApiCalloutService api) {
     return formService(api).form;
@@ -35,12 +95,28 @@ public with sharing class SalesReportActivityService {
       input.get('values')
     );
     String accountId = SalesReportFormService.stringOf(input, 'accountId');
+    String opportunityId = SalesReportFormService.stringOf(
+      input,
+      'opportunityId'
+    );
+    String contactId = SalesReportFormService.stringOf(input, 'contactId');
 
     SalesReportFormService context = formService(api);
     Map<String, String> errors = new Map<String, String>();
     Map<String, Object> task = context.values(submitted, errors);
     if (accountId == null || !ACCOUNT_ID.matcher(accountId).matches()) {
       errors.put('accountId', 'Choose an Account.');
+    }
+    if (
+      String.isNotBlank(opportunityId) &&
+      !OPPORTUNITY_ID.matcher(opportunityId).matches()
+    ) {
+      errors.put('opportunityId', 'Choose from the list.');
+    }
+    if (
+      String.isNotBlank(contactId) && !CONTACT_ID.matcher(contactId).matches()
+    ) {
+      errors.put('contactId', 'Choose from the list.');
     }
     if (!errors.isEmpty()) {
       throw SalesReportException.withFields(
@@ -53,6 +129,20 @@ public with sharing class SalesReportActivityService {
 
     String accountName = visibleAccountName(api, accountId);
     task.put('WhatId', accountId);
+    if (String.isNotBlank(opportunityId)) {
+      checkOnAccount(
+        api,
+        'Opportunity',
+        opportunityId,
+        accountId,
+        'opportunityId'
+      );
+      task.put('WhatId', opportunityId);
+    }
+    if (String.isNotBlank(contactId)) {
+      checkOnAccount(api, 'Contact', contactId, accountId, 'contactId');
+      task.put('WhoId', contactId);
+    }
     if (!task.containsKey('Subject')) {
       task.put('Subject', subject(context, task, accountName));
     }
@@ -80,6 +170,37 @@ public with sharing class SalesReportActivityService {
       FORM_FIELD_SET,
       SalesReportFormService.Purpose.NEW_RECORD
     );
+  }
+
+  /** The record must exist, be visible to the rep and belong to the Account; INVALID_INPUT on that field otherwise. */
+  private static void checkOnAccount(
+    SalesReportOrgApiCalloutService api,
+    String objectName,
+    String recordId,
+    String accountId,
+    String fieldKey
+  ) {
+    // Both IDs matched their patterns and objectName is a constant, so this is safe to inline.
+    List<Object> records = api.query(
+      'SELECT Id FROM ' +
+        objectName +
+        ' WHERE Id = \'' +
+        recordId +
+        '\' AND AccountId = \'' +
+        accountId +
+        '\' LIMIT 1'
+    );
+    if (records.isEmpty()) {
+      String message = objectName == 'Opportunity'
+        ? 'This opportunity was not found on the chosen Account.'
+        : 'This contact was not found on the chosen Account.';
+      throw SalesReportException.withFields(
+        SalesReportException.INVALID_INPUT,
+        400,
+        message,
+        new Map<String, String>{ fieldKey => message }
+      );
+    }
   }
 
   /** The Account through the rep's session: proves the rep can see it and gives the name for the Subject. */

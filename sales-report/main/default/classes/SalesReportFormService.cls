@@ -48,6 +48,16 @@ public with sharing class SalesReportFormService {
   );
   @TestVisible
   static final Integer MAX_LOOKUP_RESULTS = 10;
+  /**
+   * Longest screenshot accepted for a rich-text field, as a data URL (~1 MB of base64 ≈ 750 KB image, under the
+   * 1 MB rich-text image limit). Salesforce stores the image itself and keeps only a short link in the field
+   * (checked in dev5 2026-11-09), so the field's 131,072-character limit is not the constraint.
+   */
+  @TestVisible
+  static final Integer MAX_IMAGE_CHARS = 1000000;
+  private static final Pattern IMAGE_DATA_URL = Pattern.compile(
+    'data:image/(jpeg|png);base64,[A-Za-z0-9+/]+={0,2}'
+  );
   private static final Integer MAX_TERM_LENGTH = 80;
 
   public final String objectName;
@@ -60,6 +70,8 @@ public with sharing class SalesReportFormService {
   /** Picklist defaults of the rep's record type (e.g. Status = Open, Priority = Normal). */
   public final Map<String, Object> defaults = new Map<String, Object>();
   public final Set<String> layoutRequired = new Set<String>();
+  /** Picklist values of the rep's record type, kept for conditional field sets added later. */
+  private final Map<String, Object> picklists;
   public final String objectLabel;
   /** Lookup field → relationship name (e.g. PreSales_Engineer__c → PreSales_Engineer__r), for reading the name. */
   public final Map<String, String> lookupRelationships = new Map<String, String>();
@@ -115,7 +127,7 @@ public with sharing class SalesReportFormService {
           recordTypeId
       )
     );
-    Map<String, Object> picklists = (Map<String, Object>) api.uiApi(
+    picklists = (Map<String, Object>) api.uiApi(
         'object-info/' + objectName + '/picklist-values/' + recordTypeId
       )
       .get('picklistFieldValues');
@@ -128,7 +140,61 @@ public with sharing class SalesReportFormService {
         byName.put(field.name, field);
       }
     }
-    addPicklistValues(picklists);
+    addPicklistValues(form.fields);
+  }
+
+  /**
+   * Adds the members of another field set that are shown only when controllingField has one of the values (D-54),
+   * right after the controlling field. Fields already on the form are skipped. A missing field set adds nothing.
+   */
+  public void addConditionalFieldSet(
+    Schema.SObjectType objectType,
+    String conditionalFieldSet,
+    String controllingField,
+    Set<String> values
+  ) {
+    Schema.FieldSet fieldSet = objectType.getDescribe()
+      .fieldSets.getMap()
+      .get(conditionalFieldSet);
+    if (fieldSet == null || values.isEmpty()) {
+      return;
+    }
+    SalesReportFormData.Condition condition = new SalesReportFormData.Condition();
+    condition.field = controllingField;
+    condition.values = new List<String>(values);
+    List<SalesReportFormData.Field> added = new List<SalesReportFormData.Field>();
+    for (Schema.FieldSetMember member : fieldSet.getFields()) {
+      if (byName.containsKey(member.getFieldPath())) {
+        continue;
+      }
+      SalesReportFormData.Field field = formField(member);
+      if (field != null) {
+        field.showWhen = condition;
+        added.add(field);
+        byName.put(field.name, field);
+      }
+    }
+    addPicklistValues(added);
+    Integer position = form.fields.size();
+    for (Integer i = 0; i < form.fields.size(); i++) {
+      if (form.fields[i].name == controllingField) {
+        position = i + 1;
+      }
+    }
+    // Insert after the controlling field and after any conditional fields already placed there.
+    while (
+      position < form.fields.size() &&
+      form.fields[position].showWhen != null
+    ) {
+      position++;
+    }
+    for (Integer i = added.size() - 1; i >= 0; i--) {
+      if (position >= form.fields.size()) {
+        form.fields.add(added[i]);
+      } else {
+        form.fields.add(position, added[i]);
+      }
+    }
   }
 
   /**
@@ -151,6 +217,14 @@ public with sharing class SalesReportFormService {
     }
     Map<String, Object> result = new Map<String, Object>();
     for (SalesReportFormData.Field field : form.fields) {
+      // A conditional field counts only when its condition holds for the submitted value (D-54).
+      if (field.showWhen != null && !conditionMet(field.showWhen, submitted)) {
+        continue;
+      }
+      // An empty screenshot field means "no new screenshot", never "clear it".
+      if (field.type == 'image' && isBlank(submitted.get(field.name))) {
+        continue;
+      }
       Object value = coerced(field, submitted.get(field.name), errors);
       if (value != null) {
         result.put(field.name, value);
@@ -166,6 +240,20 @@ public with sharing class SalesReportFormService {
       }
     }
     return result;
+  }
+
+  private static Boolean conditionMet(
+    SalesReportFormData.Condition condition,
+    Map<String, Object> submitted
+  ) {
+    Object value = submitted.get(condition.field);
+    return value instanceof String &&
+      new Set<String>(condition.values).contains((String) value);
+  }
+
+  private static Boolean isBlank(Object raw) {
+    return raw == null ||
+      (raw instanceof String && String.isBlank((String) raw));
   }
 
   /** Keeps only the listed picklist values of one form field (e.g. open Opportunity stages). */
@@ -243,6 +331,25 @@ public with sharing class SalesReportFormService {
         if (raw instanceof String && allowed(field, (String) raw)) {
           return raw;
         }
+      }
+      when 'image' {
+        // A shrunk screenshot from the phone, stored in the rich-text field as an <img> (D-54).
+        if (
+          raw instanceof String &&
+          ((String) raw).length() <= MAX_IMAGE_CHARS &&
+          IMAGE_DATA_URL.matcher((String) raw).matches()
+        ) {
+          return '<p><img src="' +
+            (String) raw +
+            '" alt="' +
+            field.label.escapeHtml4() +
+            '"></img></p>';
+        }
+        errors.put(
+          field.name,
+          'The screenshot could not be read. Try another image.'
+        );
+        return null;
       }
       when 'lookup' {
         if (
@@ -497,6 +604,13 @@ public with sharing class SalesReportFormService {
     if (lookupObject != null) {
       inputType = 'lookup';
     }
+    // Rich-text fields are offered only as a screenshot picker (D-54), and only on forms that edit records.
+    if (info.get('htmlFormatted') == true) {
+      inputType = purpose == SalesReportFormService.Purpose.EDIT_RECORD &&
+        allowLookups
+        ? 'image'
+        : null;
+    }
     if (inputType == null) {
       SalesReportLogService.warn(
         SOURCE,
@@ -524,6 +638,9 @@ public with sharing class SalesReportFormService {
       field.lookupObject = lookupObject;
       lookupRelationships.put(name, (String) info.get('relationshipName'));
     }
+    if (inputType == 'image') {
+      field.hasValue = false;
+    }
     if (TEXT_TYPES.contains(inputType) && info.get('length') != null) {
       Integer length = Integer.valueOf(info.get('length'));
       field.maxLength = length > 0 ? length : null;
@@ -547,8 +664,8 @@ public with sharing class SalesReportFormService {
     return (String) ((Map<String, Object>) targets[0]).get('apiName');
   }
 
-  private void addPicklistValues(Map<String, Object> picklists) {
-    for (SalesReportFormData.Field field : form.fields) {
+  private void addPicklistValues(List<SalesReportFormData.Field> fields) {
+    for (SalesReportFormData.Field field : fields) {
       if (field.type != 'picklist' && field.type != 'multipicklist') {
         continue;
       }

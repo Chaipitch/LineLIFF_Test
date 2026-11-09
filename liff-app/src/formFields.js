@@ -82,8 +82,117 @@ function isEmpty(value) {
   );
 }
 
+// Screenshots for a rich-text field (D-54): shrunk on the phone to a JPEG data URL under Salesforce's 1 MB image limit.
+const SCREENSHOT_MAX_CHARS = 950000;
+const SCREENSHOT_SIDES = [1600, 1280, 1024, 800, 640];
+const SCREENSHOT_QUALITIES = [0.8, 0.65, 0.5];
+
+function loadImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = (error) => {
+      URL.revokeObjectURL(url);
+      reject(error);
+    };
+    image.src = url;
+  });
+}
+
+/** Smallest acceptable JPEG data URL of the image, trying smaller sizes and lower quality; null if none fits. */
+async function screenshotDataUrl(file) {
+  const image = await loadImageFile(file);
+  const longest = Math.max(image.naturalWidth, image.naturalHeight) || 1;
+  for (const side of SCREENSHOT_SIDES) {
+    const scale = Math.min(1, side / longest);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+    for (const quality of SCREENSHOT_QUALITIES) {
+      const dataUrl = canvas.toDataURL("image/jpeg", quality);
+      if (dataUrl.length <= SCREENSHOT_MAX_CHARS) return dataUrl;
+    }
+  }
+  return null;
+}
+
+function buildImageControl(field, labels, id) {
+  let dataUrl = null;
+  const root = el("div", "sr-screenshot");
+  if (field.hasValue) root.append(el("p", "sr-hint", labels.screenshotSaved));
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.hidden = true;
+  const add = el(
+    "button",
+    "sr-button sr-secondary sr-add-file",
+    labels.addScreenshot
+  );
+  add.type = "button";
+  add.id = id;
+  const preview = el("div", "sr-screenshot-preview");
+  preview.hidden = true;
+  const problem = el("p", "sr-error");
+  problem.hidden = true;
+  root.append(preview, problem, add, input);
+
+  function changed() {
+    root.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function show() {
+    preview.replaceChildren();
+    preview.hidden = !dataUrl;
+    add.hidden = !!dataUrl;
+    if (!dataUrl) return;
+    const image = document.createElement("img");
+    image.src = dataUrl;
+    image.alt = field.label;
+    const remove = el("button", "sr-link", labels.removeFile);
+    remove.type = "button";
+    remove.addEventListener("click", () => {
+      dataUrl = null;
+      show();
+      changed();
+    });
+    preview.append(image, remove);
+  }
+
+  add.addEventListener("click", () => input.click());
+  input.addEventListener("change", async () => {
+    const file = input.files && input.files[0];
+    input.value = "";
+    if (!file) return;
+    problem.hidden = true;
+    try {
+      dataUrl = await screenshotDataUrl(file);
+    } catch {
+      dataUrl = null;
+    }
+    if (!dataUrl) {
+      problem.textContent = labels.screenshotFailed;
+      problem.hidden = false;
+    }
+    show();
+    changed();
+  });
+
+  return {
+    node: root,
+    read: () => dataUrl,
+    display: () => (dataUrl ? labels.screenshotAdded : "")
+  };
+}
+
 function buildControl(field, labels, id, options) {
   const initial = field.defaultValue;
+  if (field.type === "image") return buildImageControl(field, labels, id);
   if (field.type === "lookup" && options.searchLookup) {
     // Search box; the value is the chosen record's ID. "Change" empties it (clears an optional lookup on save).
     let value = initial || "";
@@ -262,12 +371,46 @@ export function createFieldList(options) {
         display: control.display
       });
     });
+    // Fields shown only for some values of another field, e.g. Won / Lost fields after Stage (D-54).
+    controls.forEach((control) => {
+      const condition = control.field.showWhen;
+      if (!condition) return;
+      const controlling = controls.find(
+        (item) => item.field.name === condition.field
+      );
+      const refresh = () => {
+        control.wrapper.hidden =
+          !controlling || condition.values.indexOf(controlling.read()) === -1;
+      };
+      if (controlling) controlling.wrapper.addEventListener("change", refresh);
+      refresh();
+    });
+  }
+
+  /** Hidden conditional fields and an unchanged screenshot are not sent (the server leaves them as they are). */
+  function skipped(control) {
+    return (
+      control.wrapper.hidden ||
+      (control.field.type === "image" && !control.read())
+    );
   }
 
   function collect() {
     const values = {};
     let valid = true;
     controls.forEach((control) => {
+      // A required screenshot field needs a new screenshot only when none is saved yet.
+      if (
+        control.field.type === "image" &&
+        control.field.required &&
+        !control.field.hasValue &&
+        !control.read()
+      ) {
+        mark(control.field.name);
+        valid = false;
+        return;
+      }
+      if (skipped(control)) return;
       const value = control.read();
       if (isEmpty(value)) {
         if (control.field.required) {
@@ -285,10 +428,12 @@ export function createFieldList(options) {
 
   /** The fields as shown to the rep (picklist labels, names, local dates), for the success screen. */
   function summary() {
-    return controls.map((control) => ({
-      label: control.field.label,
-      value: control.display ? control.display() : String(control.read())
-    }));
+    return controls
+      .filter((control) => !skipped(control))
+      .map((control) => ({
+        label: control.field.label,
+        value: control.display ? control.display() : String(control.read())
+      }));
   }
 
   return { element, render, collect, mark, clear, summary };

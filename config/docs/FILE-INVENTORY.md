@@ -77,6 +77,7 @@ Each class has a `.cls` and `.cls-meta.xml`; each non-test class has a `<Class>T
 | `SalesReportFormData` | Data | Form definition (fields with label, type, required, default/current value, options); was `SalesReportActivityFormData` until L5c | L5a/L5c | Done |
 | `SalesReportErrorData` | Data | Error response (`code`, `message`, `fields`, `reference` = request ID, D-45) | L2, L5a, D-45 | Done |
 | `SalesReportNamespaceService` | Service | Namespace-safe REST and page paths (P6) | L3 | Done |
+| `SalesReportActivityRelatedData` | Data | `GET /activity?accountId=` response (Opportunities and Contacts of the Account) | D-54 | Done |
 | `SalesReportLookupData` | Data | `GET /opportunities?lookup=` response (`records`: `id`, `name`, `detail`) | D-46 | Done |
 | `SalesReportLinkStartData` | Data | `/link/start` response (`linkUrl`) | L3 | Done |
 | `SalesReportException` | Other | Typed exception, plain-language message | L2 | Done |
@@ -125,6 +126,8 @@ No fields are added to standard objects. Standard fields read/written as the rep
 |---|---|---|---|---|
 | `fa/objects/Account/fieldSets/SalesReport_Account_Search.fieldSet-meta.xml` | Account | Extra text fields searched by the Account picker (D-29); repo holds Name only | L4 | Done |
 | `fa/objects/Opportunity/fieldSets/SalesReport_Opportunity_Form.fieldSet-meta.xml` | Opportunity | Fields on Update Opportunity (D-21, D-39): Stage, Amount, Next Step, Close Date | L5c | Done |
+| `fa/objects/Opportunity/fieldSets/SalesReport_Opportunity_Won.fieldSet-meta.xml` | Opportunity | Why We Won, Attached Signed Contract Documents — shown after Stage for won stages (D-54) | D-54 | Done |
+| `fa/objects/Opportunity/fieldSets/SalesReport_Opportunity_Lost.fieldSet-meta.xml` | Opportunity | Lost Main Reason, Specify Other Reason — shown after Stage for lost stages (D-54) | D-54 | Done |
 | `fa/objects/Task/fieldSets/SalesReport_Activity_Form.fieldSet-meta.xml` | Task | Fields on Log Activity (D-21): Type, ActivityDate, Description | L5a | Done |
 
 ## 7. Security and access

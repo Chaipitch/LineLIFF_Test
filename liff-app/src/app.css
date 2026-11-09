@@ -348,6 +348,15 @@ input[type="date"].sr-input::-webkit-date-and-time-value {
   margin-bottom: 0;
 }
 
+/* Screenshot picker (rich-text field, D-54): the chosen image with "Remove" under it. */
+.sr-screenshot-preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  border: 1px solid var(--sr-border);
+  border-radius: 8px;
+}
+
 /* Attachment limits under "Photos and files" (red, readable on both themes). */
 .sr-limit {
   margin: -2px 0 8px;

@@ -10,7 +10,7 @@ public with sharing class SalesReportFormData {
     /** Field API name, the key in the POST body. */
     public String name;
     public String label;
-    /** text | textarea | picklist | multipicklist | date | boolean | number | email | phone | url | lookup */
+    /** text | textarea | picklist | multipicklist | date | boolean | number | email | phone | url | lookup | image */
     public String type;
     public Boolean required = false;
     /** Default for a new record, or the current value when editing. */
@@ -21,6 +21,16 @@ public with sharing class SalesReportFormData {
     public String lookupObject;
     /** lookup only: name of the current record, shown instead of its ID. */
     public String displayValue;
+    /** image only (a rich-text field holding a screenshot): true when the record already has content there. */
+    public Boolean hasValue;
+    /** Shown only when another field has one of these values (e.g. Won fields when Stage is Closed Won); else null. */
+    public Condition showWhen;
+  }
+
+  /** "Show this field when <field> is one of <values>". */
+  public class Condition {
+    public String field;
+    public List<String> values;
   }
 
   public class Option {

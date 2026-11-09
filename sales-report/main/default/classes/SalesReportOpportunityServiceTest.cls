@@ -112,7 +112,12 @@ private class SalesReportOpportunityServiceTest {
         'Amount',
         'PreSales_Engineer__c',
         'Next_Step_Custom__c',
-        'Next_Step_Due_Date__c'
+        'Next_Step_Due_Date__c',
+        'Update_CredenData_Screen_shot__c',
+        'Please_articulate_the_reason_for_winning__c',
+        'Attached_Signed_Contract_Documents__c',
+        'Lost_Main_Reason__c',
+        'Lost_Reason_Detail__c'
       },
       byName.keySet(),
       'Field set members'
@@ -139,8 +144,15 @@ private class SalesReportOpportunityServiceTest {
       offered.add(option.value);
     }
     Set<String> expected = new Set<String>(SalesReportTestFactory.openStages());
-    if (SalesReportTestFactory.closedStage() != null) {
-      expected.add(SalesReportTestFactory.closedStage());
+    for (
+      String stage : new List<String>{
+        SalesReportTestFactory.wonStage(),
+        SalesReportTestFactory.lostStage()
+      }
+    ) {
+      if (stage != null) {
+        expected.add(stage);
+      }
     }
     Assert.areEqual(
       expected,
@@ -423,5 +435,138 @@ private class SalesReportOpportunityServiceTest {
     } catch (SalesReportException e) {
       Assert.areEqual(SalesReportException.QUERY_TOO_SHORT, e.code, 'Short');
     }
+  }
+
+  private static Map<String, Object> sentUpdate(SalesReportHttpMock mock) {
+    return (Map<String, Object>) JSON.deserializeUntyped(
+      updateRequest(mock).getBody()
+    );
+  }
+
+  @IsTest
+  static void formHasScreenshotAndWonLostFieldsAfterStage() {
+    Test.setMock(
+      HttpCalloutMock.class,
+      SalesReportTestFactory.opportunityApiMock()
+    );
+
+    Test.startTest();
+    SalesReportOpportunityFormData data = new SalesReportOpportunityService()
+      .form(api(), OPP_ID);
+    Test.stopTest();
+
+    Integer stageAt;
+    Map<String, SalesReportFormData.Field> byName = new Map<String, SalesReportFormData.Field>();
+    for (Integer i = 0; i < data.fields.size(); i++) {
+      byName.put(data.fields[i].name, data.fields[i]);
+      if (data.fields[i].name == 'StageName') {
+        stageAt = i;
+      }
+    }
+    SalesReportFormData.Field screenshot = byName.get(
+      'Update_CredenData_Screen_shot__c'
+    );
+    Assert.areEqual('image', screenshot.type, 'Rich text → screenshot');
+    Assert.isTrue(screenshot.hasValue, 'Saved content reported');
+    Assert.isNull(screenshot.defaultValue, 'Saved HTML not sent');
+    SalesReportFormData.Field why = byName.get(
+      'Please_articulate_the_reason_for_winning__c'
+    );
+    Assert.areEqual(
+      'Please_articulate_the_reason_for_winning__c',
+      data.fields[stageAt + 1].name,
+      'Won fields right after Stage'
+    );
+    Assert.areEqual('StageName', why.showWhen.field, 'Depends on Stage');
+    if (SalesReportTestFactory.wonStage() != null) {
+      Assert.isTrue(
+        why.showWhen.values.contains(SalesReportTestFactory.wonStage()),
+        'Won stages'
+      );
+    }
+    if (SalesReportTestFactory.lostStage() != null) {
+      Assert.isTrue(
+        byName.get('Lost_Main_Reason__c')
+          .showWhen.values.contains(SalesReportTestFactory.lostStage()),
+        'Lost stages'
+      );
+    }
+  }
+
+  @IsTest
+  static void wonFieldsAreSavedOnlyWithAWonStage() {
+    SalesReportHttpMock open = SalesReportTestFactory.opportunityApiMock();
+    Test.setMock(HttpCalloutMock.class, open);
+    Map<String, Object> values = validValues();
+    values.put('Please_articulate_the_reason_for_winning__c', 'Best fit');
+    values.put('Attached_Signed_Contract_Documents__c', true);
+
+    Test.startTest();
+    new SalesReportOpportunityService().save(api(), body(ACCOUNT_ID, values));
+    Map<String, Object> openSent = sentUpdate(open);
+    String won = SalesReportTestFactory.wonStage();
+    Map<String, Object> wonSent;
+    if (won != null) {
+      SalesReportHttpMock closing = SalesReportTestFactory.opportunityApiMock();
+      Test.setMock(HttpCalloutMock.class, closing);
+      values.put('StageName', won);
+      new SalesReportOpportunityService().save(api(), body(ACCOUNT_ID, values));
+      wonSent = sentUpdate(closing);
+    }
+    Test.stopTest();
+
+    Assert.isFalse(
+      openSent.containsKey('Please_articulate_the_reason_for_winning__c'),
+      'Hidden for an open stage → not saved'
+    );
+    if (won != null) {
+      Assert.areEqual(
+        'Best fit',
+        wonSent.get('Please_articulate_the_reason_for_winning__c'),
+        'Saved with a won stage'
+      );
+      Assert.areEqual(
+        true,
+        wonSent.get('Attached_Signed_Contract_Documents__c'),
+        'Checkbox'
+      );
+    }
+  }
+
+  @IsTest
+  static void screenshotIsSavedAsAnImageAndNeverCleared() {
+    SalesReportHttpMock withImage = SalesReportTestFactory.opportunityApiMock();
+    Test.setMock(HttpCalloutMock.class, withImage);
+    Map<String, Object> values = validValues();
+    values.put(
+      'Update_CredenData_Screen_shot__c',
+      'data:image/jpeg;base64,AAAA'
+    );
+
+    Test.startTest();
+    new SalesReportOpportunityService().save(api(), body(ACCOUNT_ID, values));
+    Map<String, Object> imageSent = sentUpdate(withImage);
+    SalesReportHttpMock withoutImage = SalesReportTestFactory.opportunityApiMock();
+    Test.setMock(HttpCalloutMock.class, withoutImage);
+    values.put('Update_CredenData_Screen_shot__c', '');
+    new SalesReportOpportunityService().save(api(), body(ACCOUNT_ID, values));
+    Map<String, Object> emptySent = sentUpdate(withoutImage);
+    values.put('Update_CredenData_Screen_shot__c', 'javascript:alert(1)');
+    SalesReportException bad = saveExpectingFailure(body(ACCOUNT_ID, values));
+    Test.stopTest();
+
+    Assert.isTrue(
+      ((String) imageSent.get('Update_CredenData_Screen_shot__c'))
+        .startsWith('<p><img src="data:image/jpeg;base64,AAAA"'),
+      'Stored as an <img>'
+    );
+    Assert.isFalse(
+      emptySent.containsKey('Update_CredenData_Screen_shot__c'),
+      'Empty = keep the saved screenshot'
+    );
+    Assert.isTrue(
+      bad.fieldErrors.containsKey('Update_CredenData_Screen_shot__c'),
+      'Only image data URLs'
+    );
   }
 }

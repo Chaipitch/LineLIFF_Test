@@ -11,6 +11,9 @@
  */
 public with sharing class SalesReportOpportunityService {
   public static final String FORM_FIELD_SET = 'SalesReport_Opportunity_Form';
+  /** Shown only when Stage is a won stage / a lost stage (D-54). */
+  public static final String WON_FIELD_SET = 'SalesReport_Opportunity_Won';
+  public static final String LOST_FIELD_SET = 'SalesReport_Opportunity_Lost';
   @TestVisible
   static final Integer MAX_LIST = 50;
   private static final String OPPORTUNITY_OBJECT = 'Opportunity';
@@ -70,6 +73,12 @@ public with sharing class SalesReportOpportunityService {
     restrictStages(context, (String) current.get(STAGE_FIELD));
     for (SalesReportFormData.Field field : context.form.fields) {
       field.defaultValue = current.get(field.name);
+      if (field.type == 'image') {
+        // The saved rich text (images as Salesforce-internal links) is not sent; only whether there is one.
+        field.hasValue = String.isNotBlank((String) field.defaultValue);
+        field.defaultValue = null;
+        continue;
+      }
       String relationship = context.lookupRelationships.get(field.name);
       if (relationship != null && current.get(relationship) != null) {
         field.displayValue = (String) ((Map<String, Object>) current.get(
@@ -143,13 +152,40 @@ public with sharing class SalesReportOpportunityService {
   private static SalesReportFormService formService(
     SalesReportOrgApiCalloutService api
   ) {
-    return new SalesReportFormService(
+    SalesReportFormService context = new SalesReportFormService(
       api,
       Opportunity.SObjectType,
       FORM_FIELD_SET,
       SalesReportFormService.Purpose.EDIT_RECORD,
       true
     );
+    Set<String> won = new Set<String>();
+    Set<String> lost = new Set<String>();
+    // All stages, active or not: a deal can still sit on an old closed stage (e.g. 08.Closed Won).
+    for (OpportunityStage stage : [
+      SELECT ApiName, IsClosed, IsWon
+      FROM OpportunityStage
+      WITH SYSTEM_MODE
+    ]) {
+      if (stage.IsWon) {
+        won.add(stage.ApiName);
+      } else if (stage.IsClosed) {
+        lost.add(stage.ApiName);
+      }
+    }
+    context.addConditionalFieldSet(
+      Opportunity.SObjectType,
+      WON_FIELD_SET,
+      STAGE_FIELD,
+      won
+    );
+    context.addConditionalFieldSet(
+      Opportunity.SObjectType,
+      LOST_FIELD_SET,
+      STAGE_FIELD,
+      lost
+    );
+    return context;
   }
 
   /** Stage choices: all active stages, plus the Opportunity's current stage so it still shows and saves. */

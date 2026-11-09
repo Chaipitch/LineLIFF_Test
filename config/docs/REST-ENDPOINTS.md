@@ -125,16 +125,23 @@ code), by a CSRF-protected postback right after the page loads (a page may not w
 **Returns:** `{ fields: [{ name, label, type, required, defaultValue, maxLength, options }] }`. The page builds the form
 from this.
 
+### `GET /activity?accountId=…` — what the Task can be linked to (D-54)
+
+As the rep: the Account's Opportunities (open first, max 50) for **Related To** and its Contacts (by name, max 50) for
+**Name**. Returns `{ opportunities: [ { id, name, detail } ], contacts: [ { id, name, detail } ] }` (detail = stage /
+title).
+
 ### `POST /activity` — create the Task
 
-Body: `{ accountId, values: { Type, ActivityDate, Description } }`
+Body: `{ accountId, opportunityId?, contactId?, values: { ActivityPurpose__c, Type, Description, ActivityDate } }`
 
 1. Verify the token, get the rep's session, and load the same form definition.
 2. Reject any field that isn't on the form. Check each value: picklist values must be in the list, dates must be valid,
    text within length, required fields filled. Problems come back as `INVALID_INPUT` with `fields`.
 3. Query the Account as the rep, to prove they can see it and to get its name.
 4. Build the Task:
-   - `WhatId` = the Account (D-33); the owner is the rep by default.
+   - `WhatId` = the chosen Opportunity, else the Account; `WhoId` = the chosen Contact (D-54). Both are checked to
+     belong to the Account, as the rep. The owner is the rep by default.
    - Subject = "<Type label> – <Account name>".
    - Status: `Completed` if the date is today or earlier in the rep's time zone, otherwise `Open` (D-32).
    - Other fields the layout requires take their defaults, such as Priority = Normal.
@@ -203,7 +210,12 @@ For the form's lookup fields, e.g. `lookup=PreSales_Engineer__c` (D-46).
 
 ### `POST /opportunities` — save
 
-Body: `{ id, accountId, values: { StageName, Amount, PreSales_Engineer__c, Next_Step_Custom__c, Next_Step_Due_Date__c } }`
+Body: `{ id, accountId, values: { Name, Next_Step_Custom__c, Next_Step_Due_Date__c, StageName, CloseDate, Amount,
+Your_Win_Confidence__c, Type, LeadSource, Prime_Partner__c, PreSales_Engineer__c, Update_CredenData_Screen_shot__c,
++ Won / Lost fields } }`. The Won fields (Why We Won, Attached Signed Contract Documents) count only when StageName is a
+won stage, the Lost fields (Lost Main Reason, Specify Other Reason) only for a lost stage; otherwise they are ignored
+(D-54). The screenshot is a JPEG data URL from the phone, stored as an `<img>` in the rich-text field — Salesforce keeps
+the image and a short link (checked 2026-11-09); empty means "keep the saved screenshot", never "clear it".
 
 1. Verify the token, get the rep's session.
 2. Read the Opportunity as the rep: it must belong to the chosen Account (open or closed, D-53).

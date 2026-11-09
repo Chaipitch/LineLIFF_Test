@@ -88,7 +88,8 @@ All requests carry the LINE ID token in **`X-Line-Id-Token`** (D-24) and count t
 | `GET /opportunities?lookup=<field>&q=` | Search for a lookup field of the form (Main PreSales Engineer → active Users) | yes | Done (D-46) | Only single-object lookups of the field set; as the rep; ≤ 10. Returns `{ records: [{ id, name, detail }] }`. |
 | `GET /opportunities?id=` | Update form for one Opportunity (open or closed), filled with current values | yes | Done (L5c) | Field set `SalesReport_Opportunity_Form` via `SalesReportFormService` (Edit layout, D-31); Stage = all active stages (+ current, D-52). Returns `{ id, name, accountId, fields }`. |
 | `GET /activity` | Form definition for the rep: field-set fields with label, type, picklist values, required flag and defaults | yes | Done (L5a) | Field set `SalesReport_Activity_Form` + UI API object-info, layout, picklist-values read **as the rep** (D-31, D-35). |
-| `POST /activity` | Create the **Task** (D-11): body `{ accountId, values: { <field>: <value> } }` | yes | Done (L5a) | Only field-set fields accepted; `WhatId` = Account ID only (D-33), checked visible to the rep; `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
+| `GET /activity?accountId=` | The Account's Opportunities and Contacts for Related To / Name | yes | Done (D-54) | As the rep, max 50 each. |
+| `POST /activity` | Create the **Task** (D-11): body `{ accountId, opportunityId?, contactId?, values }` | yes | Done (L5a, D-54) | Only field-set fields accepted; `WhatId` = chosen Opportunity else Account, `WhoId` = chosen Contact, both checked on the Account as the rep (D-54); `OwnerId` = rep, Subject built from Type + Account, Status from date in the rep's time zone (D-32). Returns `{ id, subject, status }`. Errors: `INVALID_INPUT` / `SAVE_FAILED` (400) with `fields`. |
 | `POST /activity/files?taskId=&name=` | Attach one file (raw bytes, `application/octet-stream`) to a Task the rep just created | yes | Done (L5b) | `ContentVersion` with `FirstPublishLocationId` = Task, as the rep (D-34). Only the rep's own Task, within 60 min; count/size/type limits from settings. Returns `{ id, name, size }`. **Off** while setting *Attachments Enabled* is unticked (403 `NOT_AUTHORIZED`). |
 | `POST /opportunities` | Update one Opportunity: body `{ id, accountId, values }` | yes | Done (L5c; always on, D-49) | Only form fields; Opportunity of the chosen Account (open or closed); empty optional fields cleared; PATCH as the rep. Returns `{ id, name, accountId }`. (D-39) |
 
@@ -184,8 +185,10 @@ Field lists below are the **initial members of the field sets** (D-21); admins c
 | Shown on the form | Task field | Required? | Notes |
 |---|---|---|---|
 | Account | `WhatId` | always | From the search (L4); not in the field set. |
+| Related To | `WhatId` | optional | One of the Account's Opportunities (D-54); else the Account. |
+| Name | `WhoId` | optional | One of the Account's Contacts (D-54). |
 | Activity Type | `Type` | as Salesforce says (D-31) | Values to be agreed and added by an admin (Q-A2); today only call outcomes exist. |
-| Activity Purpose | `ActivityPurpose__c` | as Salesforce says | Existing org picklist (1. Initial Meeting … 6. Other). Not in the repo field set (org field, P3): an admin adds it in Setup if the BA wants it. |
+| Activity Purpose | `ActivityPurpose__c` | as Salesforce says | Existing org picklist (1. Initial Meeting … 6. Other). In the field set since 2026-11-09 (BA, D-54). |
 | Date | `ActivityDate` | as Salesforce says | Any date (D-32). |
 | Comments | `Description` | as Salesforce says | Long text. |
 | Attachments | Salesforce Files | no | After save; limits Q-A6a (D-34). On (setting *Attachments Enabled*) since 2026-11-04. |

@@ -1,6 +1,7 @@
 /**
  * /services/apexrest/salesreport/v1/activity — Log Activity for the linked rep, run as the rep (Option B, D-11).
- * GET: the form definition (fields, labels, required flags; D-31). POST { accountId, values }: creates the Task.
+ * GET: the form definition (fields, labels, required flags; D-31). GET ?accountId=…: the Account's Opportunities and
+ * Contacts for "Related To" / "Name" (D-54). POST { accountId, opportunityId?, contactId?, values }: creates the Task.
  * Exposed to the Site guest user (`global` is required by @RestResource).
  */
 @RestResource(urlMapping='/salesreport/v1/activity')
@@ -15,7 +16,13 @@ global with sharing class SalesReportActivityController {
     try {
       SalesReportOrgApiCalloutService api = new SalesReportIdentityService()
         .repSession(RestContext.request);
-      SalesReportRestService.ok(new SalesReportActivityService().form(api));
+      String accountId = RestContext.request.params.get('accountId');
+      SalesReportActivityService service = new SalesReportActivityService();
+      SalesReportRestService.ok(
+        accountId == null
+          ? (Object) service.form(api)
+          : (Object) service.related(api, accountId)
+      );
     } catch (Exception e) {
       SalesReportRestService.fail(SOURCE_FORM, e);
     } finally {

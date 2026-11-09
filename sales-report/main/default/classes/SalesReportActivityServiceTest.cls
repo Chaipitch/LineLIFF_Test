@@ -75,7 +75,12 @@ private class SalesReportActivityServiceTest {
       byName.put(field.name, field);
     }
     Assert.areEqual(
-      new Set<String>{ 'Type', 'ActivityDate', 'Description' },
+      new Set<String>{
+        'Type',
+        'ActivityDate',
+        'ActivityPurpose__c',
+        'Description'
+      },
       byName.keySet(),
       'Field set members, no server fields'
     );
@@ -100,6 +105,7 @@ private class SalesReportActivityServiceTest {
   static void formLeavesOutFieldsTheRepCannotCreate() {
     Map<String, Object> infos = SalesReportTestFactory.taskFieldInfos();
     infos.remove('Description');
+    infos.remove('ActivityPurpose__c');
     ((Map<String, Object>) infos.get('Type')).put('createable', false);
     SalesReportHttpMock mock = SalesReportTestFactory.taskApiMock(
       SalesReportTestFactory.taskObjectInfoBody(infos),
@@ -388,5 +394,106 @@ private class SalesReportActivityServiceTest {
       'Not a boolean'
     );
     Assert.areEqual(1, errors.size(), 'One field, last error wins');
+  }
+
+  private static final String OPP_ID = '006000000000001AAA';
+  private static final String CONTACT_ID = '003000000000001AAA';
+  private static final String ONE_ROW = '{"totalSize":1,"done":true,"records":[{"Id":"x"}]}';
+  private static final String NO_ROWS = '{"totalSize":0,"done":true,"records":[]}';
+
+  @IsTest
+  static void relatedListsTheAccountsOpportunitiesAndContacts() {
+    Test.setMock(
+      HttpCalloutMock.class,
+      SalesReportTestFactory.taskApiMock()
+        .route(
+          'FROM+Opportunity+WHERE+AccountId',
+          200,
+          '{"totalSize":1,"done":true,"records":[{"Id":"' +
+            OPP_ID +
+            '","Name":"CRM renewal","StageName":"02. Early Stage"}]}'
+        )
+        .route(
+          'FROM+Contact+WHERE+AccountId',
+          200,
+          '{"totalSize":1,"done":true,"records":[{"Id":"' +
+            CONTACT_ID +
+            '","Name":"Somchai","Title":"IT Manager"}]}'
+        )
+    );
+
+    Test.startTest();
+    SalesReportActivityRelatedData data = new SalesReportActivityService()
+      .related(api(), ACCOUNT_ID);
+    Test.stopTest();
+
+    Assert.areEqual(OPP_ID, data.opportunities[0].id, 'Opportunity');
+    Assert.areEqual('02. Early Stage', data.opportunities[0].detail, 'Stage');
+    Assert.areEqual('Somchai', data.contacts[0].name, 'Contact');
+    Assert.areEqual('IT Manager', data.contacts[0].detail, 'Title');
+  }
+
+  @IsTest
+  static void relatedNeedsAnAccount() {
+    try {
+      new SalesReportActivityService().related(api(), 'nope');
+      Assert.fail('Expected INVALID_INPUT');
+    } catch (SalesReportException e) {
+      Assert.areEqual(SalesReportException.INVALID_INPUT, e.code, 'Code');
+    }
+  }
+
+  @IsTest
+  static void taskIsLinkedToTheOpportunityAndContact() {
+    SalesReportHttpMock mock = SalesReportTestFactory.taskApiMock()
+      .route('FROM+Opportunity+WHERE+Id', 200, ONE_ROW)
+      .route('FROM+Contact+WHERE+Id', 200, ONE_ROW);
+    Test.setMock(HttpCalloutMock.class, mock);
+    Map<String, Object> input = new Map<String, Object>{
+      'accountId' => ACCOUNT_ID,
+      'opportunityId' => OPP_ID,
+      'contactId' => CONTACT_ID,
+      'values' => visit(Date.today())
+    };
+
+    Test.startTest();
+    new SalesReportActivityService().create(api(), JSON.serialize(input));
+    Test.stopTest();
+
+    Map<String, Object> task = sentTask(mock);
+    Assert.areEqual(OPP_ID, task.get('WhatId'), 'Related To = Opportunity');
+    Assert.areEqual(CONTACT_ID, task.get('WhoId'), 'Name = Contact');
+  }
+
+  @IsTest
+  static void contactOfAnotherAccountIsRefused() {
+    SalesReportHttpMock mock = SalesReportTestFactory.taskApiMock()
+      .route('FROM+Contact+WHERE+Id', 200, NO_ROWS);
+    Test.setMock(HttpCalloutMock.class, mock);
+    Map<String, Object> input = new Map<String, Object>{
+      'accountId' => ACCOUNT_ID,
+      'contactId' => CONTACT_ID,
+      'values' => visit(Date.today())
+    };
+
+    Test.startTest();
+    SalesReportException e = createExpectingFailure(JSON.serialize(input));
+    Test.stopTest();
+
+    Assert.isTrue(e.fieldErrors.containsKey('contactId'), 'Contact flagged');
+    Map<String, Object> badIds = new Map<String, Object>{
+      'accountId' => ACCOUNT_ID,
+      'opportunityId' => 'bad',
+      'contactId' => 'bad',
+      'values' => visit(Date.today())
+    };
+    SalesReportException malformed = createExpectingFailure(
+      JSON.serialize(badIds)
+    );
+    Assert.isTrue(
+      malformed.fieldErrors.containsKey('opportunityId') &&
+      malformed.fieldErrors.containsKey('contactId'),
+      'Malformed IDs flagged'
+    );
   }
 }

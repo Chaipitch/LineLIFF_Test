@@ -2,19 +2,9 @@
 <FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SalesReport_Opportunity_Form</fullName>
     <description
-  >Fields reps can update on "Update Opportunity" in LINE (D-21, D-31, D-46). Order here = order on the form. Required flags follow the rep's Opportunity layout and the database; ticking Required here makes a field required on the form as well. BA's list (2026-11-03): Stage, Amount, Main PreSales Engineer (User lookup), Next Step (custom), Next Step Due Date. Contains org fields that exist in TerraSky Thailand orgs (P3 exception, D-46).</description>
+  >Fields reps can update on "Update Opportunity" in LINE (D-21, D-31, D-54). Order here = order on the form. Required flags follow the rep's Opportunity layout and the database; ticking Required here makes a field required on the form as well. BA list 2026-11-09. A rich-text field (CredenData screenshot) becomes a screenshot picker. Contains org fields that exist in TerraSky Thailand orgs (P3 exception, D-46).</description>
     <displayedFields>
-        <field>StageName</field>
-        <isFieldManaged>false</isFieldManaged>
-        <isRequired>false</isRequired>
-    </displayedFields>
-    <displayedFields>
-        <field>Amount</field>
-        <isFieldManaged>false</isFieldManaged>
-        <isRequired>false</isRequired>
-    </displayedFields>
-    <displayedFields>
-        <field>PreSales_Engineer__c</field>
+        <field>Name</field>
         <isFieldManaged>false</isFieldManaged>
         <isRequired>false</isRequired>
     </displayedFields>
@@ -25,6 +15,51 @@
     </displayedFields>
     <displayedFields>
         <field>Next_Step_Due_Date__c</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>StageName</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>CloseDate</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>Amount</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>Your_Win_Confidence__c</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>Type</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>LeadSource</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>Prime_Partner__c</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>PreSales_Engineer__c</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>Update_CredenData_Screen_shot__c</field>
         <isFieldManaged>false</isFieldManaged>
         <isRequired>false</isRequired>
     </displayedFields>

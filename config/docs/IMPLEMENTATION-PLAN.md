@@ -212,6 +212,17 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
       (user).
 - [ ] H · Device-test Update Opportunity with a **test** Opportunity (Slack alerts) — the form is now always on (D-49).
 
+### Change: BA's form feedback (2026-11-09, D-54)
+
+- [x] C · Log Activity: Related To (Opportunity of the Account, else Account), Name (Contact of the Account), Activity
+      Purpose, Type, Description, Date.
+- [x] C · Update Opportunity: BA's 12 fields incl. Prime Partner search and CredenData screenshot; Won / Lost fields after
+      Stage only for closed stages.
+- [x] C · Checked: 159 tests, live read-only form check in `dev5`, rich-text image accepted (rollback test), headless UI check.
+- [ ] H · Device test: log an activity on an Opportunity with a Contact; update a **test** Opportunity incl. a screenshot
+      and Closed Won / Lost.
+- [ ] H (admin) · Org rules check `08.Closed Won/Lost` but the stages are now `04.` / `05.` — update the two closing rules.
+
 ## L6 — Mobile UI polish — done 2026-11-04 (English only, D-47); phone check pending
 
 - [x] ~~C · Labels in JA / EN / TH~~ — not needed: English only (D-47). Text stays in Custom Labels `SalesReport_*` (admins edit it in Setup).

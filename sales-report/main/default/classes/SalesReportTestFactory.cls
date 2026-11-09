@@ -153,6 +153,12 @@ public with sharing class SalesReportTestFactory {
       'Type' => fieldInfo('Picklist', 'Type', false, 255),
       'ActivityDate' => fieldInfo('Date', 'Due Date Only', false, 0),
       'Description' => fieldInfo('TextArea', 'Comments', false, 32000),
+      'ActivityPurpose__c' => fieldInfo(
+        'Picklist',
+        'Activity Purpose',
+        false,
+        255
+      ),
       'Status' => fieldInfo('Picklist', 'Status', true, 255),
       'Priority' => fieldInfo('Picklist', 'Priority', true, 20),
       'OwnerId' => fieldInfo('Reference', 'Assigned To', true, 18)
@@ -306,6 +312,31 @@ public with sharing class SalesReportTestFactory {
   public static final String OPPORTUNITY_ID = '006000000000001AAA';
   public static final String ACCOUNT_ID = '001000000000001AAA';
 
+  /** An active won / lost stage of this org (e.g. 04. Closed Won / 05. Closed Lost), or null when there is none. */
+  public static String wonStage() {
+    List<OpportunityStage> stages = [
+      SELECT ApiName
+      FROM OpportunityStage
+      WHERE IsActive = TRUE AND IsWon = TRUE
+      WITH SYSTEM_MODE
+      ORDER BY SortOrder
+      LIMIT 1
+    ];
+    return stages.isEmpty() ? null : stages[0].ApiName;
+  }
+
+  public static String lostStage() {
+    List<OpportunityStage> stages = [
+      SELECT ApiName
+      FROM OpportunityStage
+      WHERE IsActive = TRUE AND IsClosed = TRUE AND IsWon = FALSE
+      WITH SYSTEM_MODE
+      ORDER BY SortOrder
+      LIMIT 1
+    ];
+    return stages.isEmpty() ? null : stages[0].ApiName;
+  }
+
   /** An active closed stage of this org (e.g. Closed Won), or null when the org has none. */
   public static String closedStage() {
     List<OpportunityStage> stages = [
@@ -351,6 +382,14 @@ public with sharing class SalesReportTestFactory {
       'referenceToInfos',
       new List<Object>{ new Map<String, Object>{ 'apiName' => 'User' } }
     );
+    // A rich-text field: offered as a screenshot picker (D-54).
+    Map<String, Object> credenData = fieldInfo(
+      'TextArea',
+      'Update CredenData Screen shot',
+      false,
+      131072
+    );
+    credenData.put('htmlFormatted', true);
     Map<String, Object> infos = new Map<String, Object>{
       'StageName' => fieldInfo('Picklist', 'Stage', true, 255),
       'Amount' => fieldInfo('Currency', 'Target TCV', false, 0),
@@ -361,6 +400,31 @@ public with sharing class SalesReportTestFactory {
         'Next Step Due Date',
         true,
         0
+      ),
+      'Update_CredenData_Screen_shot__c' => credenData,
+      'Please_articulate_the_reason_for_winning__c' => fieldInfo(
+        'TextArea',
+        'Why We Won (Explain Your Opinion)',
+        false,
+        32768
+      ),
+      'Attached_Signed_Contract_Documents__c' => fieldInfo(
+        'Boolean',
+        'Attached Signed Contract Documents',
+        false,
+        0
+      ),
+      'Lost_Main_Reason__c' => fieldInfo(
+        'Picklist',
+        'Lost Main Reason',
+        false,
+        255
+      ),
+      'Lost_Reason_Detail__c' => fieldInfo(
+        'String',
+        'Specify Other Reason',
+        false,
+        255
       )
     };
     for (String name : infos.keySet()) {
@@ -382,13 +446,12 @@ public with sharing class SalesReportTestFactory {
     for (String stage : openStages()) {
       values.add(new Map<String, Object>{ 'value' => stage, 'label' => stage });
     }
-    if (closedStage() != null) {
-      values.add(
-        new Map<String, Object>{
-          'value' => closedStage(),
-          'label' => closedStage()
-        }
-      );
+    for (String stage : new List<String>{ wonStage(), lostStage() }) {
+      if (stage != null) {
+        values.add(
+          new Map<String, Object>{ 'value' => stage, 'label' => stage }
+        );
+      }
     }
     values.add(
       new Map<String, Object>{
@@ -402,6 +465,12 @@ public with sharing class SalesReportTestFactory {
           'StageName' => new Map<String, Object>{
             'defaultValue' => null,
             'values' => values
+          },
+          'Lost_Main_Reason__c' => new Map<String, Object>{
+            'defaultValue' => null,
+            'values' => new List<Object>{
+              new Map<String, Object>{ 'value' => 'Other', 'label' => 'Other' }
+            }
           }
         }
       }
@@ -431,7 +500,8 @@ public with sharing class SalesReportTestFactory {
               'Name' => 'Engineer One'
             },
             'Next_Step_Custom__c' => 'Send quote',
-            'Next_Step_Due_Date__c' => '2026-12-15'
+            'Next_Step_Due_Date__c' => '2026-12-15',
+            'Update_CredenData_Screen_shot__c' => '<p>saved screenshot</p>'
           }
         }
       }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SalesReport_Opportunity_Won</fullName>
+    <description
+  >Extra fields shown on "Update Opportunity" in LINE only when Stage is a Closed Won stage (D-54); placed right after Stage.</description>
+    <displayedFields>
+        <field>Please_articulate_the_reason_for_winning__c</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <displayedFields>
+        <field>Attached_Signed_Contract_Documents__c</field>
+        <isFieldManaged>false</isFieldManaged>
+        <isRequired>false</isRequired>
+    </displayedFields>
+    <label>Sales Report Opportunity Won</label>
+</FieldSet>

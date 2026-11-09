@@ -50,6 +50,14 @@
         <value>Add photo or file</value>
     </labels>
     <labels>
+        <fullName>SalesReport_Add_Screenshot</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Add_Screenshot</shortDescription>
+        <value>Add screenshot</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Attachment_Limits</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -138,6 +146,14 @@
         <shortDescription>SalesReport_Connect_Waiting</shortDescription>
         <value
     >Finish logging in to Salesforce in your browser, then come back here.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Contact_Label</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Contact_Label</shortDescription>
+        <value>Name</value>
     </labels>
     <labels>
         <fullName>SalesReport_Error_Generic</fullName>
@@ -391,6 +407,14 @@
         <value>No matching accounts</value>
     </labels>
     <labels>
+        <fullName>SalesReport_None_Option</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_None_Option</shortDescription>
+        <value>— None —</value>
+    </labels>
+    <labels>
         <fullName>SalesReport_Open_In_Line</fullName>
         <categories>SalesReport</categories>
         <language>en_US</language>
@@ -422,6 +446,22 @@
         <protected>false</protected>
         <shortDescription>SalesReport_Opportunity_Title</shortDescription>
         <value>Update opportunity</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Related_Account_Only</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Related_Account_Only</shortDescription>
+        <value>— Account only —</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Related_To_Label</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Related_To_Label</shortDescription>
+        <value>Related To</value>
     </labels>
     <labels>
         <fullName>SalesReport_Remove_File</fullName>
@@ -479,6 +519,31 @@
         <protected>false</protected>
         <shortDescription>SalesReport_Saving</shortDescription>
         <value>Saving…</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Screenshot_Added</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Screenshot_Added</shortDescription>
+        <value>New screenshot added</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Screenshot_Failed</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Screenshot_Failed</shortDescription>
+        <value>This image can’t be used. Please try another one.</value>
+    </labels>
+    <labels>
+        <fullName>SalesReport_Screenshot_Saved</fullName>
+        <categories>SalesReport</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SalesReport_Screenshot_Saved</shortDescription>
+        <value
+    >A screenshot is already saved in Salesforce. Adding a new one replaces it.</value>
     </labels>
     <labels>
         <fullName>SalesReport_Searching</fullName>

@@ -64,14 +64,16 @@ Salesforce user."*
 1. Tap **Log Activity**. The top of the form shows *Salesforce: <your name>* — check it's you.
 2. **Account**: type at least **2 letters** of the customer's name, then tap the right Account in the list. Only
    Accounts you can see in Salesforce appear. Tapped the wrong one? Tap **Change**.
-3. Fill in the fields — for example **Type**, **Date** and **Comments**. Fields marked **\*** are required.
+3. **Related To**: pick one of the Account's Opportunities — or leave *— Account only —* to log it on the Account.
+4. **Name** (optional): pick the contact you met, from the Account's Contacts.
+5. Fill in the fields — **Activity Purpose**, **Type**, **Description** and **Date**. Fields marked **\*** are required.
    - The date can be today, in the past or in the future. A past or today's date is saved as **Completed**; a future
      date is saved as a planned (**Open**) activity.
-4. Tap **Save**. You see *"Activity saved: <Type> – <Account>"* and, below it, everything you saved (Account and each
-   field) so you can check it.
-5. Tap **Log another activity** or **Close**.
+6. Tap **Save**. You see *"Activity saved: <Type> – <Account>"* and, below it, everything you saved so you can check
+   it.
+7. Tap **Log another activity** or **Close**.
 
-The activity appears in Salesforce on the Account's activity timeline, with you as the creator. Its subject is the
+The activity appears in Salesforce on the Opportunity's (or Account's) activity timeline, with you as the creator. Its subject is the
 type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 
 > **Photos and files**: after filling in the form, tap **Add photo or file**. The red line under *Photos and files*
@@ -90,11 +92,16 @@ type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 
 | Field | Notes |
 |---|---|
+| **Name** | The opportunity's name |
+| **Next Step** / **Next Step Due Date** | What happens next, and by when |
 | **Stage** | All stages, including **04. Closed Won** and **05. Closed Lost** |
-| **Target TCV** (Amount) | Numbers only |
-| **Main PreSales Engineer** | Type 2+ letters of a name and pick the person. **Change** clears it |
-| **Next Step** | What happens next |
-| **Next Step Due Date** | When it is due |
+| **Target Close Date**, **Target TCV**, **Your Win Confidence** | Dates, numbers and the confidence list as in Salesforce |
+| **Opportunity Type**, **Lead Source** | Lists as in Salesforce |
+| **Prime Partner** / **Main PreSales Engineer** | Type 2+ letters and pick the Account / person. **Change** clears it |
+| **Update CredenData Screen shot** | Tap **Add screenshot** and pick an image. If one is already saved you don't need to add it again; a new one replaces it |
+
+When you choose **Closed Won**, two more fields appear under Stage: **Why We Won** and **Attached Signed Contract
+Documents**. For **Closed Lost**: **Lost Main Reason** and **Specify Other Reason**.
 
 5. Tap **Save**. You see *"Opportunity updated: <deal name>"* and, below it, the values now in Salesforce (Account,
    Opportunity and each field).
