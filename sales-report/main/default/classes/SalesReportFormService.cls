@@ -226,6 +226,10 @@ public with sharing class SalesReportFormService {
         continue;
       }
       Object value = coerced(field, submitted.get(field.name), errors);
+      if (field.type == 'boolean' && field.required && value != true) {
+        errors.put(field.name, 'Required.');
+        continue;
+      }
       if (value != null) {
         result.put(field.name, value);
       } else if (errors.containsKey(field.name)) {
@@ -628,11 +632,12 @@ public with sharing class SalesReportFormService {
     field.name = name;
     field.label = (String) info.get('label');
     field.type = inputType;
-    field.required =
-      inputType != 'boolean' &&
-      (member.getRequired() ||
-      info.get('required') == true ||
-      layoutRequired.contains(name));
+    // A checkbox is required only when the field set says so, and then it must be ticked (e.g. Signed Contract, D-55).
+    field.required = inputType == 'boolean'
+      ? member.getRequired()
+      : (member.getRequired() ||
+        info.get('required') == true ||
+        layoutRequired.contains(name));
     field.defaultValue = defaults.get(name);
     if (lookupObject != null) {
       field.lookupObject = lookupObject;

@@ -141,8 +141,8 @@ is only an extra: a field is also required when the rep's layout or the database
 | Field set | Object | Initial members (BA to confirm) | Required in set |
 |---|---|---|---|
 | `SalesReport_Opportunity_Form` | Opportunity | BA's list (2026-11-09, D-54): `Name`, `Next_Step_Custom__c`, `Next_Step_Due_Date__c`, `StageName`, `CloseDate`, `Amount`, `Your_Win_Confidence__c`, `Type`, `LeadSource`, `Prime_Partner__c` (Account search), `PreSales_Engineer__c` (User search), `Update_CredenData_Screen_shot__c` (rich text → screenshot picker). Org fields, so a P3 exception for TerraSky Thailand orgs. Account and Opportunity are chosen above the fields, not in the set |
-| `SalesReport_Opportunity_Won` | Opportunity | `Please_articulate_the_reason_for_winning__c` (Why We Won), `Attached_Signed_Contract_Documents__c` — shown right after Stage only for won stages (D-54) |
-| `SalesReport_Opportunity_Lost` | Opportunity | `Lost_Main_Reason__c`, `Lost_Reason_Detail__c` (Specify Other Reason) — shown right after Stage only for lost stages (D-54) | none (follow the edit layout, D-31) |
+| `SalesReport_Opportunity_Won` | Opportunity | `Please_articulate_the_reason_for_winning__c` (Why We Won), `Attached_Signed_Contract_Documents__c` (must be ticked) — shown right after Stage only for won stages (D-54), **required** when shown (D-55) |
+| `SalesReport_Opportunity_Lost` | Opportunity | `Lost_Main_Reason__c`, `Lost_Reason_Detail__c` (Specify Other Reason) — shown right after Stage only for lost stages (D-54), **required** when shown (D-55) | none (follow the edit layout, D-31) |
 | `SalesReport_Activity_Form` | Task (D-11) | `ActivityPurpose__c`, `Type`, `Description`, `ActivityDate` (BA list 2026-11-09, D-54). Account, Related To (Opportunity) and Name (Contact) are added by the form itself | none (follow the layout, D-31) |
 
 Always set by code, never from the field set: `WhatId` (chosen Opportunity, else the Account), `WhoId` (chosen Contact), `OwnerId` (the rep, implicit), Opportunity `Id`;

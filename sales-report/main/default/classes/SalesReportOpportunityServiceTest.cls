@@ -570,4 +570,55 @@ private class SalesReportOpportunityServiceTest {
       'Only image data URLs'
     );
   }
+
+  @IsTest
+  static void wonAndLostFieldsAreRequiredOnlyForTheirStage() {
+    Test.setMock(
+      HttpCalloutMock.class,
+      SalesReportTestFactory.opportunityApiMock()
+    );
+    String won = SalesReportTestFactory.wonStage();
+    String lost = SalesReportTestFactory.lostStage();
+
+    Test.startTest();
+    SalesReportOpportunityFormData form = new SalesReportOpportunityService()
+      .form(api(), OPP_ID);
+    Map<String, Object> wonValues = validValues();
+    wonValues.put('StageName', won);
+    wonValues.put('Attached_Signed_Contract_Documents__c', false);
+    SalesReportException wonError = won == null
+      ? null
+      : saveExpectingFailure(body(ACCOUNT_ID, wonValues));
+    Map<String, Object> lostValues = validValues();
+    lostValues.put('StageName', lost);
+    SalesReportException lostError = lost == null
+      ? null
+      : saveExpectingFailure(body(ACCOUNT_ID, lostValues));
+    Test.stopTest();
+
+    for (SalesReportFormData.Field field : form.fields) {
+      if (field.showWhen != null) {
+        Assert.isTrue(field.required, field.name + ' required when shown');
+      }
+    }
+    if (won != null) {
+      Assert.isTrue(
+        wonError.fieldErrors.containsKey(
+          'Please_articulate_the_reason_for_winning__c'
+        ) &&
+        wonError.fieldErrors.containsKey(
+          'Attached_Signed_Contract_Documents__c'
+        ),
+        'Why We Won and a ticked Signed Contract needed: ' +
+        wonError.fieldErrors
+      );
+    }
+    if (lost != null) {
+      Assert.isTrue(
+        lostError.fieldErrors.containsKey('Lost_Main_Reason__c') &&
+        lostError.fieldErrors.containsKey('Lost_Reason_Detail__c'),
+        'Lost reasons needed: ' + lostError.fieldErrors
+      );
+    }
+  }
 }

@@ -6,12 +6,12 @@
     <displayedFields>
         <field>Lost_Main_Reason__c</field>
         <isFieldManaged>false</isFieldManaged>
-        <isRequired>false</isRequired>
+        <isRequired>true</isRequired>
     </displayedFields>
     <displayedFields>
         <field>Lost_Reason_Detail__c</field>
         <isFieldManaged>false</isFieldManaged>
-        <isRequired>false</isRequired>
+        <isRequired>true</isRequired>
     </displayedFields>
     <label>Sales Report Opportunity Lost</label>
 </FieldSet>

@@ -6,12 +6,12 @@
     <displayedFields>
         <field>Please_articulate_the_reason_for_winning__c</field>
         <isFieldManaged>false</isFieldManaged>
-        <isRequired>false</isRequired>
+        <isRequired>true</isRequired>
     </displayedFields>
     <displayedFields>
         <field>Attached_Signed_Contract_Documents__c</field>
         <isFieldManaged>false</isFieldManaged>
-        <isRequired>false</isRequired>
+        <isRequired>true</isRequired>
     </displayedFields>
     <label>Sales Report Opportunity Won</label>
 </FieldSet>

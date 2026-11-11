@@ -100,8 +100,9 @@ type plus the Account name, e.g. *"Customer Visit – Toyota Motor Thailand"*.
 | **Prime Partner** / **Main PreSales Engineer** | Type 2+ letters and pick the Account / person. **Change** clears it |
 | **Update CredenData Screen shot** | Optional. Tap **Add screenshot** and pick an image; a new one replaces the saved one |
 
-When you choose **Closed Won**, two more fields appear under Stage: **Why We Won** and **Attached Signed Contract
-Documents**. For **Closed Lost**: **Lost Main Reason** and **Specify Other Reason**.
+When you choose **Closed Won**, two more **required** fields appear under Stage: **Why We Won** and **Attached Signed
+Contract Documents** (tick it once the signed contract is attached in Salesforce). For **Closed Lost**: **Lost Main
+Reason** and **Specify Other Reason**, both required.
 
 5. Tap **Save**. You see *"Opportunity updated: <deal name>"* and, below it, the values now in Salesforce (Account,
    Opportunity and each field).

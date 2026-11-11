@@ -351,7 +351,9 @@ export function createFieldList(options) {
       error.hidden = true;
       if (field.type === "boolean") {
         const row = el("label", "sr-choice");
-        row.append(control.node, el("span", null, field.label));
+        const text = el("span", null, field.label);
+        if (field.required) text.append(el("span", "sr-required", " *"));
+        row.append(control.node, text);
         wrapper.append(row, error);
       } else {
         wrapper.append(label, control.node, error);
@@ -401,6 +403,16 @@ export function createFieldList(options) {
     controls.forEach((control) => {
       if (skipped(control)) return;
       const value = control.read();
+      // A required checkbox must be ticked.
+      if (
+        control.field.type === "boolean" &&
+        control.field.required &&
+        !value
+      ) {
+        mark(control.field.name);
+        valid = false;
+        return;
+      }
       if (isEmpty(value)) {
         if (control.field.required) {
           mark(control.field.name);
