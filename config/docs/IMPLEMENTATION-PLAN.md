@@ -255,7 +255,7 @@ attachments in scope (D-34). Update Opportunity fields: BA confirms later, so L5
 - [ ] H · Production: schedule the nightly cleanup once (`scripts/apex/schedule-cleanup.apex`, D-37) and decide the Attachments Enabled setting.
 - [ ] H+C · Device QA on iOS and Android LINE: link, search, both forms, expiry, revoke, second-account block.
 - [ ] BA · UAT against the acceptance scenarios (`L0-SPEC.md` §9).
-- [ ] H · Switch the LINE Login channel from Developing to **Published** (LINE-SETUP.md §6).
+- [x] H · Switch the LINE Login channel from Developing to **Published** (LINE-SETUP.md §6) — already Published (user, 2026-11-19).
 - [x] C · `config/docs/SETUP-GUIDE.md` (admin; kept up to date since L2) and `config/docs/USER-GUIDE.md` (rep, English, 2026-11-04).
 - [ ] C · Re-run `COEXISTENCE.md` §4 against production (LINE Connect version may differ).
 - [x] C · Production deploy plan: `config/docs/GO-LIVE-CHECKLIST.md` (2026-11-04) — validate, quick-deploy, Setup steps, LINE, smoke test, rollback.
